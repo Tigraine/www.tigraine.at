@@ -3,6 +3,9 @@ layout: post
 title: "Do you really know what LinQ does?"
 guid: http://www.tigraine.at/2009/03/06/do-you-really-know-what-linq-does/
 postid: 489
+--- # categories
+- .NET
+- Coding
 ---
 <p>LinQ is by far the most empowering language technology I’ve seen in years, and it has really helped me in many cases get to a more functional style of programming, enabling clearer syntax and better overall code.</p>  <p>But, it also has it’s pitfalls.    <br />Since LinQ attaches a .Count method to any enumerable, why would you still use IList for read-only collections? It’s so damn easy to simply write code like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08be49ee-18f8-495c-83c4-917520158a28" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 IEnumerable&lt;string&gt; strings = new[] {"hello", "world"};

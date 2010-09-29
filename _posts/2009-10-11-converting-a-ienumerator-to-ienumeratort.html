@@ -3,6 +3,9 @@ layout: post
 title: "Converting a IEnumerator to IEnumerator&lt;T&gt;"
 guid: http://www.tigraine.at/2009/10/11/converting-a-ienumerator-to-ienumeratort/
 postid: 775
+--- # categories
+- .NET
+- Coding
 ---
 <p>When generics where introduced with .NET 2.0 there was a ton of 1.1 code lying around that was still built without generics. So the obvious answer by Microsoft was that most generic specialization classes can be cast to their non-generic counterparts to avoid problems for users.</p>  <p>Now, years later we have the opposite phenomenon. Few people are actually using untyped collections, so a new problem has come: What if you are looking at legacy code that has to call into new API that has no non-generic support.</p>  <p>Well, it’s simple: IEnumerator becomes IEnumerator&lt;object&gt; and all is well. But there is no conversion from IEnumerator to IEnumerator&lt;object&gt;, so you have to write your own little facades when trying to put square blocks into round holes:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08f8f9af-bac3-4b80-8e73-ce2b0f088d77" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class CastEnumerator&lt;T&gt; : IEnumerator&lt;T&gt;

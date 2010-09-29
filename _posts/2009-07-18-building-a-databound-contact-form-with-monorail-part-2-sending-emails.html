@@ -3,6 +3,10 @@ layout: post
 title: "Building a databound contact form with MonoRail &ndash; Part 2: Sending Emails"
 guid: http://www.tigraine.at/?p=643
 postid: 643
+--- # categories
+- .NET
+- Castle
+- Coding
 ---
 <p>This is part 2 of a 3 part tutorial on writing a databound contact form with Castle Monorail that gets sent off by email. We already touched FormHelpers and DataBinding in <a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Part1: Views and Databinding</a>, now we’ll see how easy it is to send a email template with MonoRail.</p>  <p>The other parts of this tutorial:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a> </li>    <li>Validation </li> </ul>  <h1>Sending Emails</h1>  <p>We left off with a <tt>Thanks</tt> controller method that gets a ContactRequest parameter and now should send off the data by email. </p>  <h3>1 – Configuring our Servers</h3>  <p>Anything involving emails usually requires a SMTP server. The same thing goes for MonoRail, yet MR will default the SMTPServer setting to <tt>127.0.0.1</tt> if you don’t explicitly configure it through your <tt>web.config</tt>. Unfortunately for me I don’t have a SMTP server sitting on my box, so I had to change that setting through the monorail configuration node inside our web.config:</p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:98a93a66-1f10-4d5b-bfcf-38cfaa484ce9" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 &lt;monorail smtpHost="smtp.server.com"&gt;

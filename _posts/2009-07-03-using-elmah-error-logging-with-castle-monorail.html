@@ -3,6 +3,12 @@ layout: post
 title: "Using ELMAH Error logging with Castle MonoRail Rescues"
 guid: http://www.tigraine.at/2009/07/03/using-elmah-error-logging-with-castle-monorail/
 postid: 599
+--- # categories
+- .NET
+- Castle
+- Coding
+- asp.net monorail elmah castle
+- asp.net monorail elmah castle
 ---
 <p>On my last project I made ELMAH (the ever awesome <a href="http://code.google.com/p/elmah/">ASP.NET error logging framework</a>) <a href="http://www.tigraine.at/2009/04/20/elmah-aspnet-error-logging-on-mvc/">work with ASP.NET MVC</a> by modifying the routing logic a bit. It was quite simple since ASP.NET MVC throws HttpExceptions around quite liberally and you are frequently presented with a <a href="http://en.wikipedia.org/wiki/Screens_of_death#ASP.NET">YSOD</a> that then gets logged by ELMAH. </p>  <p>Using MonoRail the <a href="http://code.google.com/p/elmah/wiki/DotNetSlackersArticle#Signaling_errors">general routine of setting up ELMAH</a> still applies (even simpler), but it’s customary to have a general <a href="http://www.castleproject.org/monorail/documentation/trunk/usersguide/rescues.html">rescue view</a> that informs the user when something went wrong. Since the rescue concept in MR basically swallows Exceptions and prevents them from reaching ELMAH we need to serve them to ELMAH through <a href="http://code.google.com/p/elmah/wiki/DotNetSlackersArticle#Signaling_errors">ErrorSignaling</a>. </p>  <p>Defining a rescue in MonoRail according to the tutorials looks like this:</p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:5ae012d3-5092-415c-b5ab-6c29f8f41f5f" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [Rescue("generalError")]

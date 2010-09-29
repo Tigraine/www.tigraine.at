@@ -3,5 +3,15 @@ layout: post
 title: "Handling dependencies"
 guid: http://www.tigraine.at/2008/10/13/handling-dependencies/
 postid: 377
+--- # categories
+- Coding
+- Subversion
+- Tools
+- project organization
+- project organization
+- sourcecontrol
+- sourcecontrol
+- svn
+- svn
 ---
 <p>After playing around with <a href="http://www.tigraine.at/2008/10/13/log4net-logging-made-easy/">Log4Net</a> and the <a href="http://www.castleproject.org/container/index.html">Castle MicroKernel</a>, I suddenly discovered that not having those external dependencies under source control makes development quite difficult.</p>  <p>Whenever I update my dependencies, all other people on the team need to adjust theirs to match mine and vice versa. This is a minor annoyance while the team is small, once you grow and have people coming in and out of the team you’ll start to feel real pain!</p>  <p>If sucks even more if you’ve already shipped your application and get called a year later to change something. Trust me, digging up the right version of library X isn’t getting easier over time, and updating the application to a new version may either break the application or cause your customers to update too (both highly undesired!).</p>  <p><strong>So, what’s the right solution to dependencies?</strong>     <br /><em>(No it’s not reinventing the wheel over and over again by writing everything by yourself)</em></p>  <p>Simple: Put the dependencies into a folder called /lib/ and reference them from there, set the “Copy To Output Directory” option to “Copy if newer”.    <br />Then add this folder to your source control and you’re set. Whenever a new guy comes to the team and gets the project from source control, he’s guaranteed to be able to build it without having to run around some random site searching for referenced assemblies.</p>

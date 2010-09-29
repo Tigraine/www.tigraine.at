@@ -3,6 +3,9 @@ layout: post
 title: "Rant: Visual Studio injecting Ids to absolutely everything!"
 guid: http://www.tigraine.at/2008/07/18/rant-visual-studio-injecting-ids-to-absolutely-everything/
 postid: 343
+--- # categories
+- .NET
+- Coding
 ---
 <p>Ha, the weekends almost in and I'm readying myself to get afk for some days.    <br />But not before I've complained about how stupid Visual Studio gets when you're handling ASP.NET Tables!</p>  <p>Whenever something has a runat=&quot;server&quot; tag Visual Studio wants to attach an ID to it.    <br />But there is no point to attach IDs to <u>every cell/row in table</u>!</p>  <p>So, if you're writing everything by hand, you don't need to specify the ID attribute, so everything is fine. But once you want to copy&amp;paste that code, Visual Studio will instantly attach IDs to everything (with meaningful names as &quot;Table1, TableRow1&quot; etc..), and that's something I find very annoying when having to create large forms or something like that.</p>  <p>I mean, you have code like this:</p>  <div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e61e6cbb-e0bb-48c4-8041-fc93d09a3df0" class="wlWriterSmartContent"><pre name="code" class="xml">
 &lt;asp:Table runat="server"&gt;

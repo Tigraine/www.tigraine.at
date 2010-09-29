@@ -3,5 +3,9 @@ layout: post
 title: ".NET Unit testing tools"
 guid: http://www.tigraine.at/2009/05/31/net-unit-testing-tools/
 postid: 547
+--- # categories
+- .NET
+- Testing
+- Tools
 ---
 <p>After posting <a href="http://www.tigraine.at/2009/05/31/essential-tools-for-net-developers/">my tools list</a> today I got asked why I didn’t list any testing frameworks. Obviously, <a href="http://www.tigraine.at/category/programmierung/testing/">I love testing</a>, so why no testing tools like Gallio, NUnit or <a href="http://testdriven.net/">Testdriven.NET</a> etc?     <br />The answer is rather simple, Resharper runs my tests for me.</p>  <p>By default Resharper can run NUnit tests, if you install <a href="http://www.mbunit.com/">Mbunit</a> it can run those too, and if you just copy over the resharper support library from the <a href="http://xunitcontrib.codeplex.com/">XUnit contrib project</a> to your Resharper/Plugins directory it can also run XUnit.</p>  <p><img title="image" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="282" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/05/image5.png" width="553" border="0" /></p>  <p>Also, almost all open source frameworks out there include their test runner in their code tree, so you don’t need to worry about what exotic test frameworks are out there, you’ll be provided with the appropriate runners.</p>  <p>On the testing framework side I recently (~4 months) switched over to xUnit as it’s syntax felt much better than that of xUnit or Mbunit.    <br />Also I am currently looking into maybe using a BDD testing framework like <a href="http://github.com/machine/machine.specifications/tree/master">MSpec</a>.</p>

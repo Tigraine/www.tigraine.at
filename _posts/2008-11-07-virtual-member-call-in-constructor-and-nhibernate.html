@@ -3,6 +3,16 @@ layout: post
 title: "Virtual member call in constructor and NHibernate"
 guid: http://www.tigraine.at/2008/11/07/virtual-member-call-in-constructor-and-nhibernate/
 postid: 389
+--- # categories
+- .NET
+- Coding
+- NHibernate
+- .NET
+- .NET
+- NHibernate
+- NHibernate
+- orm
+- orm
 ---
 <p>As you may have noticed, I’ve been doing some <a href="http://www.hibernate.org/343.html">NHibernate</a> work lately and really had a great time with this absolutely amazing ORM. Especially now that Microsoft <a href="http://ayende.com/Blog/archive/2008/10/31/microsoft-kills-linq-to-sql.aspx">abandoned Linq to SQL</a> I really feel good about having made the step towards NHibernate.</p>  <p>Yesterday was one of those tricky days when something breaks and you have no clue why.</p>  <p>I have a table called “Orders” and there are “OrderItems”.</p>  <p><img title="image" style="display: inline" height="136" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image.png" width="433" /></p>  <p>By writing the tests upfront, I found out that I’d like to be able to just say Repository.Add(Order) instead of persisting the Order and afterwards looping through the OrderItems and persisting them too.</p>  <p>To achieve this I changed the mapping to something like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:df243c42-dfa1-40ed-9e26-d72d6adc3da2" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
 &lt;set name="OrderItems" cascade="all"&gt;

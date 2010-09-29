@@ -3,5 +3,11 @@ layout: post
 title: "Pandora used in dotless and moved to GitHub"
 guid: http://www.tigraine.at/2009/11/23/pandora-used-in-dotless-and-moved-to-github/
 postid: 801
+--- # categories
+- .NET
+- Coding
+- Pandora
+- Projects
+- dotless
 ---
 <p><a href="http://www.tigraine.at/category/programmierung/projects/pandora/" target="_blank">Pandora</a>, my personal IoC Container (mostly written for educational purposes) has recently been integrated into <a href="http://www.dotlesscss.com/" target="_blank">dotless</a>. This has helped us improve the design of dotless without having to take on a big dependency like Windsor or StructureMap. </p>  <p>I chose to implement Pandora through the <a href="http://www.tigraine.at/2009/06/04/common-service-locator-adapter-for-pandora/" target="_blank">Common Service Locator</a> interface by Microsoft, so if we ever feel restricted by Pandora we can easily switch to a more potent container without touching the actual dotless code. </p>  <p>This step also made me bring the Pandora repository from mercurial to git with some help from Horst. He was kind enough to run hg-fast-import for me. </p>  <p>Pandora can now be found on GitHub with a similar build process as dotless and <a href="http://www.tigraine.at/category/programmierung/projects/elmsconnector/" target="_blank">elms-connector</a>.</p>  <p><a href="http://github.com/Tigraine/pandora-container" target="_blank">Pandora on GitHub</a></p>

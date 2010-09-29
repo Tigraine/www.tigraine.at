@@ -3,5 +3,8 @@ layout: post
 title: "Removing .svn folders with Powershell"
 guid: http://www.tigraine.at/2009/11/24/removing-svn-folders-with-powershell/
 postid: 802
+--- # categories
+- Coding
+- Tools
 ---
 <p>I needed one simple thing: Delete all .svn folders from a repository so I can send it to my customer. While searching most of the results I got where either wrong, or completely besides the point, so I decided it may be worth sharing:</p>  <blockquote>   <p><tt>get-childitem -Include .svn -Recurse -force | Remove-Item -Force –Recurse</tt></p></blockquote>

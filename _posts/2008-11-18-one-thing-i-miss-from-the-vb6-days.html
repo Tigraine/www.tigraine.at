@@ -3,5 +3,8 @@ layout: post
 title: "One thing I miss from the VB6 days"
 guid: http://www.tigraine.at/2008/11/18/one-thing-i-miss-from-the-vb6-days/
 postid: 400
+--- # categories
+- .NET
+- Coding
 ---
 <p>Ok, now I’m doomed. That headline alone should be enought for a death sentence. But still – there was one thing in the visual designer I liked:</p>  <p>Back in the day you could give two labels the same name and then assign them an Index property. The designer then would generate a array of labels with the given indexes. In Visual Studio 200X, this is not possible without altering the designer.cs file and that then leads to problems when changing the form. </p>  <p>I just encountered this because I have some status labels for some kind of wizard interface. One of them has to be bold, the others shouldn’t. And the most natural way to do that would be to simply have them in an array or list of some sort and loop over them changing their font values.</p>  <p>Anyway, guess I’ll be adding the designer created labels to a list and iterating over that.</p>

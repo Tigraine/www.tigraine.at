@@ -3,6 +3,9 @@ layout: post
 title: "A short look at the Big&gt;Days 2009 Demo"
 guid: http://www.tigraine.at/2009/03/23/a-short-look-at-the-bigdays-2009-demo/
 postid: 498
+--- # categories
+- .NET
+- Coding
 ---
 <p>I couldn’t help and look at the <a href="http://bigdays09.codeplex.com/">Big&gt;Days2009 Rent-A-Worker code</a> that <a href="http://blogs.msdn.com/knom/archive/2009/03/22/slides-and-demos-from-bigdays-2009-are-online.aspx">Max Knor</a> recently put up on his website.</p>  <p>I really didn’t spend too much time to look at the whole code, most notably it’s not the complete code (the WPF desktop client and the Silverlight client are missing from the repository).</p>  <p>Usually when confronted with a new code I immediately try to look at the tests to see what the code is about (since I don’t want to build the database on this machine).</p>  <p>Finding the tests is easy, the solution is rather well structured and split into multiple projects to separate concerns.   <br />Unfortunately that’s the only good thing about the tests. Since there are only 2 classes with tests, both which I find tragically funny:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a055ea3c-4b63-4be1-8f7a-48247b492a88" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 [TestMethod]

@@ -3,6 +3,9 @@ layout: post
 title: "Missing SortedList?"
 guid: http://www.tigraine.at/2009/04/10/missing-sortedlist/
 postid: 506
+--- # categories
+- .NET
+- Coding
 ---
 <p>I made it a habit to always program towards an Interface if possible. So all my lists in code are of type IList&lt;T&gt; and the IList&lt;T&gt; lacks the .Sort() method of the List&lt;T&gt; class.</p>  <p>Usually this isn’t a problem since there is LinQ’s .OrderBy to save the day. But this time my class is too generic for that so I have to fall back to good old OO principles with <a href="http://www.tigraine.at/2009/04/04/reversing-comparers-in-net/">comparer classes</a> etc.</p>  <p>Now, my problem is that I need a simple IList that is sorted on insertion. I first thought, no problem I’ll just use the SortedList&lt;Tkey, Tvalue&gt; that’s already in the framework. But there is always a catch: SortedList is more of a dictionary than a list. Duplicate key items aren’t accepted, there is no collision handling. Trying to insert a duplicate key will result in a ArgumentException:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a999b5c8-c95f-444d-872e-fdc863ddfb30" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 [Fact]

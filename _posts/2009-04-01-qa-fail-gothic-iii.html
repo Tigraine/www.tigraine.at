@@ -3,5 +3,7 @@ layout: post
 title: "QA fail : Gothic III"
 guid: http://www.tigraine.at/2009/04/01/qa-fail-gothic-iii/
 postid: 504
+--- # categories
+- Personal
 ---
 <p>My little brother bought himself the RPG epos Gothic III and came to me with a rather interesting problem:    <br />After a clean install the game wouldn’t start in full screen mode but rather restrained itself to a 1024x768 window.</p>  <p>I found the glitch pretty fast, a configuration file caused it:</p>  <blockquote>   <p>fullscreen = true<strong>s</strong></p> </blockquote>  <p>Changing the trues to true did the trick and everything went smoothly. </p>  <p>Bugs are quite common in computer games, but how on earth someone can ship a game with a so apparently wrong configuration file is beyond my knowledge. Sorry to say, but someone failed when a vital config file contains a typo!</p>

@@ -3,6 +3,10 @@ layout: post
 title: "Setting a InsertedOn Field with Castle ActiveRecord"
 guid: http://www.tigraine.at/?p=525
 postid: 525
+--- # categories
+- .NET
+- Castle
+- Coding
 ---
 <p>If I want a field to contain the date of insertion I’d usually have to hook into the Create method somewhere be it my repository or whatever.   <br />With Castle ActiveRecord it’s as simple as overriding the Create() method in your Entity:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:855f7b1d-faa2-4a8e-807e-2f98572be75f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 [ActiveRecord]

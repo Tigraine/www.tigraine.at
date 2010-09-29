@@ -3,6 +3,10 @@ layout: post
 title: "Locking with Linq to SQL&rsquo;s deferred execution"
 guid: http://www.tigraine.at/2009/04/22/locking-with-linq-to-sqls-deferred-execution-in-an-iqueryablet-szenario/
 postid: 512
+--- # categories
+- .NET
+- Coding
+- Patterns
 ---
 <p>If you have been reading this blog lately you may have noticed that I’m currently working on a project where I chose Linq to Sql as my data-source, inspired by the IQueryable&lt;T&gt; Repository <a href="http://blog.wekeroad.com/">Rob Conery</a> introduced in his <a href="http://blog.wekeroad.com/mvc-storefront/mvc-storefront-part-1/">MVC Storefront</a> series.</p>  <p>The basic idea of the IQueryable&lt;T&gt; repository is to have the repository return a IQueryable list of C# domain objects that can then be filtered, queried, parsed at higher layers of the application.    <br />So things like paging, filtering etc (all business concerns) can be applied to the query at a later stage instead of having to propagate all of these requirements down to the Repository (Ayende wrote <a href="http://ayende.com/Blog/archive/2009/04/17/repository-is-the-new-singleton.aspx">something</a> <a href="http://ayende.com/Blog/archive/2009/04/18/the-dal-should-go-all-the-way-to-ui.aspx">great</a> on the death of Repository you should check out).</p>  <p>So my business code would call the repository for all objects and then apply logic to it:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6daf8c8f-911d-4218-8c2b-52ff70236fa6" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 var preferredUsers = 

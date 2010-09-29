@@ -3,6 +3,9 @@ layout: post
 title: "A better way to write enumerations"
 guid: http://www.tigraine.at/2009/08/02/a-better-way-to-write-enumerations/
 postid: 686
+--- # categories
+- .NET
+- Coding
 ---
 <p>One thing I constantly struggle with is enumerations. They are inherently dumb, carry little more than one integer of actual information and usually mean a lot more than their name conveys.</p>  <p>Let aside Enumerations as method option flags (where they actually do make sense!), the usual line of business application will have these three enumerations somewhere:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image1.png" width="525" height="201" /> </p>  <p>Now, let’s ignore all the others our most basic example would be the Sex enumeration that has usually one but only one use: How to salute your user when communicating. </p>  <p>Like the obvious emails you get:</p>  <blockquote>   <p><font style="background-color: #ffffff">Hello Mr. Hölbling, we’d like to thank you for your …</font></p> </blockquote>  <p>You get the drift. If I’d perform a sex change someday the system should address me as Mrs. Hölbling (and actually, that type of thing is much more of a problem in German than in English, but anyway).    <br />And the code to do that would look something like this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:df83d890-fbd2-4e80-99f0-d781107a665b" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 string salutation = "Mr.";

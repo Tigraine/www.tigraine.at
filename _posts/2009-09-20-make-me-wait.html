@@ -3,5 +3,7 @@ layout: post
 title: "Make me wait"
 guid: http://www.tigraine.at/2009/09/20/make-me-wait/
 postid: 757
+--- # categories
+- Personal
 ---
 <p>1 hour ago I noticed that I need the Castle.Facilities.Logging assembly, so I fired up SVN to checkout the newest trunk and run a build.</p>  <p><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/09/image8.png" width="671" height="310" /> </p>  <p></p>  <p>It took 53(!!!) minutes to checkout. Something is seriously wrong with SVN at times, there is no other way to explain the differences in speed I was seeing during checkout: Some files came with 50 kb/s, some with 2 kb/s and others with 100. That said: I’m sitting ontop of a 12 mbit ADSL-2 connection that peaks at about 1.6 mb/sec. </p>  <p>I hate waiting, and waiting an hour for a trivial operation that should not take any longer than 10 seconds is really the end. I only hope most projects get away from svn as soon as possible, the benefit in speed is just massive.</p>  <p>Oh and btw: I know that there are SVN mirrors of the castle project on GitHub, I already did a fork of one of those to pull it down. Only that it was 6 commits behind the current svn trunk and I couldn’t build the solution at that revision so I decided to re-pull the most current svn (big mistake).</p>

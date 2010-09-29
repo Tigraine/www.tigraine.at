@@ -3,6 +3,9 @@ layout: post
 title: "ASP.NET MVC2 &ndash; Make Custom ControllerFactory less painful"
 guid: http://www.tigraine.at/2010/06/04/asp-net-mvc2-make-custom-controllerfactory-less-painful/
 postid: 867
+--- # categories
+- .NET
+- Coding
 ---
 <p>When starting a new project on ASP.NET MVC2 I noticed something very annoying. When used with a custom ControllerFactory the framework will throw a HttpException whenever a browser requests a file that is not present on the file system or not mapped by a route. </p>  <p>That means you’ll hit an exception about once per page-load just because Google Chrome is requesting the favicon all the time unless it finds one. </p>  <p>The solution to this is to make the Debugger just step through your CreateController method so no Exceptions will be visible to Visual Studio there:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9f744adf-66c0-4f23-ad28-6e41bfe796c2" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [System.Diagnostics.DebuggerStepThrough]

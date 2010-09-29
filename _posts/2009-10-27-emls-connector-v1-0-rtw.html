@@ -3,6 +3,11 @@ layout: post
 title: "EMLS-Connector v1.0 RTW"
 guid: http://www.tigraine.at/2009/10/27/emls-connector-v1-0-rtw/
 postid: 787
+--- # categories
+- .NET
+- Coding
+- Projects
+- elmsConnector
 ---
 <p>After almost a month and 3 weeks of having the connector in production I finally feel that it’s time for a v1.0. So, here it is. <a href="http://github.com/Tigraine/elms-connector/commits/v1.0.0.0">I just pushed the v1.0 tag to GitHub</a>!</p>  <p>You can grab the release zip containing everything you need here:</p>  <p><a href="http://github.com/Tigraine/elms-connector/downloads">ELMS-Connector v1.0 RTW</a></p>  <p>Note on this release: Some of the existing code I published in my initial article is now outdated. Some refactoring (and <a href="http://github.com/Tigraine/elms-connector/commit/ed57096164341cba8329c32b3a7ddfece9b18f13">a annoying typo</a>) has gone on and I don’t have any docs ready for people trying to use this. So if you want to use ELMS-Connector on your campus, just contact me through email at <a href="mailto:tigraine@tigraine.at">tigraine@tigraine.at</a> and I’ll be glad to walk you through the setup process. Docs will follow, but at the moment I don’t feel like writing documentation for something only I am using.</p>  <p><strong>Changes since the Beta:</strong></p>  <p>1: <a href="http://www.tigraine.at/2009/10/16/elmsconnector-configurable-file-extension/">Configurable file extensions</a></p>  <p>2: Session Authentication </p>  <p><strong>Session Authentication</strong></p>  <p>The main annoyance with ELMS-Connector so far has been that whenever a User hits the MSDN-AA he has to re-authenticate himself even if he is authenticated to the source system. </p>  <p>I found a way to elegantly prevent that without breaking anything: <tt>IExtendedAuthenticationService</tt></p>  <p>While <tt>IAuthenticationService</tt> only requires you to implement one method:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:43eb6bfd-ed27-420d-b49f-31e6c9cc59c4" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 bool AuthenticateUser(string username, string password);

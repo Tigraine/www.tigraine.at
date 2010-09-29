@@ -3,6 +3,9 @@ layout: post
 title: "Simplest thing to do"
 guid: http://www.tigraine.at/2009/02/27/simplest-thing-to-do/
 postid: 484
+--- # categories
+- .NET
+- Coding
 ---
 <p>Today a friend woke me up by phone wanting to ask me how to best do internationalization (<a href="http://de.wikipedia.org/wiki/Internationalisierung_(Softwareentwicklung)">i18n</a>) in .NET. He already had read some guides that involved compiling satellite assemblies with global resource files etc, and that didn’t work all that well.     <br />My first thought went to that article I had read half a year before when I was tasked with i18n, and I tried to remember how I did it back then.</p>  <p>I remembered: <strong>I didn’t</strong>.</p>  <p>At no point in time was the scope of the application so big that it had warranted to jump through the hoops Microsoft hat set up to get to real internationalization.   <br />If you Google for the thing or ask on StackOverflow, you realize rather fast that you don’t want to have any of this i18n “goo” in your application logic, so the smartest thing is to simply abstract everything away into a separate class that handles all those things. </p>  <p>And once you have it abstracted from your application, nobody forces you any more to use the .NET i18n stuff any more.    <br />Simple switch statements will do if you only need 2 languages for a couple of strings, even reading something on the Globalization stuff from .NET takes longer than simply writing something similar to this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9dec461e-ac9c-49e7-ad88-4e614f3e9c3f" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class LocalizationManager : ILocalizationManager

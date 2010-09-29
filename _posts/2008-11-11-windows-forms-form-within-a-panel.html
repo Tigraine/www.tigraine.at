@@ -3,6 +3,16 @@ layout: post
 title: "Windows Forms: Form within a panel"
 guid: http://www.tigraine.at/2008/11/11/windows-forms-form-within-a-panel/
 postid: 392
+--- # categories
+- .NET
+- Coding
+- Patterns
+- composition
+- composition
+- dry
+- dry
+- windows forms
+- windows forms
 ---
 <p>I already blogged about <a href="http://www.tigraine.at/2008/11/04/common-gotchas-with-inherited-forms/">Visual Inheritance</a> as a tool for avoiding DRY violation. </p>  <p>Once you’re through with any better book on object oriented design you should have found another important oo principle:</p>  <blockquote>   <p><strong>Favor object composition over class inheritance</strong></p> </blockquote>  <p>But how to do that in Windows Forms?    <br />Well, if you dig with Reflector into the Form class you’ll discover that it’s derived from Control. And every container in Winforms accepts Control as it’s child objects. </p>  <p><img title="image" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="95" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image1.png" width="205" border="0" /> </p>  <p>Now, this makes it possible to just create a Panel and say:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:04ff352a-cf01-4379-91f6-a0d3d6abf0ee" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 panel1.Controls.Add(form);
