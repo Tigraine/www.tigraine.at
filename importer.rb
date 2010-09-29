@@ -5,7 +5,7 @@ require 'fileutils'
 include REXML
 
 postsPath = "./_posts"
-wpsource = "wordpress.2010-09-28.xml"
+wpsource = "wordpress.xml"
 puts "Migrating Wordpress posts from #{wpsource} to #{postsPath}"
 
 if (!File.exists? wpsource) then
