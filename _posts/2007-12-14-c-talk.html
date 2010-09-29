@@ -1,0 +1,38 @@
+---
+layout: post
+title: "C# Talk"
+guid: http://www.tigraine.at/2007/12/14/c-talk/
+postid: 165
+---
+Now and then I delve through some Java tutorials or Java applications for my studies.
+And everytime I do so I immediately lack the getter/setter language features of C#.
+
+To make myself clear (to non-C# Developers).
+Java has either <em>Public </em>or <em>Private</em> properties, but no way to add validation Logic etc to those.
+It is usually considered bad coding technique to expose instance variables outside of the class so almost everything has to be accessed through functions.
+So to expose a integer variable called <strong><em>State </em></strong>you would have to create something similar to this:
+
+<img border="0" width="305" src="http://www.tigraine.at/wp-content/uploads/2007/12/get-set-java.jpg" alt="get_set_Java" height="112" style="border: 0px" /> 
+
+It works and once you're used to it you will create setter/getter methods in your sleep.
+But, when pulling up your IntelliSense (ok, you don't have that in Java, but you know what I mean) on that class you will be somewhat overwhelmed by get/set functions :).
+
+So, how did C# handle this?
+They borrowed a bit from Delphi and C# and created properties with get/set blocks (nothing new).
+So our code from above would look like:
+
+<font color="#333333"><img border="0" width="291" src="http://www.tigraine.at/wp-content/uploads/2007/12/get-set-c.jpg" alt="get_set_C" height="127" style="border: 0px" /> </font>
+
+The great thing: Intellisense gets easier, you have something clearly marked as <strong>property</strong> not as function (that's used to access a property).
+Usability for your API has just increased :).
+
+But, despite the awesomeness of this function (already in the .NET Framework since 1.0) in .NET 3.5 they managed to improve this feature a bit.
+How? Imagine all those cases where you don't have any validator logic on your properties, you just want a simple public field in your class.
+In older Frameworks you'd have to create get/set Blocks for this Field although you don't want any logic there (exposing Instance-Variables is stupid no matter how you do it).
+
+So, 3.5 Introduced this:
+
+<img border="0" width="271" src="http://www.tigraine.at/wp-content/uploads/2007/12/get-set-35.jpg" alt="get_set_35" height="40" style="border: 0px" />
+
+Great, we came down to 1 line of code, and what happened?
+.NET creates the private instance-variable automatically and handles the simple get/set stuff for us. When we decide we need validation or something in the get/set blocks we can just come back and expand those blocks without having to change any code outside the class (it was a get/set property all the time)

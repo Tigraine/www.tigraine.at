@@ -1,0 +1,60 @@
+---
+layout: post
+title: "Conditional breakpoints in Visual Studio"
+guid: http://www.tigraine.at/2008/11/11/conditional-breakpoints-in-visual-studio/
+postid: 399
+---
+<p>Sometimes you do something and you never really think about what you’re doing.    <br />Like the following code:</p>  <div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ddf50501-392a-47d7-92b9-f2ff2858e5d4" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public bool TestSomething(bool input)
+{
+&#160;&#160;&#160;&#160;if (input == true)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;else
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return false;
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>It’s so obvious, I never thought about what I was really doing there, let alone seen the mistake I made. I mean, without any knowledge about boolean evaluation you still should figure out how to get rid of the bracket porn and produce something like this:</p>
+
+<div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c3756d04-9a77-418c-94e6-0678c99fb115" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public bool TestSomething(bool input)
+{
+&#160;&#160;&#160;&#160;if (input == true)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
+&#160;&#160;&#160;&#160;return false;
+}
+</pre></div>
+
+<p>But that’s only syntactic, the whole statement itself is still silly. The whole <em>== true</em> is completely redundant because you already check a boolean condition to evaluate it to a boolean. 
+
+  <br />So it boils down to:</p>
+
+<div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:25cce3db-6459-4402-a83c-c36e26264ef8" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public bool TestSomething(bool input)
+{
+&#160;&#160;&#160;&#160;return input;
+}
+</pre></div>
+
+<p>And that’s it. You just saved yourself 6 lines of code that where completely useless (<strike>and I guess the compiler is smart enough to optimize that anyway</strike>&#160; <strong>Update: </strong>actually, this does make a difference. The compiler <strong>can’t </strong>figure this out and will produce more IL code because of this).</p>
+
+<p>But once I did this I felt I lack the ability to put a breakpoint on the <em>return false </em>statement. And I eventually may have thought about going back to solution #2. But then I found this little thing in Visual Studio that made my day (and all major IDEs have that, only they hide it well):</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2008/11/image2.png"><img style="display: inline" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image-thumb.png" width="240" height="109" /></a> </p>
+
+<p>When you right click a breakpoint you can add a <strong>Condition</strong> to it, so it will only break when that condition is met. I did so, and voila:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2008/11/image3.png"><img style="display: inline" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image-thumb1.png" width="494" height="229" /></a> </p>
+
+<p></p>
+
+<p>Without having to degrade my code I still could break only when false was returned. 
+  <br />So when I ran it the first break was in the third call:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2008/11/image4.png"><img style="display: inline" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image-thumb2.png" width="572" height="302" /></a></p>
+
+<p>So, thank god for such great tools like Visual Studio and ReSharper (R# hinted to me that I was doing something stupid in the first place)!</p>

@@ -1,0 +1,25 @@
+---
+layout: post
+title: "ElmsConnector configurable file extension"
+guid: http://www.tigraine.at/2009/10/16/elmsconnector-configurable-file-extension/
+postid: 777
+---
+<p>Seriously, nothing makes you more aware of problems with your stuff than <a href="http://en.wikipedia.org/wiki/Dogfooding">dogfooding</a>! I’ve been busy all day trying to get the new <a href="http://www.imagineclub.at/">imagineClub website</a> out of the door (yes we finally launched!) and just when I thought I had everything nailed one thing about ElmsConnector made me panic:</p>  <p>IIS6 is not passing *.elms requests on to the ASP.NET pipeline, so ElmsConnector was <u>never</u> called.</p>  <p>To fix this you need to have access to the server configuration and change that through IIS Manager. Since we (and I guess many other people) are on a shared host we could not do that, and so I had to change all paths to *.axd on short notice. </p>  <p>But, I felt like *.axd may also not work for everyone, so I decided to just make that an optional setting through the <tt>elms.xml:</tt></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2af4d287-f5a2-41cc-96e7-8370bfab4646" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;component id="FileExtensionProvider"&gt;
+&#160;&#160;&lt;parameters&gt;
+&#160;&#160;&#160;&#160;&lt;extension&gt;ashx&lt;/extension&gt;
+&#160;&#160;&lt;/parameters&gt;
+&lt;/component&gt;
+</pre></div>
+
+<p>This little XML will change all paths inside ElmsConnector to .ashx instead of the default .axd. (Omitting that XML will result in all your paths being .axd)</p>
+
+<p>Also note that I had to introduce one additional placeholder into the <tt>Login.htm</tt>. 
+
+  <br />Make sure that you include the $EXTENSION$ placeholder into your form action:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9a06b5cb-c19a-44a1-90f2-52aa2c4f68e9" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;form method="post" action="VerifyUser.$EXTENSION$"&gt;
+</pre></div>
+
+<p>This feature is available through release <a href="http://github.com/Tigraine/elms-connector/downloads">v0.1.0.3 from GitHub</a>.</p>

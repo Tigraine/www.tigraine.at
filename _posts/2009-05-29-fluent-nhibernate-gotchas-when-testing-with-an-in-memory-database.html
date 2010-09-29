@@ -1,0 +1,69 @@
+---
+layout: post
+title: "Fluent NHibernate gotchas when testing with an in memory database."
+guid: http://www.tigraine.at/2009/05/29/fluent-nhibernate-gotchas-when-testing-with-an-in-memory-database/
+postid: 538
+---
+<p>What I love most about programmatic configuration is that it’s close to the test.   <br />While we were carrying dozens of XML files around for testing before, now with DSL based configuration everywhere the configuration is usually pretty near to the test fixture, instead of residing in some arbitrary XML that only insiders can associate with the test.</p>  <p>The standard sample for using SqlLite and Fluent NHibernate usually looks like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:131bec5e-6655-4adf-9715-34a8130f65ca" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+return
+&#160;&#160;&#160;&#160;Fluently
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Configure()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Database(SQLiteConfiguration.Standard.UsingFile("mydb.db3").ShowSql())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Mappings(m =&gt; m.FluentMappings.AddFromAssemblyOf&lt;SessionFactory&gt;())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.ExposeConfiguration(SaveSchema)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.BuildSessionFactory();
+</pre></div>
+
+<p>Where SaveSchema is a method that does a database rebuild. </p>
+
+<p>Now, Fluent Nhibernate has in-memory databases built into the API. Just remove the UsingFile directive and you replace it with:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:d6b21b76-05f5-4207-8f44-cfbe54ddaf2f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+.Database(SQLiteConfiguration.Standard.InMemory().ShowSql())
+</pre></div>
+
+<p></p>
+
+<p>Charming isn’t it? Now the only problem is that you won’t be able to do anything with that DB since there is no schema present. 
+  <br />The in-memory database exists per session, so once you close the ISession the db is gone. Since the schema export from most samples operates in it’s own ISession the subsequent queries will still hit a blank database, and you’ll get an error stating there is no such table.</p>
+
+<p>So my SessionFactory implementation had to change, since I needed to keep the configuration around for doing the schema export:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a172ea30-b1b7-4852-b9ef-77b53a080706" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class SessionFactory
+{
+&#160;&#160;&#160;&#160;public static ISessionFactory CreateSessionFactory()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Fluently
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Configure()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Database(SQLiteConfiguration.Standard.InMemory().ShowSql())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Mappings(m =&gt; m.FluentMappings.AddFromAssemblyOf&lt;SessionFactory&gt;())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.ExposeConfiguration((c) =&gt;&#160;&#160;SavedConfig = c)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.BuildSessionFactory();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;private static Configuration SavedConfig;
+
+&#160;&#160;&#160;&#160;public static void BuildSchema(ISession session)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var export = new SchemaExport(SavedConfig);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;export.Execute(true, true, false, false, session.Connection, null);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>And my tests then use a another factory method to construct the ISession object:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3749f217-7992-4d1c-8483-fb50bd0e5dd4" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static ISession CreateSession()
+{
+&#160;&#160;&#160;&#160;var factory = SessionFactory.CreateSessionFactory();
+&#160;&#160;&#160;&#160;var session = factory.OpenSession();
+&#160;&#160;&#160;&#160;SessionFactory.BuildSchema(session);
+
+&#160;&#160;&#160;&#160;return session;
+}
+</pre></div>
+
+<p>Hope this helps, quite an annoying problem and imo a far from perfect solution. Someone on the FNH mailing list suggested looking at the <a href="http://github.com/jagregory/fluent-nhibernate/blob/4539f48d1672bb210b4557e5e8004521f5a5f5af/src/FluentNHibernate.Testing/DomainModel/Mapping/OneToManyIntegrationTester.cs">OneToManyIntegrationTester</a> class but I couldn’t really extract any terribly useful information from there.</p>

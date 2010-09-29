@@ -1,0 +1,55 @@
+---
+layout: post
+title: "Introducing: Tigraine.Logging"
+guid: http://www.tigraine.at/2009/12/27/introducing-tigraine-logging/
+postid: 816
+---
+<p>Stop rolling your eyes, I know there are more logging infrastructure libraries out there than there are projects using them. And I won’t say this one is different, it’s not. It’s more or less a little experiment I did to get accustomed to VS2010 and R#5.    <br />Also note that most of the code originated from me writing a logging architecture for a <a href="http://github.com/unixtam/EvoPaint" target="_blank">Java OSS project</a> I’m involved with and I wanted to carry the idea over to .NET.</p>  <p>But: I believe it turned out to be quite nice while very very lightweight. So I thought I’d just go ahead and share it. </p>  <p><strong>Usage</strong></p>  <p>Tigraine.Logging has a ILogger interface that exposes the usual suspects:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/12/image.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/12/image_thumb.png" width="381" height="181" /></a> </p>  <p>You just instantiate the appropriate ILogger implementation and are set to go, it will write everything you pass to it.</p>  <p>What makes out most of the code though is the ability to render objects passed into the logger as parameters. This idea came from the Java codebase where there was code like this scattered all over the place:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:be5acfb2-0948-4aa4-9b25-2df594d9d293" class="wlWriterEditableSmartContent"><pre name="code" class="java">
+@Override
+public String toString() {
+	String ret = this.getClass().getSimpleName();
+
+	if (Config.logVerbosity &gt;= Log.Verbosity.VERBOSE) {
+		ret += "(" + this.hashCode() + ")";
+	}
+	
+	if&#160;&#160;(Config.logVerbosity &gt;= Log.Verbosity.VERBOSE) {
+			ret += " A={" + this.a + "}, B={" + this.b + "}";
+	}
+
+	return ret;
+}
+
+</pre></div>
+
+<p>Now, I hate that sort of code. It’s just noise and it tends to get messy really soon. And so I started implementing my idea of <strong>ObjectRenderers</strong> (I know this term is already used by other logging frameworks, and the idea is not new either):</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/12/image1.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; margin-left: 0px; border-top: 0px; margin-right: 0px; border-right: 0px" title="image" border="0" alt="image" align="left" src="http://www.tigraine.at/wp-content/uploads/2009/12/image_thumb1.png" width="240" height="128" /></a> </p>
+
+<p>You add a renderer to the logger and whenever a object is passed in of the type, the renderer is invoked to transform the object to a string representation of your choosing. So instead of having to rely on .ToString() to give accurate results, you implement a class that takes care of writing all relevant information of your object down. </p>
+
+<p>Here is a sample:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bf0de663-935d-4170-b828-7d223390aaca" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var consoleLogger = new ConsoleLogger(LogLevel.Debug);
+consoleLogger.AddObjectRenderer&lt;TestClass&gt;(new TestClassRenderer());
+
+consoleLogger.Error("Something went wrong with {0}", new TestClass());
+</pre></div>
+
+<p></p>
+
+<p>The logging framework will call TestClassRenderer.Render to get a string representation of TestClass. This now also means you can have two different renderers, one verbose and one brief, and only hook up the one that’s right for you right now. The calling code does not need to be touched.</p>
+
+<p>You can also define a renderer for a supertype and all subclasses will use that one if no more specific renderer is hooked up. If no renderer is found whatsoever .ToString() will get called.</p>
+
+<p>And since implementing all renderers in their own classes would lead to a lot of code, there is a little helper class that should work for most of you by using some lambda syntax:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:576c2341-5ddc-423e-a499-2bbceb1dc602" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var compositeRenderer = new CompositeRenderer&lt;TestClass&gt;
+&#160;&#160;&#160;&#160;(p =&gt; p.Firstname + " " + p.Nickname + " " + p.Age);
+</pre></div>
+
+<p><strong>Where to get</strong></p>
+
+<p>You may have already guessed, Tigraine.Logging <a href="http://github.com/Tigraine/Tigraine.Logging" target="_blank">can be found on GitHub</a> and is open-source under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">Apache License Version 2</a></p>

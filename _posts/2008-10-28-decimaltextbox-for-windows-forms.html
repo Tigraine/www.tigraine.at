@@ -1,0 +1,82 @@
+---
+layout: post
+title: "DecimalTextbox for Windows Forms"
+guid: http://www.tigraine.at/2008/10/28/decimaltextbox-for-windows-forms/
+postid: 383
+---
+<p>I’ve been doing some Windows Forms development lately and really love it. After doing web development for the last couple of years I am thankful for the change. Being able to create compelling UIs without having to worry about Javascript is something I’ve been longing for quite some time. </p>  <p>But when trying to build intuitive and user-friendly UIs, you hit the boundaries of Microsoft’s control toolbox pretty fast. (Not as fast as with Webcontrols, but still).    <br />I needed a Textbox that accepts only decimal input and that formats itself rather nicely for a finance application I’m building right now.</p>  <p>I first turned to the MaskedTextBox control that’s already there, but that turned out to be completely useless because numbers have no fixed length.    <br />So I decided to create a Custom Control that derives from TextBox that does exactly what I need – take decimals and nothing else.</p>  <p>The whole process is rather simple, so I’ll just give you the code and be done with it. The DecimalTextbox control won’t accept any input that’s not numeric except for one comma. If you leave the control empty or non-decimal (however you accomplish that) it will revert to 0,00 on validation.</p>  <p>The code is after the break</p> 
+<!--more-->
+  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:badf9f74-f568-472e-a133-2406b55f4b3e" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public partial class DecimalTextBox : TextBox
+{
+&#160;&#160;&#160;&#160;public DecimalTextBox()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;InitializeComponent();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;protected override void OnTextChanged(EventArgs e)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (IsDecimal())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;base.OnTextChanged(e);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;protected override void OnKeyPress(KeyPressEventArgs e)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (!char.IsNumber(e.KeyChar)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&& ((Keys)e.KeyChar != Keys.Back)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&& (e.KeyChar != ','))
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;e.Handled = true;
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (e.KeyChar == ',' && Text.IndexOf(',') &gt; 0)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;e.Handled = true;
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;base.OnKeyPress(e);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;protected override void OnGotFocus(EventArgs e)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;ResetValueOnFocus();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;base.OnGotFocus(e);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;private void ResetValueOnFocus()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (IsDecimal())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (!IsDecimalZero())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Text = "";
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;private bool IsDecimal()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;decimal result;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return decimal.TryParse(Text, out result);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;private bool IsDecimalZero()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return (decimal.Parse(Text) == 0);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;private void DecimalTextBox_Validating(object sender, CancelEventArgs e)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;decimal value;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;decimal.TryParse(Text, out value);
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const string NUMBER_FORMAT_2_DIGITS = "N2";
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Text = value.ToString(NUMBER_FORMAT_2_DIGITS);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public decimal Value
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return decimal.Parse(Text);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>And since copying source from HTML sucks here’s the <a href="http://www.tigraine.at/wp-content/uploads/2008/10/decimaltextbox.cs">DecimalTextBox.cs</a>.</p>

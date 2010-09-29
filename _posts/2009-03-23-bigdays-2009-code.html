@@ -1,0 +1,93 @@
+---
+layout: post
+title: "Big&gt;Days 2009 Code"
+guid: http://www.tigraine.at/2009/03/23/bigdays-2009-code/
+postid: 499
+---
+<p>I <a href="http://www.tigraine.at/2009/03/23/a-short-look-at-the-bigdays-2009-demo/">already picked on the Big&gt;Days 2009 source today</a>, and since it’s open and there, why not just write a little patch.</p>  <p>Without having to go too far into the code I thought a perfect spot to start would be the <a href="https://bigdays09.svn.codeplex.com/svn/RentAWorker/2%20-%20Business/RentAWorker.Business.Impl.Util/DataAccessFactory.cs">DataAccessFactory</a> that should return test-dummys during tests while serving real objects otherwise.</p>  <p>What I didn’t like was the fairly repetitive code of checking if it’s in dummy mode and returning the appropriate object:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:4d0175b0-8f73-4f97-883a-c8784da2710f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static ICustomerAccess GetCustomerAccess()
+{
+&#160;&#160;&#160;&#160;if (UseDummy)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return new DataAccessDummy();
+&#160;&#160;&#160;&#160;return new CustomerDataAccess();
+}
+</pre></div>
+
+<p>This gets repeated for every factory method and is a perfect example of a DRY violation.</p>
+
+<p>I figured since we don’t want to touch calling code (and the UseDummy was never set anywhere), best way to go would be to simply create a interface for the factory:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:fe09c510-6c11-42df-8fe7-8fc004c63200" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public interface IDataAccessFactory
+{
+&#160;&#160;&#160;&#160;ICustomerAccess GetCustomerAccess();
+&#160;&#160;&#160;&#160;ILocationAccess GetLocationAccess();
+&#160;&#160;&#160;&#160;IMachineTypeAccess GetMachineTypeAccess();
+&#160;&#160;&#160;&#160;IRentalServiceAccess GetRentalServiceAccess();
+&#160;&#160;&#160;&#160;IResourceAccess GetResourceAccess();
+}
+</pre></div>
+
+<p>I then created two implementations of this, one for the TestDummy and one for the real thing (called RealDataAccessFactory) so I don’t need to check the UseDummy field any more.</p>
+
+<p>Now the actual static factory can instantiate the real object by default and have a method on it to set another IDataAccessFactory implementation during runtime:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b1876b70-47ea-4b93-8d5e-df6f8bb8fe79" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static class DataAccessFactory
+{
+&#160;&#160;&#160;&#160;private static IDataAccessFactory dataAccessFactory = new RealDataAccessFactory();
+
+&#160;&#160;&#160;&#160;public static IDataAccessFactory Implementation
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return dataAccessFactory; }
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;set { dataAccessFactory = value; }
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public static ICustomerAccess GetCustomerAccess()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return dataAccessFactory.GetCustomerAccess();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public static ILocationAccess GetLocationAccess()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return dataAccessFactory.GetLocationAccess();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public static IMachineTypeAccess GetMachineTypeAccess()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return dataAccessFactory.GetMachineTypeAccess();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public static IRentalServiceAccess GetRentalServiceAccess()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return dataAccessFactory.GetRentalServiceAccess();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public static IResourceAccess GetResourceAccess()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return dataAccessFactory.GetResourceAccess();
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>During production nothing changes, but in a unit test scenario I can pass a fake DataAccessFactory into the static factory and swap the whole implementation (enabling me to use Rhino.Mocks or whatever mocking framework I like instead of writing TestDummys myself).</p>
+
+<p>This way we can even have the TestDummy class living inside the test assembly instead of littering the production assembly.</p>
+
+<p>A test now may look like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ad3b1248-c067-40b2-acba-9bfc2167e6ff" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Fact]
+public void Module_CallsFactoryForILocationAccess()
+{
+&#160;&#160;&#160;&#160;DataAccessFactory.Implementation = MockRepository.GenerateMock&lt;IDataAccessFactory&gt;();
+
+&#160;&#160;&#160;&#160;var module = new Module();
+&#160;&#160;&#160;&#160;module.DoSomething(); //This should call the Factory to retrieve a ILocationAccess
+
+&#160;&#160;&#160;&#160;DataAccessFactory.Implementation.AssertWasCalled(p =&gt; p.GetLocationAccess());
+}
+</pre></div>
+
+<p>As you can see, we now have complete control over the factory during testing, without affecting the rest of the code in any way. 
+  <br />Another sideeffect of this is that the static DataAccessFactory or the actual DataAccessFactory implementation has no need to change if we need to make changes to the DummyFactory.</p>

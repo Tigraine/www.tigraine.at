@@ -1,0 +1,51 @@
+---
+layout: post
+title: "New stuff in .less"
+guid: http://www.tigraine.at/?p=828
+postid: 828
+---
+Do you remember that little project I am involved in? That <a href="http://www.dotlesscss.com" target="_blank">.less thingy</a> I always forget to write about? Well, it’s still around and we are going very strong. We are seeing a decent amount of activity on our mailing list and people throw code at me at various occasions for fixing different problems within the the project.
+
+One of those persons is <a href="http://github.com/jamesfoster" target="_blank">James Foster</a>, a really nice guy from the UK with some mad programming skills who set out to make .less awesome. Well, he sort of did already, by contributing some major code changes to the .less parser that enabled him to port over some SASS functions to .less. Sadly he does not blog himself, so the honor is mine to report to the world what he did.
+
+<strong><span style="text-decoration: underline;">Color functions</span></strong>
+
+Before going into details, the main idea is that you are now able to modify any component of a color separately. So far .less has only supported arithmetic operations on colors (like #abc000+ #000def =&gt; #abcdef) so if you e.g. want to darken a color while adding 10 points of green to it you where out of luck, making the feature not really all that useful. Well, thanks to James now we can!
+
+<strong>Creating colors</strong>
+
+.less understands that #FFFF is supposed to be treated as a color, so if you start working off web colors you can just use the hex notation and ignore the following functions. In case you are more the designer type settled in the RGB world and want to have lightness and alpha around, you will need functions to create the colors. And while at it James also added color literals so .less detects a @color: blue; instruction just like it would a @color:#0000FF one. Anyway, if you have your colors RGB or HSL you need to use the following functions to create them:
+<blockquote>rgb(red, green, blue)
+rgba(red, green, blue, alpha)
+hsl(hue, saturation, lightness)
+hsla(hue, saturation, lightness, alpha)</blockquote>
+You might guess from the parameter names how they work. But to be thorough:
+<div id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ae4a85ee-51c8-47ce-a04a-87f1a0d8e68d" class="wlWriterEditableSmartContent" style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px">
+<pre class="css">@mainColor: rgb(0, 0, 255); //Blue</pre>
+</div>
+<strong>Modifying colors</strong>
+
+Now, once you hold on to a variable that contains a color you can do some pretty exciting stuff with the following color manipulation functions:
+<blockquote>red(color, value)
+green(color, value)
+blue(color, value)
+hue(color, value)
+saturation(color, value)
+lightness(color, value)
+alpha(color, value)
+
+the value can be positive or negative, for instance, to darken a color by 20% you can use "lightness(color, -20%)".</blockquote>
+You pass in a color and then the amount you want to change it. If you omit the change value part the method will return the appropriate component of the given color (meaning: red(@color) will return the red portion of that color, while red(@color, 10%) will increase the amount of red by 10%).
+
+And while at it, James also added some convenience functions for good measure to make your day easier:
+<blockquote>greyscale(color)
+this is equivalent to saturation(color, -100%)
+
+complement(color)
+this is equivalent to hue(color, 180)
+
+mix(color1, color2, weight)
+mixes 2 colors together. The weight argument is optional and specifies the percentage of the first color to use compared to the second color. it also takes into account transparency - if a color is more transparent it has less effect on the resulting color.</blockquote>
+You can get all of that functionality through the latest .less build from our website <a href="http://www.dotlesscss.com">http://www.dotlesscss.com</a> or just grab the code from GitHub. If you have any questions or suggestions feel free to participate through <a href="http://groups.google.com/group/dotless?pli=1" target="_blank">our mailing list</a>.
+
+And lastly, let’s give credit where credit is due: Thanks to James for the great work he put into .less. James himself stated that he based most of his work on stuff he saw on the Sass project, you can read about their color functions implementation here: <a href="http://nex-3.com/posts/89-powerful-color-manipulation-with-sass" target="_blank">Powerful Color Manipulation with Sass</a>. The initial code for Sass was created by Chris Eppstein for the “compass-colors” project which has now been merged into the main Sass codebase. You can also see his pretty impressive demo here: <a title="http://chriseppstein.github.com/compass-colors/" href="http://chriseppstein.github.com/compass-colors/">http://chriseppstein.github.com/compass-colors/</a>

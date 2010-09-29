@@ -1,0 +1,142 @@
+---
+layout: post
+title: "Comparing Castle ActiveRecord to Fluent NHibernate"
+guid: http://www.tigraine.at/?p=533
+postid: 533
+---
+<p>I’ve used my fair share of ORM tools lately and I keep coming back to NHibernate more and more. But sometimes it feels like “too much”. Going for a dedicated data access layer often feels like a bit of overkill and isn’t all that exciting to do, so for smaller projects I sometimes took the easy way and used LinQ to Sql.   <br />Usually LinQ to Sql would then come around to bite me at some point and I’d hate myself for using it. So when I lately tried Castle ActiveRecord (watch this wonderful presentation by Ayende and Hammet at InfoQ: <a href="http://www.infoq.com/presentations/eini-verissimo-castle-active-record">Painless Persistence with Castle ActiveRecord</a>) I was blown away: A simpler way to build stuff with NHibernate.    <br />No complete abstraction of NHibernate, but a layer ontop that makes life easier. (You can access the Session manually and do your crazy NHibernate stuff if you want to).</p>  <p>Since ActiveRecord was created to avoid some of the crazy configuration stuff that was in NHibernate at that time, I thought it might be interesting to compare ActiveRecord to the current state of NHibernate configuration, namely: <a href="http://wiki.fluentnhibernate.org/show/HomePage">Fluent NHibernate</a>.</p>  <p>This is by no means a matchup, what you use hugely depends on your needs. And since both are essentially the same it boils down to taste. I haven’t used either for any real application (only old NHibernate with XML), so this is my personal rundown on the samples and spikes I did lately.</p>  <p>Let’s assume the typical Blog sample model:</p>  <p><img title="model" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="229" alt="model" src="http://www.tigraine.at/wp-content/uploads/2009/05/image3.png" width="704" border="0" /></p>  <p>I’ll only focus on the BlogPost class since it is on both ends of a parent/child relationship.</p>  <p><strong>Mapping</strong></p>  <p>First, how does the the ActiveRecord mapping look like:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b6a4d10e-01de-4cc2-b41c-6c8badf629ab" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[ActiveRecord]
+public class BlogPost : ActiveRecordBase&lt;BlogPost&gt;
+{
+&#160;&#160;&#160;&#160;[PrimaryKey]
+&#160;&#160;&#160;&#160;public int Id { get; set; }
+&#160;&#160;&#160;&#160;[Property]
+&#160;&#160;&#160;&#160;public string Headline { get; set; }
+&#160;&#160;&#160;&#160;[Property]
+&#160;&#160;&#160;&#160;public string PostText { get; set; }
+&#160;&#160;&#160;&#160;[Property]
+&#160;&#160;&#160;&#160;public DateTime PostedOn { get; set; }
+&#160;&#160;&#160;&#160;[BelongsTo]
+&#160;&#160;&#160;&#160;public User Poster { get; set; }
+&#160;&#160;&#160;&#160;[HasMany]
+&#160;&#160;&#160;&#160;public IList&lt;Comment&gt; Comments { get; set; }
+}
+</pre></div>
+
+<p>Now the NHibernate mappings:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:667ab6c8-ad0b-4a21-99c1-76cbafaae105" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class BlogPost
+{
+&#160;&#160;&#160;&#160;public virtual int Id { get; set; }
+&#160;&#160;&#160;&#160;public virtual string Headline { get; set; }
+&#160;&#160;&#160;&#160;public virtual User Poster { get; set; }
+&#160;&#160;&#160;&#160;public virtual IList&lt;Comment&gt; Comments { get; set; }
+&#160;&#160;&#160;&#160;public virtual string PostText { get; set; }
+&#160;&#160;&#160;&#160;public virtual DateTime PostedOn { get; set; }
+}
+public class BlogPostMap : ClassMap&lt;BlogPost&gt;
+{
+&#160;&#160;&#160;&#160;public BlogPostMap()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Id(m =&gt; m.Id);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Map(m =&gt; m.Headline);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Map(m =&gt; m.PostText);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Map(m =&gt; m.PostedOn);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;HasMany(m =&gt; m.Comments);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;References(m =&gt; m.Poster);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Cool, both APIs look good. Very readable and no XML.</p>
+
+<p>NHibernate has the ability to have the Model separated from the mappings, a feature that I like when doing enterprise applications. But for something simpler, not really relevant. Where Fluent NHibernate really blows AR away is the auto mapper feature <a href="http://ayende.com/Blog/archive/2008/12/11/fluent-nhibernate.aspx">Ayende is so happy with</a>.</p>
+
+<p><strong>Initialization</strong></p>
+
+<p>ActiveRecord hasn’t departed from XML yet, but there are three ways to load a configuration. The simplest would probably be the inplace configuration source, but it’s more or less a in-memory mirror of the XML config:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:5e28e6a3-b996-4e37-aec9-f527f44e8ef0" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var properties = new Hashtable();
+properties.Add("hibernate.connection.driver_class", "NHibernate.Driver.SQLite20Driver");
+properties.Add("hibernate.dialect", "NHibernate.Dialect.SQLiteDialect");
+properties.Add("hibernate.connection.provider", "NHibernate.Connection.DriverConnectionProvider");
+properties.Add("hibernate.connection.connection_string", "Data Source=:memory:;Version=3;New=True;");
+var source = new InPlaceConfigurationSource();
+source.Add(typeof (ActiveRecordBase), (IDictionary&lt;string, string&gt;) properties);
+ActiveRecordStarter.Initialize(typeof(BlogPost).Assembly, source);
+ActiveRecordStarter.CreateSchema();
+</pre></div>
+
+<p>The Fluent NHibernate configuration looks way better since you don’t have to worry about connectionstrings or other properties that nobody remembers:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:88810c89-d198-494d-a0e5-3391b83b3970" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static ISessionFactory CreateSessionFactory()
+{
+&#160;&#160;&#160;&#160;return
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Fluently
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Configure()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Database(SQLiteConfiguration.Standard.InMemory())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Mappings(m =&gt; m.FluentMappings.AddFromAssemblyOf&lt;BlogPost&gt;())
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.ExposeConfiguration(BuildSchema)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.BuildSessionFactory();
+}
+
+private static void BuildSchema(Configuration config)
+{
+&#160;&#160;&#160;&#160;new SchemaExport(config)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Create(false, true);
+}
+</pre></div>
+
+<p>I’d vote for Fluent NHibernate on this one, but having the configuration externalized in XML is something you’d probably do anyway.</p>
+
+<p>Where the differences really begin are the <strong>querying</strong>:</p>
+
+<p>Querying with ActiveRecord is mostly done through static methods, so ease of use is king here:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e843dbaf-6dc1-4818-b2fd-b4d58dfe4dac" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var post = BlogPost.Find(1);
+</pre></div>
+
+<p>While NHibernate requires me to retrieve a ISession before giving me access to anything.</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:932b729b-46ec-4caf-afe0-e94bebfdd0a3" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var mySession = factory.OpenSession();
+var post = mySession.Get&lt;BlogPost&gt;((object)1);
+</pre></div>
+
+<p>The one is more OO, the other is simpler. I have to say I prefer the added complexity since it makes it easier to test that your code interacts with the session object. (Although I’d not overuse that, going against an in-memory db and verifying the results should be the better way to create durable tests).</p>
+
+<p>Since both AR and NH use the NH Criteria API I won’t compare complex queries.</p>
+
+<p>So, how to conclude on the usability? Not having to think about how to pass the session around is quite nice, but when using NHibernate you could easily just write your session to some global and use it from there.</p>
+
+<p><strong>Validation</strong></p>
+
+<p>Now, what would a ORM be without a good validation framework.</p>
+
+<p>ActiveRecord comes prepacked with the Castle.Components.Validator assembly that allows a rather cool attribute based validation API:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:80692bfb-49e6-4d86-9d12-ac0cac6d564a" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Property, ValidateEmail, ValidateNonEmpty]
+public string Email { get; set; }
+</pre></div>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6be0994f-567a-4d1e-b387-c56d15295fa1" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var user = new User();
+if (user.IsValid())
+&#160;&#160;&#160;&#160;user.Save();
+</pre></div>
+
+<p>While NHibernate doesn’t have a built-in Validation framework, there is the <a href="http://nhforge.org/blogs/nhibernate/archive/2009/05/18/nhibernate-validator-quickstart.aspx">NHibernate Validator</a> (<a href="http://nhforge.org/wikis/validator/nhibernate-validator-1-0-0-documentation.aspx">documentation</a>) project that also allows a very clean attribute based validation.</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:1c5c4373-375a-46f9-89a5-a6f5232721f1" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[NotNull]
+public static string blacklistedZipCode;
+</pre></div>
+
+<p>But as before, it’s a bit “heavier” than AR and allows you to have external ValidatorClasses if you need them. Also cool, but something I don’t really care about is that NHV is also XML based, so you could allow your users/admins to tweak the validation rules after deployment.</p>
+
+<p>I guess that’s enough for now, use what you find suits your project better.&#160; :)</p>

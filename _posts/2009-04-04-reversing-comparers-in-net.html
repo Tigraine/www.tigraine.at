@@ -1,0 +1,44 @@
+---
+layout: post
+title: "Reversing Comparers in .NET"
+guid: http://www.tigraine.at/2009/04/04/reversing-comparers-in-net/
+postid: 505
+---
+<p>Since LinQ stepped onto the stage I rarely think about sorting, selecting etc any more. A simple IEnumerable&lt;T&gt;.OrderBy(p =&gt; p.Id) does the trick quite nicely. </p>  <p>But, there are cases where I wanted the list to be sorted in itself, and so I turned to the <strong><a href="http://msdn.microsoft.com/en-us/library/system.collections.sortedlist(VS.80).aspx">SortedList</a></strong> and <strong><a href="http://msdn.microsoft.com/en-us/library/f7fta44c(VS.80).aspx">SortedDictionary</a> </strong>classes in the System.Collections.Generic namespace. </p>  <p>Usage is incredibly easy, they are just ordinary IDictionary&lt;Tkey, Tvalue&gt; implementations that behave in every way as expected (no duplicate keys mind you), but in order to use them effectively you should be aware of some minor things about comparers.</p>  <p>Internally both collections will use a TreeSet structure that sorts itself by using a given IComparer&lt;TKey&gt; to determine their sort order. So all we need to do is add some pixie dust as the IComparer&lt;TKey&gt; to interfere with the order. </p>  <p>And since I don’t want to write one IComparer&lt;T&gt; for every type in the framework, I did a find-inheritor search with Reflector on the IComparer&lt;TKey&gt; interface only to discover that there is only one implementation: StringComparer. All other types get compared either by a custom comparer or the following call:</p>  <p>   <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:d1e544d6-03ba-4496-84b6-80c2f7de4a57" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+Comparer&lt;TKey&gt;.Default;
+
+</pre></div>
+</p>
+
+<p>The <a href="http://msdn.microsoft.com/en-us/library/azhsac5f.aspx">static method Default</a> will return an appropriate comparer for the given TKey type (taken from the IComparable&lt;T&gt; interface that has to be implemented by TKey).</p>
+
+<p>So, in order to reverse the list, we just have to supply a custom comparer that reverses the default comparer.&#160; (Since the LinQ .Reverse() method is out of the question :)).</p>
+
+<p>And that’s rather easy once you know where to get the default comparer from:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:94a01e3e-f74a-432c-a633-397091406ee3" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class ReverseComparer&lt;T&gt; : IComparer&lt;T&gt; where T : IComparable&lt;T&gt;
+{
+&#160;&#160;&#160;&#160;private readonly IComparer&lt;T&gt; comparer;
+
+&#160;&#160;&#160;&#160;public ReverseComparer() : this(Comparer&lt;T&gt;.Default)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public ReverseComparer(IComparer&lt;T&gt; comparerToReverse)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;comparer = comparerToReverse;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public int Compare(T x, T y)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return comparer.Compare(y, x);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p></p>
+
+<p>This generic class will reverse any given comparer type (you can even supply your own IComparer&lt;T&gt; to get reversed).</p>
+
+<p>I am not perfectly sure why this isn’t in the framework, maybe I just overlooked it or there are other ways to reverse a list. But for the moment this works just fine.</p>

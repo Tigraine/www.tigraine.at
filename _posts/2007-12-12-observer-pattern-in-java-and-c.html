@@ -1,0 +1,57 @@
+---
+layout: post
+title: "Observer Pattern in Java and C#"
+guid: http://www.tigraine.at/2007/12/12/observer-pattern-in-java-and-c/
+postid: 160
+---
+Since yesterday I am reading my brand new <a href="http://www.amazon.de/Head-First-Design-Patterns/dp/0596007124/ref=pd_bbs_sr_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1197412858&amp;sr=8-1">Head First - Design Patterns</a> and really enjoy doing so. The book is funny, informative and it's quite unique style really ... works.
+Most articles I read on Design Patterns where (while informative) really hard to understand and made them a pain to read. So I was thrilled to find a book that was entertaining and informative.
+
+So, I tried some of that stuff out. Obviously I didn't make it past Chapter 2 till now and am still working on the <em>Observer Pattern</em>.
+The samples in the book are all in Java, so I immediately tried to translate them to C#.
+
+I looked for the Observable-Class in the .NET Framework, no clue.
+I searched the Web, and it looked like C# has no built-in support for the <em>Observer Pattern</em>. Even Wikipedia has a C# Example on their <a href="http://www.tigraine.at/wp-admin/even%20Wikipedia%20is%20completely%20wrong."><em>Observer Pattern</em></a><em> </em>page that is just a plain rewrite of the standard Java Examples. But still no sign of something like an Observable-Class.
+
+Until I figured out that the Observer Pattern is hardcoded into the C# Language as part of their Event System using an Event Pattern!
+
+<!--more-->
+<h2>Implementation</h2>
+While writing this Article I assumed that you are already familiar with the <em>Observer Pattern</em>!
+
+First of all, the standard implementation works both in C# and Java. So if the <em>Event Pattern</em> in C# isn't applicable, you can still fallback to the standard implementation.
+
+So, let's get into things.
+As always told, we start off by defining our Subject Class (You should always program towards an Interface, but for simplicity I used a Class in this Article):
+
+<a href="http://www.tigraine.at/wp-content/uploads/2007/12/observer-subject.jpg"><img border="0" width="409" src="http://www.tigraine.at/wp-content/uploads/2007/12/observer-subject-thumb.jpg" alt="Observer_Subject" height="532" style="border: 0px" /></a>
+
+This is the usual Observeable Class. 3 Methods (Attach, Detach and Notify) and one function to send out the Notification (In Java it would set the Observeable.setChanged-Method and should also change a State)
+
+Now, this is the Implementation for our Subject I came up with after applying the Event Pattern:
+
+<a href="http://www.tigraine.at/wp-content/uploads/2007/12/event-subject.jpg"><img border="0" width="278" src="http://www.tigraine.at/wp-content/uploads/2007/12/event-subject-thumb.jpg" alt="Event_Subject" height="190" style="border: 0px" /></a>
+
+So, hell yes this looks simpler doesn't it?
+The only catch is that you can't fire the Notify event if there are no subscribers because in that case it is null. That's why you need to check it before firing.
+But how does this thing work for our Observer (Subscriber)?
+
+Here is the Code that would Observe the standard Java-like Observer:
+
+<a href="http://www.tigraine.at/wp-content/uploads/2007/12/observer-observer.jpg"><img border="0" width="405" src="http://www.tigraine.at/wp-content/uploads/2007/12/observer-observer-thumb.jpg" alt="Observer_Observer" height="241" style="border: 0px" /></a>
+
+Note that this Class uses .Attach to subscribe to our Subject.
+While the C# implementation just hooks up an event to a function.
+That function doesn't need be called update() as the above, it has only to match the delegate we defined in our subject!
+
+<a href="http://www.tigraine.at/wp-content/uploads/2007/12/event-observer.jpg"><img border="0" width="367" src="http://www.tigraine.at/wp-content/uploads/2007/12/event-observer-thumb.jpg" alt="Event_Observer" height="411" style="border: 0px" /></a>
+
+So. The implementation of an <em>Observer Pattern</em> in C# is basically 3 lines of code.
+<h2>Limitations</h2>
+At the beginning of this article I said this <em>Event Pattern </em>comes with limitations. So, here are some of them:
+
+The <em>Observer Pattern</em> has two Interfaces you program with, the <em>Event Pattern </em>depends on a delegate type that can't be defined in an interface. You need a class to hold that delegate besides the interface.
+
+You also miss a collection that holds your subscribed clients. So you can find out how many clients you have (through: "this.Notify.GetInvocationList().Length;"), but you can't directly access their instances (the Java-like implementation allows this).
+
+Besides these two? I can't think of any problems this very simple approach C# takes may cause.

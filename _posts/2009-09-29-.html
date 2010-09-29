@@ -1,0 +1,7 @@
+---
+layout: post
+title: "ELMS-Connector internals"
+guid: http://www.tigraine.at/?p=762
+postid: 762
+---
+<p>I tried not to get technical on my last post about how to use ElmsConnector since it shouldn’t really matter to the user of the system (it’s main goal is to not make you think). But since I’m quite happy with the current architecture I’d like to share it anyway.</p>  <p>As said before, ElmsConnector mainly consists of one HttpHandler that picks up requests to *.elms and routes them to so-called Commands. To do so I use Windsor where it will follow the convention that a request to “Login.elms” will end up invoking the class LoginCommand.Execute.</p>  <p>Now the beautiful thing about this is that Windsor is in charge of managing the object’s lifecycle and all of it’s dependencies. By setting the lifestyle to PerWebRequest I can also abstract away all the nasty things from ASP.NET like Session, Response and Request and hide them behind well defined minimal interfaces to facilitate testing.</p>  <p>The basic workflow looks like this: Command requires a set of Http-related services (abstractions) where Windsor will instantiate a Facade class that then requires the real HttpRequest that gets provided by Windsor’s factory-method facility. </p>

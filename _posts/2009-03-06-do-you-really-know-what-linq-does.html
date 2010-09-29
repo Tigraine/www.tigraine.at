@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Do you really know what LinQ does?"
+guid: http://www.tigraine.at/2009/03/06/do-you-really-know-what-linq-does/
+postid: 489
+---
+<p>LinQ is by far the most empowering language technology I’ve seen in years, and it has really helped me in many cases get to a more functional style of programming, enabling clearer syntax and better overall code.</p>  <p>But, it also has it’s pitfalls.    <br />Since LinQ attaches a .Count method to any enumerable, why would you still use IList for read-only collections? It’s so damn easy to simply write code like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08be49ee-18f8-495c-83c4-917520158a28" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+IEnumerable&lt;string&gt; strings = new[] {"hello", "world"};
+Console.WriteLine("Number of Strings: {0}", strings.Count());
+</pre></div>
+
+<br />What would be the benefit when using a IList&lt;string&gt; or ICollection&lt;string&gt; like this? 
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9bdc0c08-c1f4-4f45-b41f-b63858778362" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+IList&lt;string&gt; strings = new[] {"hello", "world"};
+Console.WriteLine("Number of Strings: {0}", strings.Count());
+</pre></div>
+
+<p>IEnumerable&lt;T&gt;.Count() would be a O(n) operation if it would follow the IEnumerable semantics through enumerating through all items. Since the definition of a Enumerable is that you need to iterate over every item in a linked list to determine it’s length. 
+  <br />Actually, the implementation (I looked with Reflector into the Count() method) does exactly that:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f85c58e7-29f8-4122-9f42-19fb1ef35394" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+int num = 0;
+using (IEnumerator&lt;TSource&gt; enumerator = source.GetEnumerator())
+{
+&#160;&#160;&#160;&#160;while (enumerator.MoveNext())
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;num++;
+&#160;&#160;&#160;&#160;}
+}
+return num;
+</pre></div>
+
+<p>But, that would always guarantee a O(n) execution time and would slow most applications to a crawl (since it’s so easy to use .Count() everywhere) Microsoft implemented a little shortcut right before the above code:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:45c8b232-441e-448c-8652-2b0372a39b98" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+ICollection&lt;TSource&gt; is2 = source as ICollection&lt;TSource&gt;;
+if (is2 != null)
+{
+&#160;&#160;&#160;&#160;return is2.Count;
+}
+</pre></div>
+
+<p>So, they are breaking the <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov Substitution Principle</a> on purpose to speed up the execution time of .Count(). 
+
+  <br />That’s why calling .Count() doesn’t hurt so much as long as you are calling it on a IEnumerable that’s also an ICollection, all you’re doing is a cast and a field read.</p>
+
+<p>That’s also why in my testing IEnumerable.Count() wasn’t soo much slower than IList.Count since the only difference that slowed IEnumerable was the typecast (I’m too lazy to generate some data on a non ICollection IEnumerable with a real O(n) execution time). </p>
+
+<p>&#160;<img title="image" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="158" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/03/image1.png" width="400" border="0" /> </p>
+
+<p>Just keep in mind that once you are iterating over a “real” IEnumerable that has no collection underneath, you should try to avoid calling .Count() too often since it’s not only a cast/read but a iteration over all elements of a list. 
+  <br />Also keep in mind that usually when working with the extension methods on IEnumerable you risk to perform a O(n) operation, so use it wisely (especially when you don’t control the source of your IEnumerable&lt;T&gt;, you could get passed anything).</p>

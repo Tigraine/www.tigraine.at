@@ -1,0 +1,84 @@
+---
+layout: post
+title: "A short look at the Big&gt;Days 2009 Demo"
+guid: http://www.tigraine.at/2009/03/23/a-short-look-at-the-bigdays-2009-demo/
+postid: 498
+---
+<p>I couldn’t help and look at the <a href="http://bigdays09.codeplex.com/">Big&gt;Days2009 Rent-A-Worker code</a> that <a href="http://blogs.msdn.com/knom/archive/2009/03/22/slides-and-demos-from-bigdays-2009-are-online.aspx">Max Knor</a> recently put up on his website.</p>  <p>I really didn’t spend too much time to look at the whole code, most notably it’s not the complete code (the WPF desktop client and the Silverlight client are missing from the repository).</p>  <p>Usually when confronted with a new code I immediately try to look at the tests to see what the code is about (since I don’t want to build the database on this machine).</p>  <p>Finding the tests is easy, the solution is rather well structured and split into multiple projects to separate concerns.   <br />Unfortunately that’s the only good thing about the tests. Since there are only 2 classes with tests, both which I find tragically funny:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a055ea3c-4b63-4be1-8f7a-48247b492a88" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[TestMethod]
+public void CustomersGetAll()
+{
+&#160;&#160;&#160;&#160;TestContext.WriteLine("Retrieving customers...");
+
+&#160;&#160;&#160;&#160;Cust.Customer[] Customers = CustomerMgmt.GetCustomers(string.Empty);
+&#160;&#160;&#160;&#160;TestContext.WriteLine("Called successfully!");
+&#160;&#160;&#160;&#160;foreach (var c in Customers)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TestContext.WriteLine("Getting details for {0}...", c.CustomerID);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Cust.Customer cd = Customer.GetCustomer(c.CustomerID);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TestContext.WriteLine("Details retrieved: {0} {1}!", cd.Name, cd.MembershipID);
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TestContext.WriteLine("Getting by membership ID...");
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int cdId = Customer.GetCustomerForUser(
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;cd.MembershipID == null ? Guid.Empty : cd.MembershipID.Value);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TestContext.WriteLine("Customer ID by Membership retrieved: {0}!", cdId);
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TestContext.WriteLine("-----");
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>This should be a test for <a href="https://bigdays09.svn.codeplex.com/svn/RentAWorker/2%20-%20Business/RentAWorker.Business.Tests/ProxyTests.cs">the Proxy class</a>, but there are no asserts in there. I mean, if you test something, at least make sure you test that what you did worked. Not getting an exception from your code isn’t really a test at all (wait for the guy who mucks all exceptions with try/catch!).</p>
+
+<p>Same thing goes for tests like this one:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c67e1563-9ed0-4e09-b918-02202c3cc81b" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[TestMethod()]
+public void DeleteResourceTest()
+{
+&#160;&#160;&#160;&#160;ResourceDataAccess target = new ResourceDataAccess();
+}
+</pre></div>
+
+<p>or half done tests like this one:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c2842da4-15d2-4660-b786-01f1c475b4a6" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[TestMethod()]
+public void GetResourcesTest()
+{
+&#160;&#160;&#160;&#160;ResourceDataAccess target = new ResourceDataAccess(); // TODO: Initialize to an appropriate value
+&#160;&#160;&#160;&#160;IEnumerable&lt;RentResource&gt; expected = null; // TODO: Initialize to an appropriate value
+&#160;&#160;&#160;&#160;IEnumerable&lt;RentResource&gt; actual;
+&#160;&#160;&#160;&#160;actual = target.GetResources();
+&#160;&#160;&#160;&#160;Assert.AreEqual(expected, actual);
+&#160;&#160;&#160;&#160;Assert.Inconclusive("Verify the correctness of this test method.");
+}
+</pre></div>
+
+<p>From what I can judge (and I’m surely in no position to do that since my latest code was quite untested too), there isn’t one test in two different test projects that actually does something (besides Assert.Inconclusive calls at the end, or no asserts) and so I wonder why someone bothered creating those projects at all.</p>
+
+<p>Also, most code in there uses a <a href="https://bigdays09.svn.codeplex.com/svn/RentAWorker/2%20-%20Business/RentAWorker.Business.Impl.Util/DataAccessFactory.cs">static Factory</a> classes that I would abandon in favor of dependency-injection to facilitate testing.
+
+  <br />It’s rather painful to see production code like this:</p>
+
+<p>
+  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f00286c0-01b5-46c0-929f-2957b431f144" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static ICustomerAccess GetCustomerAccess()
+{
+&#160;&#160;&#160;&#160;if (UseDummy)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return new DataAccessDummy();
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;else
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return new CustomerDataAccess();
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+</p>
+
+<p>(You could spare yourself some pain if you’d have two implementations of the Factory class instead of doing the Dummy branch in every method)</p>
+
+<p>Now, this is hard I know. Most other code I looked at in there is quite nice, the DataAccessLayer seperation is quite nice, and also the strict DTO declaration is really cool, and now hitting on the tests and the factory is quite bad. Also the project structure is a really pleasant sight (although I keep missing projects :)).</p>
+
+<p>But I’m a test and deendency-inection nut, so what matters most to me is what I’ll pick on first. It takes time to come up with good code, and with some refactorings this codebase can really shine (it’s well done after all). </p>

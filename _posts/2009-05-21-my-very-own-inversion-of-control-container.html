@@ -1,0 +1,68 @@
+---
+layout: post
+title: "My very own Inversion of Control container: Pandora"
+guid: http://www.tigraine.at/2009/05/21/my-very-own-inversion-of-control-container/
+postid: 520
+---
+<p>Almost a year ago or so I listened to a .NET Rocks episode about the Castle MicroKernel/Windsor and the speaker was saying something along the lines of: “Writing a simple <a href="http://www.martinfowler.com/articles/injection.html">IoC container</a> isn’t all that difficult, it’s basically a hashtable of types and 20 lines of code”.</p>  <p>I always felt that it can’t really be that easy so today I decided to try it for myself. Not so much because I want to use my own container (Windsor does everything I want it to do), but out of curiosity and to learn some things about creating classes with reflection etc.    <br />Also I wanted a small project that I use to improve my TDD and API design skills.</p>  <p>So, here it is. Meet: <a href="http://bitbucket.org/Tigraine/pandora-container/overview/">Pandora</a></p>  <p>It’s a very lightweight IoC container that is more or less a hashtable of services with their implementing type as value. </p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bbadd268-8f39-4799-aa99-b98b3f272096" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Fact]
+public void CanResolveClassWithoutDependencies()
+{
+&#160;&#160;&#160;&#160;var componentStore = new ComponentStore();
+&#160;&#160;&#160;&#160;componentStore.Add&lt;IService, ClassWithNoDependencies&gt;();
+
+&#160;&#160;&#160;&#160;var container = new PandoraContainer(componentStore);
+&#160;&#160;&#160;&#160;var result = container.Resolve&lt;IService&gt;();
+
+&#160;&#160;&#160;&#160;Assert.IsType&lt;ClassWithNoDependencies&gt;(result);
+}
+</pre></div>
+
+<p>Pandora will look at the implementing type’s constructor and try to resolve any dependency found there (in a recursive manner). Going from the biggest constructor to the smallest. </p>
+
+<p>One obvious limitation right now is that only one implementing type per service can be provided at the moment. 
+  <br />Also there is no detection of circular dependencies and no lifestyle management (meaning every time I call Resolve I get a new object graph).</p>
+
+<p></p>
+
+<p>Now, this is far away from a useable product. But writing it allowed me to look at some of the problems involved in the process and I had to learn a thing or two about reflection and generics. </p>
+
+<p>One thing I wanted was to avoid having Type parameters. Having to write something like </p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:60e8b377-04ed-4356-8014-5f2df8453194" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+container.AddComponent(typeof(IService), typeof(Implementor));
+</pre></div>
+
+<p>feels awkward every time, so I decided to go with generics to enable a syntax like this one:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:4d818070-0ea9-4477-a7ff-f0bc2791a4e4" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+container.AddComponent&lt;IService, Implementor&gt;();
+</pre></div>
+
+<p>Much cleaner and I could even add the constraint that Implementor must inherit from IService:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c110cb0a-7c95-4cbb-af1d-046a28304fde" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public void AddComponent&lt;T, TImplementor&gt;()
+&#160;&#160;&#160;&#160;where T : class
+&#160;&#160;&#160;&#160;where TImplementor : T
+{
+&#160;&#160;&#160;&#160;componentStore.Add&lt;T, TImplementor&gt;();
+}
+</pre></div>
+
+<p></p>
+
+<p></p>
+
+<p>Now, the problem with this is that you can’t convert a Type to a generic call afterwards. Once I needed to resolve dependencies that are of a different type I couldn’t simply write Resolve&lt;myType&gt;(). 
+  <br />To invoke a generic method in the current instance with a Type argument you need to use generics to create that method, like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08fe6791-2818-4a7e-8f8f-f63e2b779503" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+MethodInfo method = typeof (PandoraContainer).GetMethod("Resolve");
+MethodInfo generic = method.MakeGenericMethod(myType);
+generic.Invoke(this, null)
+</pre></div>
+
+<p>So, it works but I guess it’s not the best way to regularly use reflection to call methods, so I <a href="http://bitbucket.org/Tigraine/pandora-container/changeset/a5dff1b9ae26/">went back</a> to Type parameters and created overloads for the generics. (And now I see why Windsor has Type parameter overloads for everything ;))</p>
+
+<p>Pandora is open source and licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License 2.0</a>. I strongly suggest you do not use this anywhere near production systems but strictly for educational purposes.</p>

@@ -1,0 +1,37 @@
+---
+layout: post
+title: "Don&rsquo;t rely on exception messages"
+guid: http://www.tigraine.at/2010/08/20/dont-rely-on-exception-messages/
+postid: 883
+---
+<p>Since the dotless 1.1 release we are finally able to present you with good error messages, telling you what line/column the problem was encountered etc. This has led to some tests like this one:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:733eab7e-0d12-43b3-bf8a-9d43ea9e9823" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public void DivisionByZero()
+{
+&#160;&#160;&#160;&#160;AssertExpressionError("Attempted to divide by zero.", 5, "20px / 0");
+&#160;&#160;&#160;&#160;AssertExpressionError("Attempted to divide by zero.", 14, "1 + 2 - 3 * 4 / 0");
+&#160;&#160;&#160;&#160;AssertExpressionError("Attempted to divide by zero.", 6, "1 + 2 / 0 - 3 * 4 / 0");
+}
+</pre></div>
+
+<br />
+
+<p>Usually you just check the exception type, but in this case it’s a generic ParseException that has the additional line/column&#160; info on it and does not wrap the DivideByZeroException in it’s InnerException. Obviously the above failed on my machine due to my German locale and I was getting a different exception message. </p>
+
+<p>I first tried to set the thread’s culture to en-GB but this only changes how formats are handled, there are no English exception texts installed on a German Windows machine. </p>
+
+<p>The obvious solution then was to not hard-code the exception message but retrieve it from the DivideByZeroException:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:81b984bc-65a5-4e72-bb60-dc7ab1783d51" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Test]
+public void DivisionByZero()
+{
+&#160;&#160;&#160;&#160;var divideByZeroException = new DivideByZeroException();
+&#160;&#160;&#160;&#160;AssertExpressionError(divideByZeroException.Message, 5, "20px / 0");
+&#160;&#160;&#160;&#160;AssertExpressionError(divideByZeroException.Message, 14, "1 + 2 - 3 * 4 / 0");
+&#160;&#160;&#160;&#160;AssertExpressionError(divideByZeroException.Message, 6, "1 + 2 / 0 - 3 * 4 / 0");
+}
+</pre></div>
+
+<br />
+
+<p>Takeaway: Make sure you tests run on all locales if your tests rely on exception messages. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-smile" alt="Smile" src="http://www.tigraine.at/wp-content/uploads/2010/08/wlEmoticonsmile.png" /></p>

@@ -1,0 +1,21 @@
+---
+layout: post
+title: "Divide two integers in .NET"
+guid: http://www.tigraine.at/2009/03/26/divide-two-integers-in-net/
+postid: 503
+---
+<p>Ok, this is really simple, but it just has cost me 15 minutes because I ignored a compiler warning:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:8e92fb15-e2d9-4b5e-84c2-8edeedcadce5" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+double result = myInt1/myInt2;
+</pre></div>
+
+<p>The compiler will underline that there is a possible loss in fraction, but I ignored it while not seeing anything wrong with the code at all.</p>
+
+<p>Whatever values I calculated, the result was always an integer. Turns out, dividing two integers will also create an integer instead of a double (so I got weird results like 31/10 = 3 ).</p>
+
+<p>To bypass this, you need to promote at least one of your integers to a double so a double divide will occur:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:22391771-5189-4467-aa99-a8d9da301fb8" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+double result = (double)myInt1 / myInt2;
+</pre></div>
+
+<p>Hope this helps, took me far too long to figure out.</p>

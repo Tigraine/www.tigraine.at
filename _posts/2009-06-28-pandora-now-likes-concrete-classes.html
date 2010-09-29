@@ -1,0 +1,42 @@
+---
+layout: post
+title: "Pandora now likes concrete classes"
+guid: http://www.tigraine.at/2009/06/28/pandora-now-likes-concrete-classes/
+postid: 596
+---
+<p>While getting into WPF and the MVVM pattern (you should check out <a href="http://blog.lab49.com/archives/2650">this Webcast by Jason Dolinger</a> if you need a tutorial to get started on MVVM) I found myself somehow dealing more with concrete classes then I was used to. Usually I hide everything behind some interface and try to think really hard before violating that habit. Nonetheless, ViewModel classes are just that, ViewModel classes very special to their View and you really can’t hide them behind a meaningful Interface (without looking too silly).</p>  <p>So, after writing a fairly small application with only 3 ViewModel classes I found myself writing this utterly meaningless block of code:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0d7ee7cb-7331-4c96-b24e-354a3aed674d" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+container.Register(p =&gt;
+{
+&#160;&#160;&#160;&#160;p.Service&lt;PersonViewModel&gt;()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;PersonViewModel&gt;();
+&#160;&#160;&#160;&#160;p.Service&lt;AddressesViewModel&gt;()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;AddressesViewModel&gt;();
+&#160;&#160;&#160;&#160;p.Service&lt;ProductViewModel&gt;()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;ProductViewModel&gt;();
+});
+</pre></div>
+
+<p>It’s not completely meaningless after all, everything that keeps me from writing <em>new PersonViewModel()</em> somewhere in my code is just awesome. Only, it’s a bit too much of ceremony for something that simple. By asking for a concrete type you already tell Pandora everything it needs to know. </p>
+
+<p>So, now Pandora can resolve concrete types directly if there is no registration that says otherwise. If you ask for a concrete class A, you’ll get a concrete class A even if the container is totally blank. 
+  <br />Now, if a class A is registered with the container it will use that one, if not Pandora will try to figure it out. </p>
+
+<p>That also leaves open one way of extending your system. You can start off with an implicitly registered concrete class A, and if you want to subclass it later to modify behavior you only register the new subclass B as implementor for service A with Pandora and you’re set.</p>
+
+<p>So, quick recap on how this works:</p>
+
+<p>When a concrete type is requested and can’t be found in the configuration it will be instantiated if:</p>
+
+<ol>
+  <li>It’s a concrete type</li>
+
+  <li>You are not resolving to a name</li>
+
+  <li>The dependencies of the requested type can be satisfied.</li>
+</ol>
+
+<p>Also keep in mind that the default lifestyle for Pandora is singleton, so once you request A, you’ll always get the same instance back as long as you don’t change that through an explicit registration.</p>
+
+<p>As always you can grab the source from <a href="http://bitbucket.org/Tigraine/pandora-container/">the BitBucket site</a>. There is no new binary release (I only moved up a minor version), but compiling Pandora is a pretty straightforward process as long as you have Visual Studio installed.</p>
+
+<p>Ps: I was amazed how easy it was to implement this. Basically all I did was write a wrapper around the ComponentLookup service to implement the new functionality. It’s <a href="http://bitbucket.org/Tigraine/pandora-container/src/94a71812b23b/src/Pandora/ConcreteClassInstantiationLookupServiceDecorator.cs">all in one place</a> :).</p>

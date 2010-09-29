@@ -1,0 +1,69 @@
+---
+layout: post
+title: "Rant: Interface violation inside ASP.NET MVC"
+guid: http://www.tigraine.at/2009/05/27/rant-interface-violation-inside-aspnet-mvc/
+postid: 530
+---
+<p>I’m amazed about how bad the ASP.NET MVC code really is. Why? Because something as trivial as redirecting the output of a View to another TextWriter shouldn’t take more than 5 lines of code and certainly not be impossible!</p>  <p>But from the start, here’s the scenario. ViewResult should not be written to HttpContext.Response but to some arbitrary TextWriter.    <br />So, for me the most obvious choice was to alter the ViewResult to write to somewhere else. So redirecting should be as easy as:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c2573b73-ac06-40ec-b3ea-0ba8fec2f5cb" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public ActionResult Index()
+{
+&#160;&#160;&#160;&#160;ViewData["Message"] = "Welcome to ASP.NET MVC!";
+&#160;&#160;&#160;&#160;TextWriter writer = Console.Out;
+&#160;&#160;&#160;&#160;return new RoutedViewResult(writer);
+}
+</pre></div>
+
+<p>Now, nothing left to do but override the ExecuteResult method and call View.Render() with another writer:</p>
+
+<p><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="122" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/05/image2.png" width="556" border="0" /> </p>
+
+<p>So, what do you see here? A method that takes a ViewContext (containing ViewData, TempData, HttpContext etc..) and a TextWriter.&#160; <br />Any normal person would now jump to the conclusion, that if I build a ViewContext and pass in my TextWriter, I’m set and all is well. </p>
+
+<p>So, I spent almost 30 minutes trying to find a way on how to construct the ViewContext (without copy/pasting the code from within the framework, btw. forget it – they married ViewContext creation with View rendering, so no way to separate those) just to find out that my output was still written to HttpContext.Response. </p>
+
+<p>That’s when I looked at the WebFormView class that implements the IView interface, but does so badly. 
+  <br />Let me explain:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b74c4e65-e730-4062-8ba4-5759f6ae0a1a" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public interface IView
+{
+&#160;&#160;&#160;&#160;// Methods
+&#160;&#160;&#160;&#160;void Render(ViewContext viewContext, TextWriter writer);
+}
+</pre></div>
+
+<p>The interface clearly states that there should be a TextWriter passed to the View. 
+  <br />Imagine my face when I saw the implementation in the WebFormView class:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9e7a2595-3f0e-4c47-ae02-7eed894a6eb3" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public virtual void Render(ViewContext viewContext, TextWriter writer)
+{
+&#160;&#160;&#160;&#160;if (viewContext == null)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new ArgumentNullException("viewContext");
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;object obj2 = this.BuildManager.CreateInstanceFromVirtualPath(this.ViewPath, typeof(object));
+&#160;&#160;&#160;&#160;if (obj2 == null)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new InvalidOperationException(string.Format(CultureInfo.CurrentUICulture, MvcResources.WebFormViewEngine_ViewCouldNotBeCreated, new object[] { this.ViewPath }));
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;ViewPage page = obj2 as ViewPage;
+&#160;&#160;&#160;&#160;if (page != null)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.RenderViewPage(viewContext, page);
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;else
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;ViewUserControl control = obj2 as ViewUserControl;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (control == null)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new InvalidOperationException(string.Format(CultureInfo.CurrentUICulture, MvcResources.WebFormViewEngine_WrongViewBase, new object[] { this.ViewPath }));
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.RenderViewUserControl(viewContext, control);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Do you see the problem? <u>Writer is <strong>NEVER </strong>used</u>. They violate their own interface in their own code. What a mess. </p>
+
+<p>Something similar has been done with the <a href="http://mvccontrib.googlecode.com/svn/trunk/src/MVCContrib/Services/EmailTemplateService.cs">EmailTemplateService</a> in MVCContrib, but it’s very email specific and works with using a MemoryStream as filter to the HttpContext.Response (not happy with that either, but apparently the only way).</p>

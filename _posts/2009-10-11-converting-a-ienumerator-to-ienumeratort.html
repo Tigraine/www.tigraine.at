@@ -1,0 +1,57 @@
+---
+layout: post
+title: "Converting a IEnumerator to IEnumerator&lt;T&gt;"
+guid: http://www.tigraine.at/2009/10/11/converting-a-ienumerator-to-ienumeratort/
+postid: 775
+---
+<p>When generics where introduced with .NET 2.0 there was a ton of 1.1 code lying around that was still built without generics. So the obvious answer by Microsoft was that most generic specialization classes can be cast to their non-generic counterparts to avoid problems for users.</p>  <p>Now, years later we have the opposite phenomenon. Few people are actually using untyped collections, so a new problem has come: What if you are looking at legacy code that has to call into new API that has no non-generic support.</p>  <p>Well, it’s simple: IEnumerator becomes IEnumerator&lt;object&gt; and all is well. But there is no conversion from IEnumerator to IEnumerator&lt;object&gt;, so you have to write your own little facades when trying to put square blocks into round holes:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08f8f9af-bac3-4b80-8e73-ce2b0f088d77" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public class CastEnumerator&lt;T&gt; : IEnumerator&lt;T&gt;
+{
+&#160;&#160;&#160;&#160;private readonly IEnumerator enumerator;
+
+&#160;&#160;&#160;&#160;public CastEnumerator(IEnumerator enumerator)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.enumerator = enumerator;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public void Dispose()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public bool MoveNext()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return enumerator.MoveNext();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public void Reset()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;enumerator.Reset();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public T Current
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return (T)enumerator.Current; }
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;object IEnumerator.Current
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return Current; }
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>The call then looks like this:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c0e83c96-13f1-47ef-aeef-838eeeee946b" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public IEnumerator&lt;T&gt; GetEnumerator()
+{
+&#160;&#160;&#160;&#160;return new CastEnumerator&lt;T&gt;(untypedEnumerator);
+}
+</pre></div>
+
+<p>As <a href="http://www.colourcoding.net/blog/">Julian Birch</a> explained in the comments, if you are using .NET 3.5 it’s even simpler to get from an untyped IEnumerable to a IEnumerable&lt;T&gt; (while not technically a IEnumerator, the typed one will then return a IEnumerator&lt;T&gt;):</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6fca3fae-7dea-4746-8eea-a5112587e162" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+IEnumerable untypedEnumerable = ...;
+IEnumerable&lt;string&gt; typedEnumerable = untypedEnumerable.Cast&lt;T&gt;();
+</pre></div>

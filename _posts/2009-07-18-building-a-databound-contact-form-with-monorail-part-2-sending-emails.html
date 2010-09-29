@@ -1,0 +1,155 @@
+---
+layout: post
+title: "Building a databound contact form with MonoRail &ndash; Part 2: Sending Emails"
+guid: http://www.tigraine.at/?p=643
+postid: 643
+---
+<p>This is part 2 of a 3 part tutorial on writing a databound contact form with Castle Monorail that gets sent off by email. We already touched FormHelpers and DataBinding in <a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Part1: Views and Databinding</a>, now we’ll see how easy it is to send a email template with MonoRail.</p>  <p>The other parts of this tutorial:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a> </li>    <li>Validation </li> </ul>  <h1>Sending Emails</h1>  <p>We left off with a <tt>Thanks</tt> controller method that gets a ContactRequest parameter and now should send off the data by email. </p>  <h3>1 – Configuring our Servers</h3>  <p>Anything involving emails usually requires a SMTP server. The same thing goes for MonoRail, yet MR will default the SMTPServer setting to <tt>127.0.0.1</tt> if you don’t explicitly configure it through your <tt>web.config</tt>. Unfortunately for me I don’t have a SMTP server sitting on my box, so I had to change that setting through the monorail configuration node inside our web.config:</p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:98a93a66-1f10-4d5b-bfcf-38cfaa484ce9" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+&lt;monorail smtpHost="smtp.server.com"&gt;
+&#160;&#160;&lt;controllers&gt;
+	&#160;&#160;&lt;assembly&gt;MonoRail.ContactForm&lt;/assembly&gt;
+&#160;&#160;&lt;/controllers&gt;
+&#160;&#160;.
+&#160;&#160;.
+</pre></div>
+
+<p>You can optionally also optionally configure <tt>smtpPort</tt>, <tt>smtpUsername</tt> and <tt>smtpPassword</tt>.</p>
+
+<h3>2 – Sending a sample Message</h3>
+
+<p>We’ll jump ahead a bit and send a email message right away to verify that our settings so far have been working. Sending emails is as simple as calling the <tt>DeliverEmail</tt> method from within our <tt>Thanks</tt> controller action:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6df74c77-b1a9-431b-8289-d5037d6fe718" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public void Thanks([DataBind("FormData")] ContactRequest request)
+{
+&#160;&#160;&#160;&#160;var message = new Message
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;To = "tigraine@tigraine.at",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;From = "tigraine@tigraine.at",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Subject = "Hello World",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Body = "My first message"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
+&#160;&#160;&#160;&#160;DeliverEmail(message);
+}
+</pre></div>
+
+<p>It’s really that easy.</p>
+
+<h3>3 – Templating the Message</h3>
+
+<p>It’s simple to send emails as seen in step 2, but having to chop strings together to send emails is just awful and error prone. Especially when you want some fancy HTML layout in your emails you’ll want to leverage the power of your ViewEngine to create the email message.</p>
+
+<p>MonoRail provides such a method with it’s <tt>RenderMailMessage</tt> method. RenderMailMessage takes in a viewname, a layout and a IDictionary of parameters that will get passed on to the view. 
+
+  <br />For this simple tutorial I chose not to use a layout, so I pass in null. Also make sure you cast your Dictionary to the non-generic IDictionary since there is a <a href="http://groups.google.com/group/castle-project-devel/browse_thread/thread/8f2c7af8cee46c5f?hl=en">little bug with the generic IDictionary</a> overload.</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:1476f64f-9619-433e-baf7-845be996e583" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public void Thanks([DataBind("FormData")] ContactRequest request)
+{
+&#160;&#160;&#160;&#160;var parameters = new Dictionary&lt;string, object&gt;{{"request", request}};
+&#160;&#160;&#160;&#160;var message = RenderMailMessage("contact", null, (IDictionary)parameters);
+&#160;&#160;&#160;&#160;DeliverEmail(message);
+}
+</pre></div>
+
+<p></p>
+
+<p>MonoRail will look for email-templates inside the <tt>Views\mail\</tt> folder, so we’ll add our <tt>contact.vm</tt> there:</p>
+
+<p><img style="border-right-width: 0px; display: inline; float: left; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/07/image10.png" width="183" height="244" /> One thing you’ll notice immediately is that all information about from, to, subject and body have not disappeared from our action method. This data will now get extracted from the view, allowing for easy customization. </p>
+
+<p>To do so we need our view to look like this: </p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6e8e35c3-23cf-4425-93c6-8f207a4bd703" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+to: tigraine@tigraine.at
+from: $request.Email
+subject: $request.Subject
+
+This is where the body starts
+Message from $request.Name
+
+$request.Text
+</pre></div>
+
+<p>MonoRail will extract the information from the to: from: fields and use them to send the message. The above also uses the parameters we passed in to render. <tt>$request</tt> here refers to the object passed into our dictionary with name <tt>request</tt>.</p>
+
+<p style="clear: both">If run we’ll end up with a email simiar to this:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/07/image11.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/07/image-thumb7.png" width="298" height="178" /></a> </p>
+
+<h3>4 – Testing it</h3>
+
+<p></p>
+
+<p></p>
+
+<p>Email interactions are perfect examples of stuff that goes wrong without anyone noticing. Someone does some changes in the controller and all of a sudden you don’t get those annoying contact requests for a week. Usually you blame it on a slow week and by the time you suspect something is wrong you already ignored a month of customer feedback.</p>
+
+<p>To avoid this we’ll want to unit test this, and while I usually write my tests first – it’s easier to follow if you know the code under test. Testing in MonoRail is quite simple once you know where to look, unfortunately the documentation is scattered and scarce. </p>
+
+<p>We’ll begin by making our testclass derive from <tt>BaseControllerTest</tt>, a class inside the <tt>Castle.MonoRail.TestSupport</tt> assembly that is used to facilitate testing.</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:88c0d712-04e7-4678-a9ce-64cdd86b2740" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public class ContactBehaviorTest : BaseControllerTest
+{
+&#160;&#160;&#160;&#160;
+}
+</pre></div>
+
+<p>This provides us with a neat little function that allows us to sandbox our controller called <tt>PrepareController</tt>.</p>
+
+<p>Testing that a message has been rendered through the template engine would therefore look like this:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:84f165e5-f3ca-4d00-bb8f-efc4765256c5" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Fact]
+public void Thanks_RendersTemplatedEmail()
+{
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
+
+&#160;&#160;&#160;&#160;controller.Thanks(null);
+
+&#160;&#160;&#160;&#160;Assert.True(HasRenderedEmailTemplateNamed("contact"));
+}
+</pre></div>
+
+<p>This test merely verifies that a template was rendered, but we probably want to verify that the view gets passed the correct arguments:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3770f67f-ac1d-4e0a-826b-9a53be9b044e" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Fact]
+public void Thanks_MailRendering_ParametersGetPassed()
+{
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
+
+&#160;&#160;&#160;&#160;var request = new ContactRequest();
+&#160;&#160;&#160;&#160;controller.Thanks(request);
+
+&#160;&#160;&#160;&#160;var parameters = RenderedEmailTemplates[0].Parameters["request"];
+&#160;&#160;&#160;&#160;Assert.Same(request, parameters);
+}
+</pre></div>
+
+<p>We now have verified that the “request” parameter object is indeed the one passed into the action method. This is not perfect since we’d just want to verify that the correct values get passed around, not references. But for this tutorial this will suffice. </p>
+
+<p>Next on our checklist should be the fact that the created message is indeed sent off. We do so by using the <tt>StubEngineContext</tt> our <tt>BaseControllerTest</tt> provides us with:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b6b9e5da-bd4f-4119-a0f8-2316828e576f" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Fact]
+public void Thanks_EmailSending_SendsOutOneEmail()
+{
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
+&#160;&#160;&#160;&#160;var context = (StubEngineContext)Context;
+
+&#160;&#160;&#160;&#160;controller.Thanks(new ContactRequest());
+
+&#160;&#160;&#160;&#160;Assert.Equal(1, context.MessagesSent.Count);
+}
+</pre></div>
+
+<p>This now simply verifies that we did indeed send a mail message.</p>
+
+<p>Now we have a fully working contact form that gets sent off by email through a template. We may want to protect that form from bad input by validating some of our fields. Check back tomorrow for part 3 of this tutorial.</p>
+
+<p>Ps: As always the source for this tutorial is available in my <a href="http://bitbucket.org/Tigraine/tigraine-samples/">BitBucket samples repository</a>. Usually one <a href="http://bitbucket.org/Tigraine/tigraine-samples/changesets/">changeset</a> represents one tutorial step.</p>

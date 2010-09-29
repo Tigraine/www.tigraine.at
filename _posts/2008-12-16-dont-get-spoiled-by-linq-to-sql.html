@@ -1,0 +1,44 @@
+---
+layout: post
+title: "Don&rsquo;t get spoiled by LinQ To SQL"
+guid: http://www.tigraine.at/2008/12/16/dont-get-spoiled-by-linq-to-sql/
+postid: 411
+---
+<p>I got introduced to LinQ through the famous posts by ScottGu on <a href="http://weblogs.asp.net/scottgu/archive/2007/05/19/using-linq-to-sql-part-1.aspx">Linq-to-Sql</a> and always thought of LinQ as some really cool language thing that automagically enabled me to write queries within .NET.</p>  <p>All of ScottGu’s samples look like actual SQL Queries with real keywords within the language like:</p>  <p></p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:43d1f96f-4558-4dd3-a78a-8ada13726a9b" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var result =&#160;&#160; from s in strings
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; where s.StartsWith("d")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; select s;
+</pre></div>
+
+<p></p>
+
+<p>So, when I was just briefly trying to get stuff done I used all those keywords as they seemed to fit and didn’t really try to understand the “deeper” concept behind those (as they magically generated SQL queries). MS introduced new keywords into the language, so be it, I was looking them up in MSDN and used them as such when using the LinQ-to-Sql datacontext.</p>
+
+<p>Now, that I (<a href="http://ayende.com/Blog/archive/2008/10/31/microsoft-kills-linq-to-sql.aspx">and apparently Microsoft</a>) have departed from LinQ-to-Sql I somehow forgot about LinQ for quite some time simply because I had no need for in-memory-queries for quite some time. And to be honest, I also never really thought about applying that strange LinQ syntax to objects in memory (I considered the above mentioned LinQ query more as a “c# strongly typed version of SQL” rather than a in-memory query method)</p>
+
+<p>So, I was quite amazed of what you can actually do with LinQ if you abandon this strange undiscoverable SQL syntax and simply use method chaining. The above query can be rewritten without any “keyword magic” but with plain objects to look like this:</p>
+
+<p></p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:7b9c52ec-de42-4eb4-94a3-18d46e484aa1" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var result = strings.Where(s =&gt; s.StartsWith("d"));
+</pre></div>
+
+<p></p>
+
+<p>The beauty of it? All the LinQ overloads reside on the IEnumerable&lt;T&gt; interface, and most of these methods will return an IEnumerable&lt;T&gt; so you can “chain” those method calls together like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2eea97fb-9ad4-467d-95ab-944ea1a766fb" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var result = strings
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Where(s =&gt; s.StartsWith("d"))
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.OrderBy(p =&gt; p.Length)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Select(p =&gt; p.Substring(0, 4));
+</pre></div>
+
+<p></p>
+
+<p></p>
+
+<p>And now the whole thing started to make sense. I can easily grasp how this is supposed to work, instead of looking at awe at the “SQL query” that magically works. And that’s where I went wrong the first time. </p>
+
+<p>Instead of learning LinQ to objects first, I got caught in the database centric world of LinQ-to-Sql that made me not think of LinQ as anything other than a Database query tool.</p>

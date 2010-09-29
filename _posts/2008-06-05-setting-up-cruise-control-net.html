@@ -1,0 +1,85 @@
+---
+layout: post
+title: "Setting up Cruise Control .NET"
+guid: http://www.tigraine.at/2008/06/05/setting-up-cruise-control-net/
+postid: 286
+---
+<a href="http://ccnet.thoughtworks.com"><img src="http://www.tigraine.at/wp-content/uploads/2008/06/logo-thumb.gif" alt="logo" width="260" border="0" height="42" /></a>
+
+Wow, what a day!
+After starting a new project today (I'll discuss that in another post) I decided that it is time to get serious with <a href="http://svnbook.red-bean.com/nightly/en/svn.intro.whatis.html">source control</a> and <a href="http://www.martinfowler.com/articles/continuousIntegration.html">continous integration</a>.
+This time I thought I'd skip the java stuff and pass on <a href="http://www.jetbrains.com/teamcity/">JetBrains Teamcity</a>, and instead went for the <a href="http://ccnet.thoughtworks.com/">SourceControl.NET</a> by <a href="http://confluence.public.thoughtworks.org/dashboard.action">ThoughtWorks</a> that I heard of on <a href="http://hanselminutes.com/default.aspx?showID=131">Hanselminutes</a>.
+
+First things first: I am totally stunned of how great this has turned out. If you don't have a CI server yet, go get yourself one immediately.
+Even if you are programming by yourself, having someone run the build process and all unit tests for you never hurts and will save you time in the long run.
+Set-up of CruiseControl and the whole stuff was quite time-consuming (meaning 3 hours), but doing it on another project now really is a piece of cake, once you're done it feels quite natural.
+
+So, to get started you should set up <a href="http://subversion.tigris.org/">Subversion</a> by simply installing <a href="http://www.visualsvn.com/">VisualSVN</a>, the server is running in less than 30 seconds, your users and repositories are in place after a mere minute. I can't think of any easier way to install Subversion, kudos to the VisualSVN team!
+
+Now, this isn't quite standard, but really helps: Create a file called <strong>svn.bat </strong>in your <em>C:\WINDOWS\system32\ </em>folder with the following content:
+<pre>@echo off
+"C:\Programme\VisualSVN Server\bin\svn.exe" %*</pre>
+Cool huh? Now you've got svn in your %PATH% without having to edit the variable itself. This will save you some time on the CCnet configuration.
+
+The next thing was to install the newest CCnet version, and here I suggest you get the latest and hottest stuff directly from the svn. I ran into some troubles with some msbuild reports in version 1.3. Updating to 1.4 worked wonders.
+
+Now that everything is set up (you can now access the WebDashboard through the http://&lt;yourserver&gt;/ccnet/ url), you need to get the whole thing configured. (The only painful thing in this installation).
+
+A good starting point is the <a href="http://confluence.public.thoughtworks.org/display/CCNET/Configuring+the+Server">documentation</a> that explains almost everything.
+
+I won't go through everything in the ccnet.config file, just some things I want to point out:
+<ul>
+	<li>Make sure to either run the latest CCnet build or use the doc that came with your binaries. New not used settings will stop the server from running.</li>
+	<li>While testing your build process go ahead and try to run the same commands from a shell. Especially with msbuild it took some time to sort out the quirks :)</li>
+	<li>Don't forget to blindly incorporate the whole list of &lt;publishers&gt;. I can't think of a scenario where I don't want almost all of those running, and if you skip some (like xmllogger and statistics) you will get some broken links on your dashboard.</li>
+	<li>VisualSVN sets up a https server. CCnet runs svn with the --non-interactive switch, so it will quietly break due to a unsigned SSL certificate. To bypass this simply run a <i>svn list &lt;repo&gt;</i> from a shell and accept the certificate permanently. And make sure the CCnet service is running under your login credentials, svn stores the certificate setting per user.</li>
+</ul>
+So, enough wisdom from my part on CCnet. I really had a blast in setting it up, and I can only recommend it. After the break I've postet my ccnet.config if you want to have a look.
+
+<!--more-->
+<pre class="xml" name="code">&lt;cruisecontrol&gt;
+      &lt;project name="Valet"&gt;
+        &lt;workingDirectory&gt;valet/WorkingDirectory&lt;/workingDirectory&gt;
+        &lt;artifactDirectory&gt;valet/ArtifactDirectory&lt;/artifactDirectory&gt;
+        &lt;webURL&gt;<a href="http://plato/ccnet/server/local/project/Valet/ViewProjectReport.aspx">http://plato/ccnet/server/local/project/Valet/ViewProjectReport.aspx</a>&lt;/webURL&gt;
+        &lt;modificationDelaySeconds&gt;10&lt;/modificationDelaySeconds&gt;
+        &lt;sourcecontrol type="svn"&gt;
+            &lt;trunkUrl&gt;<a href="https://plato:8443/svn/valet/trunk/">https://plato:8443/svn/valet/trunk/</a>&lt;/trunkUrl&gt;
+            &lt;username&gt;ccnet&lt;/username&gt;
+            &lt;password&gt;xEs6S-uW&lt;/password&gt;
+            &lt;autoGetSource&gt;true&lt;/autoGetSource&gt;
+            &lt;!--&lt;tagOnSuccess&gt;true&lt;/tagOnSuccess&gt;--&gt;
+        &lt;/sourcecontrol&gt;
+        &lt;state type="state" /&gt;
+        &lt;labeller type="defaultlabeller"&gt;
+            &lt;prefix&gt;Valet-alpha-0.&lt;/prefix&gt;
+            &lt;incrementOnFailure&gt;false&lt;/incrementOnFailure&gt;
+        &lt;/labeller&gt;
+        &lt;triggers&gt;
+          &lt;intervalTrigger name="continuous" seconds="30" /&gt;
+        &lt;/triggers&gt;
+        &lt;tasks&gt;
+            &lt;msbuild&gt;
+              &lt;executable&gt;C:\WINDOWS\Microsoft.NET\Framework\v3.5\MSBuild.exe&lt;/executable&gt;
+              &lt;projectFile&gt;Valet.sln&lt;/projectFile&gt;
+              &lt;buildArgs&gt;/noconsolelogger /p:Configuration=Debug /v:diag&lt;/buildArgs&gt;
+              &lt;targets&gt;Build&lt;/targets&gt;
+              &lt;timeout&gt;900&lt;/timeout&gt;
+              &lt;logger&gt;C:\Programme\CruiseControl.NET\server\ThoughtWorks.CruiseControl.MsBuild.dll&lt;/logger&gt;
+            &lt;/msbuild&gt;
+            &lt;nunit path="C:\Programme\NUnit 2.4.7\bin\nunit-console.exe"&gt;
+                &lt;assemblies&gt;
+                  &lt;assembly&gt;C:\Programme\CruiseControl.NET\server\valet\WorkingDirectory\ValetServerTest\bin\Debug\ValetServerTest.dll&lt;/assembly&gt;
+                &lt;/assemblies&gt;
+            &lt;/nunit&gt;
+        &lt;/tasks&gt;
+        &lt;publishers&gt;
+          &lt;xmllogger /&gt;
+          &lt;statistics /&gt;
+          &lt;modificationHistory  onlyLogWhenChangesFound="true" /&gt;
+          &lt;rss/&gt;
+          &lt;modificationWriter /&gt;
+        &lt;/publishers&gt;
+    &lt;/project&gt;
+&lt;/cruisecontrol&gt;</pre>
+Man, I hate my blog theme. I need to get this thing wider sometimes soon!

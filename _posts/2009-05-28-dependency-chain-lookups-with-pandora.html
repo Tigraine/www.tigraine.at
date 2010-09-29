@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Dependency chain lookups with Pandora"
+guid: http://www.tigraine.at/2009/05/28/dependency-chain-lookups-with-pandora/
+postid: 537
+---
+<p>Almost a week ago <a href="http://www.tigraine.at/2009/05/21/my-very-own-inversion-of-control-container/">I introduced Pandora</a> my own take on Inversion of Control. So I’m back to report some news.</p>  <p><strong>New features:</strong></p>  <ol>   <li>Multiple registrations of one service type</li>    <li>Graph splitting</li>    <li>Dependency chains of own service</li> </ol>  <p>Before only one service registration was possible, preventing you from doing all sorts of cool things.   <br />For example it prevented you from registering a class like this one:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:425946b5-e271-48a0-bd93-a7a567eadf0f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class ClassWithDependencyOnItsOwnService : IService
+{
+&#160;&#160;&#160;&#160;public ClassWithDependencyOnItsOwnService(IService service)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>This class would typically be some sort of decorator that covers the IService interface with a thin layer of concerns (like logging/errorhandling/caching). Now, you can just register more than one IService and it will walk the graph for you:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:5777d86a-2d46-4159-b75d-2ecef7ddfaa7" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Fact]
+public void CanResolveDependencyChainOfSameService()
+{
+&#160;&#160;&#160;&#160;var store = new ComponentStore();
+&#160;&#160;&#160;&#160;store.Add&lt;IService, ClassWithDependencyOnItsOwnService&gt;();
+&#160;&#160;&#160;&#160;store.Add&lt;IService, ClassWithNoDependencies&gt;();
+
+&#160;&#160;&#160;&#160;var container = new PandoraContainer(store);
+
+&#160;&#160;&#160;&#160;var service = container.Resolve&lt;IService&gt;();
+
+&#160;&#160;&#160;&#160;Assert.IsType(typeof (ClassWithDependencyOnItsOwnService), service);
+&#160;&#160;&#160;&#160;var ownService = (ClassWithDependencyOnItsOwnService)service;
+&#160;&#160;&#160;&#160;Assert.IsType(typeof (ClassWithNoDependencies), ownService.SubService);
+}
+</pre></div>
+
+<p>Also now there is the possibility to split the graph at some point like this:</p>
+
+<p><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="279" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/05/image4.png" width="343" border="0" /> </p>
+
+<p>You don’t need three registrations for this, only one since every subresolving of IService will happen on it’s own. Something that isn’t really practical actually since we still lack the ability to influence the resolve process. Both IServices will be populated by the same registered type, it just won’t be the parent IService again.</p>
+
+<p>I also spent almost the whole day refactoring the resolver code since I felt that it became quickly unreadable.</p>
+
+<p><strong>Next:</strong> </p>
+
+<p>I still feel like the resolver needs some more refactoring, and I also want to improve the error messages. After that, I’d like to return my focus back to much needed features like lookup strategies and after that auto-configuration.</p>
+
+<p>You can check out the <a href="http://bitbucket.org/Tigraine/pandora-container/src/ca466e262ecd/">code</a> on the <a href="http://bitbucket.org/Tigraine/pandora-container/overview/">project site</a> on bitbucket.</p>

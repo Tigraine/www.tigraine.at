@@ -1,0 +1,103 @@
+---
+layout: post
+title: "Introducing ELMS-Connector v.1 Beta"
+guid: http://www.tigraine.at/?p=761
+postid: 761
+---
+<p>When I joined the <a href="http://www.tigraine.at/2009/06/21/imagineclub-students-for-students/">imagineClub in Klagenfurt</a> and started building the new website I kept avoiding one major feature for a very long time: Implementing the remote-login for the MSDN-AA system by Microsoft.</p>  <p>The way imagineClub members get to MSDN-AA software is through a web-store called ELMS that handles licensing and downloading for us. ELMS supports two modes: integrated authentication or campus authentication. Integrated means that accounts have to be maintained inside ELMS while campus authentication means you manage accounts in your own system and ELMS will ask your services to authenticate users.</p>  <p>Now the first approach works for very small organizations where you can easily keep track of your members and (as admin) respond to their “oh god I lost my password” requests.    <br />But with about 200 members like the imagineClub this alley leads into a world of pain and despair. So the only real solution is to implement the campus authentication that requires a authentication handshake between ELMS and imagineClub.</p>  <p>The documentation on the whole process is quite scarce, but with some reverse engineering of our old site and some FireBug network analysis I was able to eventually figure out how the whole system was supposed to work. It’s not that complicated after all, yet it’s not funny to have to re-invent it over and over again.</p>  <p>Since I knew that the Institute of Technology at Klagenfurt University has also acquired a MSDN-AA license for it’s staff I started working on the idea of a re-useable and easily pluggable library that could encapsulate all ELMS campus authentication logic to spare others the pain of implementing the thing from not so great documentation.</p>  <p>My main goals for this where:</p>  <ul>   <li>Minimum configuration </li>    <li>Pluggable (being able to drop it into an existing ASP.NET app) </li>    <li>Variable authentication method (not everyone is using the same auth services we do) </li> </ul>  <p>Especially for pluggability I wanted the whole thing to live inside a DLL so I decided to implement a HttpHandler that will then handle the authentication.</p>  <p>The handler will look for a <tt>Login.htm</tt> file in your application’s root folder and display that file to users that need to log in. This means that you can easily modify the look&amp;feel of your login page without having to mess with any ASP.NET code that can break. As long as you leave the name attribute of the username/password field intact all modification is fair game.</p>  <p>Once the user hits login the connector will then look into it’s configuration (I use <a href="http://castleproject.org/container/">Windsor</a> for that) and invoke a supplied IAuthenticationService class. That means that you tell Windsor through the config what class servicing IAuthenticationService you want to call and it will get called with username/password.</p>  <p>This is the interface that users may need to implement:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f67fff59-cc8b-41dc-a2df-8691e0b6fb18" class="wlWriterSmartContent">   <pre class="csharp" name="code">public interface IAuthenticatonService
+{&#160;&#160;&#160;&#160; bool AuthenticateUser(string username, string password);
+}</pre>
+</div>
+
+<p>I intentionally said may because ELMS-Connector comes with a built-in LDAP auth service that you can use to simply hook up the login to your existing LDAP system without having to write any code at all (although that part is still in development).</p>
+
+<p>Now, let’s get to the gory details.</p>
+
+<h3>How to set up:</h3>
+
+<p><strong>1: Grab the release from the project’s download page</strong></p>
+
+<p><a href="http://github.com/Tigraine/elms-connector/downloads">ElmsConnector download</a></p>
+
+<p><strong>2: Add reference to ElmsConnector.dll</strong></p>
+
+<p>ElmsConnector uses Castle Windsor internally but that dependency is merged into ElmsConnector.dll so you won’t run into any versioning issues.</p>
+
+<p><strong>3: Add httphandler to web.config</strong></p>
+
+<p>Add the following to your &lt;httHandlers&gt; section in the web.config:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9dc8198a-76b9-45d7-9e56-dc218143d3fc" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+&lt;add verb="*" path="*.elms" type="ElmsConnector.ElmsHandler, ElmsConnector"/&gt;
+</pre></div>
+
+<p>This makes all requests that end in .elms go to the ElmsConnector component that then does it’s magic.</p>
+
+<p><strong>4: Configure ELMS</strong></p>
+
+<p>Log into your ELMS dashboard and go to User Management –&gt; Integrated Campus Authentication.</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/09/image10.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/09/image_thumb8.png" width="657" height="230" /></a> </p>
+
+<p>Set the Campus Authentication to Test Mode (while testing the connector). 
+  <br />The Campus Authentication URL should look like this: <tt>http://&lt;yourserver&gt;/Login.elms</tt> (or wherever the *.elms HttpHandler will be accessible). 
+
+  <br />Set Department to department (the suggested default value).</p>
+
+<p>Campus CGI Server IP should be set to the IP your Server is using since ELMS will use the destination IP address to verify your identity. </p>
+
+<p>Now don’t forget to copy the ELMS CGI Connector url since it will become of importance during the configuration of the connector.</p>
+
+<p><strong>4: Copy and modify sample elms.xml</strong></p>
+
+<p>Inside the release zip there should be a file called <tt>elms.xml</tt>, this file is the main configuration for the ElmsConnector. Copy it to the root of your web application and open it inside Visual Studio. </p>
+
+<p>You now need to paste the ELMS CGI Connector url into the &lt;cgiConnector&gt; tag:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:41881a0d-4ba6-4d6b-9b70-bdfb11cd1390" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;component
+&#160;&#160;id="ElmsSessionRequestService"&gt;
+&#160;&#160;&lt;parameters&gt;
+&#160;&#160;&#160;&#160;&lt;cgiConnector&gt;https://msdn60.e-academy.com/&lt;campus&gt;/index.cfm?loc=login/cab_cgi&lt;/cgiConnector&gt;
+&#160;&#160;&lt;/parameters&gt;
+&lt;/component&gt;
+</pre></div>
+
+<p>And you’ll have to tell ElmsConnector where to find a type servicing IAuthenticationService. This is done by modifying the type attribute on the AuthenticationService component:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2151f208-b515-4e9c-bd19-a997d1235018" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;component
+&#160;&#160;id="AuthenticationService"
+&#160;&#160;service="ElmsConnector.IAuthenticatonService, ElmsConnector"
+&#160;&#160;type="ElmsConnector.Web.FakeAuthenticatonService, ElmsConnector.Web" /&gt;
+</pre></div>
+
+<p>(I suggest you look at the provided sample project <tt>ElmsConnector.Web</tt> to see how this works)</p>
+
+<p><strong>5: Add the Login.htm</strong></p>
+
+<p>Inside the zip there is also a file called <tt>Login.htm</tt>. That file is nothing more than an empty template of the future Login dialog ElmsConnector will expose to users. <u>Copy it to your web application’s root </u>and edit it to your heart’s extend. All modifications are fair game as long as you don’t change the form parameter names or remove the $error$ placeholder.</p>
+
+<p><strong>6: Done</strong></p>
+
+<p>Yes. that’s it. You can now test the whole thing by visiting your ELMS portal page and hit Login. If your Campus Authentication Url is set correctly you should see the ElmsConnector’s Login.htm and be able to log in. </p>
+
+<p><strong>License</strong></p>
+
+<p>ElmsConnector uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">ASL-2 license</a> and is therefore open-source-software. ASL-2 is a very permissive license that allows use of the code even in commercial closed-source scenarios. Still I’d appreciate if you’d let me know that you like ElmsConnector.</p>
+
+<p><strong>Problems</strong></p>
+
+<p>There may still be some problems with this release, if you notice anything strange or broken please open a <a href="http://github.com/Tigraine/elms-connector/issues">Ticket on GitHub</a> or shoot me a email. </p>
+
+<p><strong>Extending</strong></p>
+
+<p>ElmsConnector is <em><u>very</u> </em>extensible through the use of Castle.Windsor internally. If you know your way around Windsor XML configuration you should be able to change <u><em>everything</em></u> about the connector without the need to recompile. Still I suggest you check out <a href="http://github.com/Tigraine/elms-connector/tree/master">the source</a> to find out what goes on there. </p>
+
+<p><strong>Future</strong></p>
+
+<p>I’ll be dogfooding this component during this week while getting the iC-Website ready for launch. After that I want to implement the LDAP authentication service that will ship with ElmsConnector so if you have an existing LDAP infrastructure you don’t need to write any real code at all. </p>
+
+<p><strong>Need help?</strong></p>
+
+<p>If you have any more questions regarding ElmsConnector or how to set it up in your special case, please feel free to send me an email or contact me through IM (<a href="http://www.tigraine.at/about-me/">Contact info</a>). I’ll be happy to help you use ElmsConnector!</p>

@@ -26,6 +26,7 @@ doc.elements.each("*/channel/item") do |element|
        postname =  element.elements["wp:post_name"].text
        title = element.elements["title"].text
        postid = element.elements["wp:post_id"].text
+       guid = element.elements["guid"].text
        #Encoding of Post title
        coder = HTMLEntities.new
        title =  coder.encode(title, :named)
@@ -46,7 +47,8 @@ doc.elements.each("*/channel/item") do |element|
        targetFile.puts("---")
        targetFile.puts("layout: post")
        targetFile.puts("title: \"#{title}\"")
-       targetFile.puts("id: #{postid}")
+       targetFile.puts("guid: #{guid}")
+       targetFile.puts("postid: #{postid}")
        targetFile.puts("---")
        targetFile.write(element.elements["content:encoded"].text)
        targetFile.close

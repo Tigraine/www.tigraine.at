@@ -1,0 +1,49 @@
+---
+layout: post
+title: "DateTime parsing in ASP.NET MVC RouteEngine"
+guid: http://www.tigraine.at/2009/01/15/datetime-parsing-in-aspnet-mvc-routeengine/
+postid: 445
+---
+<p>After doing so much winforms development lately I am getting started on an upcoming an MVC project. And while thinking about the basic structure of the whole thing and trying out some things I discovered some pretty funny behavior in the DateTime parsing of the routing engine.</p>  <p>Typical example. A route that should map urls like: </p>  <blockquote>   <p><a href="http://www.website.com/Archive/10-12-2008/">http://www.website.com/Archive/10-12-2008/</a></p> </blockquote>  <p>I have my route laid out like this:</p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a71c4122-b03d-4f8b-b1c1-807876fe9507" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+routes.MapRoute("Archive",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"Archive/{date}/",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;new {controller = "Archive", action = "Show"});
+</pre></div>
+
+<p>And the controller action looks like this:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:df592b10-9714-417a-bd29-d5b98f4419e7" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public class ArchiveController : Controller&#160;&#160;&#160;&#160; 
+{
+&#160;&#160;&#160;&#160;public ActionResult Show(DateTime date)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return View();
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Now, when I open the browser and point it to the following URL it works</p>
+
+<blockquote>
+  <p><a title="http://localhost:51942/Archive/12.12.2008" href="http://localhost:51942/Archive/12.12.2008">http://localhost:51942/Archive/12.12.2008</a></p>
+</blockquote>
+
+<p>While this one doesn’t</p>
+
+<blockquote>
+  <p><a title="http://localhost:51942/Archive/15.11.2009" href="http://localhost:51942/Archive/15.11.2009">http://localhost:51942/Archive/15.11.2009</a></p>
+</blockquote>
+
+<p>The second one returns the following error:</p>
+
+<blockquote>
+  <h4><i>The parameters dictionary does not contain a valid value of type 'System.DateTime' for parameter 'date' which is required for method 'System.Web.Mvc.ActionResult Show(System.DateTime)' in 'MVCDateTimeParseTest.Controllers.ArchiveController'. To make a parameter optional its type should either be a reference type or a Nullable type.</i></h4>
+
+  <p>&#160;</p>
+</blockquote>
+
+<p>Needless to say that I am a bit lost at the moment. Both are perfectly valid dates and yet one works the other doesnt. I had the same problem when trying other formattings when I tried dd-MM-yyyy. Why and when dates get parsed correctly is very random it seems.</p>
+
+<p>I didn’t constrain the route on purpose to test out how to create links with dates in them (and doing a 2008/11/12 style link also doesn’t really work too well). The only formatting that seems to be working 100% of the time is <a title="http://localhost:51942/Archive/2009-12-12" href="http://localhost:51942/Archive/2009-12-12">http://localhost:51942/Archive/2009-12-12</a>. And that’s not really how I (Austria formats dd.MM.yyyy) like it.</p>
+
+<p>Any suggestions?</p>

@@ -1,0 +1,39 @@
+---
+layout: post
+title: "It&rsquo;s a kind of magic: MonoRail"
+guid: http://www.tigraine.at/?p=782
+postid: 782
+---
+<p>I never cease to be amazed about <a href="http://www.castleproject.org/monorail/index.html">Castle MonoRail</a>, but this time I was really puzzled.     <br />While working on a simple CRUD page I wrote code like this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:fca376f0-1f33-43c1-a004-5bdd05cb2a7b" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public void Unlock([ARFetch("id")] Member member)
+{
+&#160;&#160;&#160;&#160;PropertyBag["member"] = member;
+}
+
+public void Unlock([ARFetch("id")] Member member, DateTime expiration)
+{
+&#160;&#160;&#160;&#160;...
+</pre></div>
+
+<p>My view was then just a standard form, a textfield and a submit button. </p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:4c3ce84b-b357-4c54-822f-e5d9895a74d6" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;form action="" method="POST"&gt;
+&#160;&#160;&#160;&#160;&lt;ul&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.LabelFor("expiration", "Account expiration date")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.TextFieldValue("expiration", "29.01.2010")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/li&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;input type="submit" value="Unlock" /&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/li&gt;
+&#160;&#160;&#160;&#160;&lt;/ul&gt;
+&lt;/form&gt;
+</pre></div>
+
+<p>And, you may have guessed it, I forgot to put a hidden field with the UserId in there somewhere! 
+  <br />Yes, I know – what a common mistake and what a bad one at that. But, and that’s the scary part. <em>It worked still</em>! I checked and re-checked, there is no Id anywhere passed as a result of the form submit, yet MonoRail somehow gets the Id from my previous call and works with that. </p>
+
+<p>I couldn’t find the code inside MonoRail responsible for this behavior, and it seems only to work with Post requests to an empty action so far, but still amazing. </p>
+
+<p>Well, since I can’t see the code, I remain skeptical and added the hidden id anyway. Witchcraft like this feels wrong, I like mysteries though.</p>

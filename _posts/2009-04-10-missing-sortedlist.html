@@ -1,0 +1,100 @@
+---
+layout: post
+title: "Missing SortedList?"
+guid: http://www.tigraine.at/2009/04/10/missing-sortedlist/
+postid: 506
+---
+<p>I made it a habit to always program towards an Interface if possible. So all my lists in code are of type IList&lt;T&gt; and the IList&lt;T&gt; lacks the .Sort() method of the List&lt;T&gt; class.</p>  <p>Usually this isn’t a problem since there is LinQ’s .OrderBy to save the day. But this time my class is too generic for that so I have to fall back to good old OO principles with <a href="http://www.tigraine.at/2009/04/04/reversing-comparers-in-net/">comparer classes</a> etc.</p>  <p>Now, my problem is that I need a simple IList that is sorted on insertion. I first thought, no problem I’ll just use the SortedList&lt;Tkey, Tvalue&gt; that’s already in the framework. But there is always a catch: SortedList is more of a dictionary than a list. Duplicate key items aren’t accepted, there is no collision handling. Trying to insert a duplicate key will result in a ArgumentException:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a999b5c8-c95f-444d-872e-fdc863ddfb30" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Fact]
+public void SortedList_AcceptsNoDuplicateKeys()
+{
+&#160;&#160;&#160;&#160;SortedList&lt;int, string&gt; list = new SortedList&lt;int, string&gt;();
+&#160;&#160;&#160;&#160;var key = 1;
+&#160;&#160;&#160;&#160;list.Add(key, "test");
+&#160;&#160;&#160;&#160;Assert.Throws(typeof (ArgumentException), () =&gt; list.Add(key, "test2)"));
+}
+</pre></div>
+
+<p>Now, what I need is a real sorted List that allows duplicate values (as would a <a href="http://msdn.microsoft.com/en-us/library/3da4abas.aspx">List.Sort()</a>).</p>
+
+<p>Implementing the IList interface isn’t that hard after all, so I gave it a shot with a SortedKeylessCollection&lt;T&gt; that wraps a real List&lt;T&gt; (to use it’s .Sort(), I know I’m lazy):</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f43792ff-9657-4713-9d9d-424a3e13808e" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class SortedKeylessCollection&lt;T&gt; : ICollection&lt;T&gt; where T : class
+{
+&#160;&#160;&#160;&#160;private readonly IComparer&lt;T&gt; comparer;
+&#160;&#160;&#160;&#160;private readonly List&lt;T&gt; list = new List&lt;T&gt;();
+
+&#160;&#160;&#160;&#160;public SortedKeylessCollection(IComparer&lt;T&gt; comparer)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.comparer = comparer;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public SortedKeylessCollection() : this(Comparer&lt;T&gt;.Default)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;#region ICollection&lt;T&gt; Members
+
+&#160;&#160;&#160;&#160;public void Add(T item)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;list.Add(item);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;SortList();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public void Clear()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;list.Clear();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public bool Contains(T item)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return list.Contains(item);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public void CopyTo(T[] array, int arrayIndex)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;list.CopyTo(array, arrayIndex);
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public bool Remove(T item)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;bool b = list.Remove(item);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (b) SortList();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return b;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public int Count
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return list.Count; }
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public bool IsReadOnly
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return false; }
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public IEnumerator&lt;T&gt; GetEnumerator()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return list.GetEnumerator();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;IEnumerator IEnumerable.GetEnumerator()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return list.GetEnumerator();
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;#endregion
+
+&#160;&#160;&#160;&#160;public void SortList()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;list.Sort(comparer);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>You can download the file here: <a href="http://tigraine.at/SortedKeylessCollection.cs">SortedKeylessCollection.cs</a>.</p>
+
+<p>I didn’t call it List but Collection because IList&lt;T&gt; has a defined contract through InsertAt that can’t be fulfilled by a self-sorting list (since the insertion at a position shouldn’t be possible).</p>
+
+<p>Also, as someone at <a href="http://stackoverflow.com/questions/196512/is-there-a-sorted-collection-type-in-net">StackOverlow pointed out</a> there are already implementations of such lists like the <a href="http://www.codeplex.com/PowerCollections">Wintellect Power Collections for .NET</a> but I didn’t want to bring yet another dependency into my codebase just for one puny little class.</p>

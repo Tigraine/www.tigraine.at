@@ -1,0 +1,52 @@
+---
+layout: post
+title: "Static members in generic classes"
+guid: http://www.tigraine.at/2009/03/23/static-members-in-generic-classes/
+postid: 497
+---
+<p>I have been using generics quite heavily lately for writing decorators to Repository classes that do logging and caching on top of the repository (I’ll talk about that another time).</p>  <p>Since I implemented an asynchronous cache clear method I immediately ran into some troubles with shared resources like the DB connection and so I figured the whole problem would be solved with a simple lock around the cache fill.</p>  <p>   <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:79f31316-324a-4016-bfde-027601635997" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Cache&lt;T&gt;
+{
+&#160;&#160;&#160;&#160;private static readonly object locker = new object();
+&#160;&#160;&#160;&#160;public IList&lt;T&gt; GetAll()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;lock(locker)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;//Query the DB etc.. 
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return null;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+</p>
+
+<p>Maybe you already see the problem, but I for sure didn’t. And so it was quite a bit amazed when I discovered that the locking problem didn’t go away just like that.</p>
+
+<p>Turns out, every generic class has it’s own static members. So Cache&lt;string&gt; has a different locker object than Cache&lt;long&gt; would have. Here’s the test to show this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:8df0576f-131b-422f-a083-d8f4bfa7a788" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Test&lt;T&gt;
+{
+&#160;&#160;&#160;&#160;public static long calls;
+}
+
+public class Tester
+{
+&#160;&#160;&#160;&#160;[Fact]
+&#160;&#160;&#160;&#160;public void Calls_DifferentGenerics_DontShareInstance()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Test&lt;string&gt;.calls = 10;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Test&lt;long&gt;.calls = 20;
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.Equal(10, Test&lt;string&gt;.calls);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.Equal(20, Test&lt;long&gt;.calls);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.Equal(0, Test&lt;int&gt;.calls);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Since all of my Cache objects are singletons (enforced through Windsor), there is little point in locking there.</p>
+
+<p></p>
+
+<p>I solved this by having a non generic class containing the static lock object and going on, but I have to say that this bug could have gotten a rather hard to reproduce bug.</p>

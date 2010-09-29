@@ -1,0 +1,17 @@
+---
+layout: post
+title: "I&apos;m so stupid"
+guid: http://www.tigraine.at/2008/01/07/im-so-stupid/
+postid: 181
+---
+<p>Hey! I just wanted to let you know that I was searching for about 20 minutes for the meaning an @!</p>  <p>E.g. in this code:</p>  <pre class="code"><span style="color: #2b91af">Regex </span>r2 = <span style="color: blue">new </span><span style="color: #2b91af">Regex</span>(<span style="color: #a31515">@&quot;([\{a-z]+)([0-9]*) &quot;</span>);</pre>
+
+<p>You may notice that the @ in this Regex is <strong>outside </strong>the actual String and that has to mean somethign.
+
+  <br />Stupid me found the answer!</p>
+
+<p>Placing an @ before a string in C# tells the compiler to <strong>NOT </strong>use escape sequences within the string.
+
+  <br />So you don't need to do stuff like \\ for a single \ etc.</p>
+
+<p>Man why didn't I found out earlier!</p>

@@ -1,0 +1,21 @@
+---
+layout: post
+title: "Running from trunks can be tough"
+guid: http://www.tigraine.at/?p=539
+postid: 539
+---
+I just spent almost 10 hours running in circles collecting different releases of NHibernate, Fluent NHibernate and castle, in a rather futile attempt to make them work together.
+
+NHibernate is currently in 2.1 Beta1 at revision 2.1.0.2001 referencing the latest Castle.DynamicProxy2 at revision 2.1.0.0.
+
+Fluent NHibernate’s current trunk compiles against NHibernate 2.1.0.1001 that in turn is compiled against Castle.DynamicProxy2 2.0.3 thus breaking.
+
+So, while the NHibernate Project and the Castle project managed to match their versions pretty well, the Fluent NHibernate trunk was not.
+
+So, the obvious choice would be to just take all the assemblies that are packed with Fluent NHibernate and work from that. But by doing so I then lack Calst MicroKernel and Windsor, two libraries that are not packed with Fluent NHibernate.
+
+At that point I gave up and simply recompiled the Fluent NHibernate trunk with the latest NHibernate trunk.
+
+In case you need Fluent NHibernate with Castle Windsor i packed my results for you: <a title="Fluent NHibernate (NH Beta 1) packed together with the latest Castle trunk" href="http://www.tigraine.at/wp-content/uploads/2009/05/fluentnhibernatewithcastle.7z">FluentNHibernateWithCastle.7z</a>
+
+Hope this helps.

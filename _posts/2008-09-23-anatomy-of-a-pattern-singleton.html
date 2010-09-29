@@ -1,0 +1,46 @@
+---
+layout: post
+title: "Anatomy of a pattern: Singleton"
+guid: http://www.tigraine.at/2008/09/23/anatomy-of-a-pattern-singleton/
+postid: 368
+---
+<p>Singleton is one of the simplest patterns that does just one thing: Ensure that there is one object to rule them all, one object to bind... (Ok sorry got dragged away).</p>  <p>The idea is simple: Sometimes (especially when writing to disk with open file handles) you need to ensure that there is only <strong>ONE</strong> instance of a class going on at any time. And that's it. It's so simple, you could turn it into a 1-liner:</p>  <p></p>  <div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c25f657c-773e-42e9-b0e7-4cf4daae887f" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static Singleton _Instance;
+</pre></div>
+
+<p></p>
+
+<p>But things never are that simple ;). By using only a shared variable you may end up calling the constructor twice, resulting in 2 objects that may get used by two different clients. </p>
+
+<p>To avoid this you'll need to get an exclusive lock of the Singleton to ensure it's really empty before you instance it. 
+  <br />And that's how it's usually done</p>
+
+<p></p>
+
+<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:446f4732-4aa2-439c-8334-78287acfca8c" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+private static Singleton _Instance;
+private static Object __LockObject = new object();
+
+public static Singleton GetInstance()
+{
+&#160;&#160;&#160;&#160;if (_Instance == null)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;lock(__LockObject)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (_Instance == null)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;_Instance = new Singleton();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;return _Instance;
+}
+</pre></div>
+
+<p></p>
+
+<p>In the singleton implementation the static Singleton variable holds the reference to the Singleton, and whenever we try to get a reference to this instance we check if it's already set and return the value.</p>
+
+<p>If not, it get's tricky when 2 threads are getting a cache-miss at the exact same time <em>(_Instance == null)</em>. If you aren't synchronizing at this point you may end up with two different references of a singleton object being used (and causing problems with resources being consumed twice, causing ). So it's important to perform another check when you have exclusive reign over the shared object (by using a lock object here). 
+
+  <br />This ensures that no two threads will try to create a new instance to your singleton, while not slowing down your read-performance at all.</p>
+
+<p>Sample code: <a href="http://www.tigraine.at/wp-content/uploads/2008/09/singleton.cs">Singleton.cs</a></p>

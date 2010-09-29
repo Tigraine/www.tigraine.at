@@ -1,0 +1,39 @@
+---
+layout: post
+title: "Essential tools for .NET Developers"
+guid: http://www.tigraine.at/2009/05/31/essential-tools-for-net-developers/
+postid: 545
+---
+<p><font style="background-color: #ffffff">I always thought that I am up and running the moment Visual Studio is installed on a machine.      <br />Unfortunately, life isn’t that easy any more and I thought it might be interesting to share what I consider essential from my toolbox.</font></p>  <h4>IDEs </h4>  <ol>   <li>Visual Studio 2008</li>    <li><a href="http://www.jetbrains.com/resharper/">Resharper 4.5</a></li>    <li><a href="http://notepad-plus.sourceforge.net/de/site.htm">Notepad++</a></li> </ol>  <p>Although some people say they can work with other IDEs in .NET, I consider Visual Studio a absolute necessity. Not so much for the Studio itself but as a shell for Resharper, the very best tool I have yet come across. It’s so damn convenient and increases productivity by such a margin that <a href="http://twitter.com/Tigraine/status/1948364216">I simply can’t use Visual Studio</a> without it any more. Although Resharper isn’t free, I strongly suggest you try it out for 30 days. I feel it’s a good investment.</p>  <p>And Notepad++ is one of many great simple editors that make editing and reviewing of files easy.</p>  <h5>Source Control</h5>  <p>If you plan on working with open source tools, be prepared to bring their tools to the party. Nothing is worse than needing some source and not being able to access the SCM.   <br />I usually install the following:</p>  <ol>   <li><a href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> - Subversion right from the Explorer right click menu. Very good and very mature SVN client. </li>    <li><a href="http://www.sliksvn.com/en/download">SlikSVN</a> - Unfortunately TortosieSVN doesn’t install SVN binaries, so if you want to be able to run SVN from the command line you better get the conveniently packed SlikSVN subversion binaries.</li>    <li><a href="http://bitbucket.org/tortoisehg/stable/downloads/">TortoiseHG</a> - Same idea as with TortoiseSVN but for <a href="http://www.tigraine.at/2009/05/30/moving-to-mercurial/">Mercurial</a>, but it installs the hg binaries so you can use hg from the command line.</li>    <li><a href="http://code.google.com/p/msysgit/">msysGit</a> - A GUI for git together with a custom git command line that emulates a *nix shell for git operations. Not so convenient as HG, but Fluent Nhibernate and most tools by Jon Skeet use git.</li> </ol>  <h5>Build tools</h5>  <p>Getting the source is usually not enough, sometimes you need to be able to build it too.   <br />While most projects can be built by simply starting up Visual Studio and building, others require you to run a build script like NAnt. </p>  <ol>   <li><a href="http://nant.sourceforge.net/">NAnt</a> - NAnt is a free .NET build tool. In theory it is kind of like make without make's wrinkles. In practice it's a lot like <a href="http://ant.apache.org/">Ant</a>.</li> </ol>  <p>Download the latest NAnt release and unpack the zip to some convenient folder. Then create a file called nant.bat in your C:\windows folder with the following content:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:d4eed943-fa7b-4b77-b7bb-d23acef4d132" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+@echo off
+"C:\Program Files\NAnt\bin\NAnt.exe" %*
+</pre></div>
+
+<p>(Obviously you should change the path to your NAnt executable). 
+  <br />Now whenever you encounter a project with a *.build file you can simply start a command line window and type <em>nant</em> to start building the source (that’s how you build the the Castle Project and NHibernate).</p>
+
+<ol>
+  <li><a href="http://www.ruby-lang.org/de/downloads/">Rake</a> - I don’t use rake, but I sure know Fluent NHibernate does. Rake is the build tool used for Ruby projects, but it’s gaining popularity. On windows installing it was rather simple, just get the Ruby One-Click Installer from their downloads page and install it with gems (gems is used for installing extensions and libaries).</li>
+</ol>
+
+<p>If none of the above apply, usually every project has a howtobuild.txt that instructs you on how to run the build.</p>
+
+<h5>Database</h5>
+
+<p>Hugely depends on what tools you use. But it never hurts to have the following:</p>
+
+<ol>
+  <li><a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=08e52ac2-1d62-45f6-9a4a-4b76a8564a2b&amp;displaylang=en">Sql Server 2008 Management Studio Express</a> - It’s free, and allows you to run queries and create databases. Nothing fancy as reporting or real server administration, but what developer really wants to do a DBAs job?</li>
+
+  <li><a href="http://nhprof.com/">NHProf</a> - If you are using NHibernate for your data access needs (and I believe you should), you will find this tool well worth it’s money. It’s by no means cheap, but it will watch all your database queries, analyze them and point out possible performance bottlenecks for you.</li>
+</ol>
+
+<h5>Others</h5>
+
+<ol>
+  <li><a href="http://www.sourcegear.com/diffmerge/downloads.html">Sourcegear DiffMerge</a> - A very good and free diff tool in case the ones in TortoiseSVN don’t cut it.</li>
+
+  <li><a href="http://www.red-gate.com/products/reflector/">.NET Reflector</a> - Sometimes you don’t have access to the source code, or you don’t want to get the source just to look at one file. 
+
+    <br />.NET Reflector allows you to look at all the types inside an assembly, and if it’s not obfuscated it allows you to decompile it into your language of choice and look at the code (you could decompile VB programs into C# for example).</li>
+Please note that there are myriads of other tools lists out there, and if your are a web developer you’ll need some more tools for debugging HTML/JS. The above are the ones I consider essential to do .NET desktop/backend development when using open source libraries as Castle or NHibernate.</ol>

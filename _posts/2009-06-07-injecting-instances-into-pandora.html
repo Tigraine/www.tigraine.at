@@ -1,0 +1,20 @@
+---
+layout: post
+title: "Injecting instances into Pandora"
+guid: http://www.tigraine.at/?p=562
+postid: 562
+---
+<p>There are times when your services depend on an object you can’t construct yourself. One obvious example being the HttpContext in most ASP.NET applications.</p>  <p>So all DI containers have some way to inject an instance into the container to cover that. <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> has joined them yesterday. It’s baked into the fluent interface and the ComponentStore:</p>  <p>Fluent:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f6196a40-943f-4bd0-be15-b23ce07d8259" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var store = new ComponentStore();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var instance = new ClassWithNoDependencies();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;store.Register(p =&gt; p.Service&lt;IService&gt;("test")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Instance(instance));
+</pre></div>
+
+<p>Conventional:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:52f2d349-f592-4144-a724-e39500c12964" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var store = new ComponentStore();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var instance = new ClassWithNoDependencies();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;store.AddInstance&lt;IService&gt;(instance);
+</pre></div>

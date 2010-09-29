@@ -1,0 +1,95 @@
+---
+layout: post
+title: "Unit testing with mocks (Part 1)"
+guid: http://www.tigraine.at/?p=385
+postid: 385
+---
+<p><em>I regret not having blogged on TDD and designing for test before – it makes it very difficult to talk about mocking as it is a rather advanced topic, requiring at least some knowledge of polymorphism and oo-design.      <br />So this post is the first in a series of posts on the topic of testing with mock objects, that will hopefully help you with your testing.</em> </p>  <p>Testing is one of the most important things in software development.    <br />We’re all human, and we all make mistakes. And even if we discover these mistakes during development and testing, it’s almost certain that we’ll have to come back at a later point to change something, possibly breaking what already worked.     <br />Doing a full QA cycle during initial development may look reasonable to most of us, but doing it every time you change a tiny bit in the application will certainly get you some angry mails from management.     <br />Having good unit tests gives you a safety net for future development. By simply running the tests you can verify that things that already worked still work properly. And that’s what is important in software development.</p>  <p>The whole idea of unit testing is to test as little as possible while still verifying that the method under test behaves as specified and expected.    <br />Keep this in mind, because it is important when testing classes that depend on services or other classes.</p>  <p>If let’s say you have a HttpServiceWatcher that is a service running somewhere and watching if a HttpService is up and running, you should test the HttpServiceWatcher class itself, not the associated notifier classes that the Watcher calls when it wants to notify you.    <br />But how do you verify that the HttpServiceWatcher really worked and called the notifier as a result?</p>  <p>Let’s start with the Notifier interface:</p>  <p></p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b9e0815e-5c28-421b-8b81-c4c7636b9fdf" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public interface IErrorNotifier
+{
+&#160;&#160;&#160;&#160;void NotifyOfServiceDown();
+}
+</pre></div>
+
+<p></p>
+
+<p>Let’s assume we have implemented a EmailNotifier class, if the HttpServiceWatcher looks like this we’re in testing-nightmare land:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b7f3c378-d4c2-446e-9c2b-77ccfddd652b" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class HttpServiceWatcher
+{
+&#160;&#160;&#160;&#160;public void ObserveService()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;IErrorNotifier notifier = new EmailNotifier();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;notifier.NotifyOfServiceDown();
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>The HttpServiceWatcher news up it’s notifier service, so every time we want to adjust the notifier, we’d have to change the ServiceWatcher and risk breaking something. Also, we can’t test the ServiceWatcher itself, because it will always call to an EmailNotifier that we can’t fake easily.</p>
+
+<p>So, the correct move would be to use Inversion of Control (IoC) to inject the service into the watcher class:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b2e6ede5-b25b-4a31-9cd1-ca9cd05de57e" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class HttpServiceWatcher
+{
+&#160;&#160;&#160;&#160;private IErrorNotifier notifier;
+
+&#160;&#160;&#160;&#160;public HttpServiceWatcher(IErrorNotifier notifier)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.notifier = notifier;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public void ObserveService()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;notifier.NotifyOfServiceDown();
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Now, the HttpServiceWatcher class doesn’t directly depend on any concrete implementation of IErrorNotifier, the calling code takes care of creating the concrete classes. Changes to notifiers don’t get propagated to the HttpServiceWatcher. 
+  <br />Also, this makes it very easy to simply fake the notifier. We could either create a fake test class that inherits IErrorNotifier, or we could use a Mocking framework.</p>
+
+<p>Manual mocking could look like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:7934ff93-e36a-4544-9c21-998d3da7c6e6" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class NotifierMock : IErrorNotifier
+{
+&#160;&#160;&#160;&#160;public int notifyOfServiceDownCallCount = 0;
+
+&#160;&#160;&#160;&#160;public void NotifyOfServiceDown()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;notifyOfServiceDownCallCount++;
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>The test could then look like this:</p>
+
+<p></p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:1a34e356-7b1f-4dc8-836a-3149833caa97" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+[Test]
+public void ServiceWatcherNotifiesUser_Custom_Mock()
+{
+&#160;&#160;&#160;&#160;var notifier = new NotifierMock();
+
+&#160;&#160;&#160;&#160;var watcher = new HttpServiceWatcher(notifier);
+&#160;&#160;&#160;&#160;watcher.ObserveService();
+
+&#160;&#160;&#160;&#160;Assert.AreEqual(1, notifier.notifyOfServiceDownCallCount);
+}
+</pre></div>
+
+<p></p>
+
+<p>And that’s fine. It works, we verify that the watcher actually calls the notifier service, and all is well. 
+  <br />It just gets tricky when you get more tests, you’ll have to create many mock objects that always introduce the possibility of breaking other tests etc.</p>
+
+<p>In the next post in this series I will try to illustrate how to do the same thing with <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> and how it makes testing very easy.</p>
+
+<p>Download the source code from my SVN Repository by doing a:</p>
+
+<pre>svn checkout <a title="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk" href="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk">https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk</a> UnitTesting –username guest</pre>
+
+<p>Continue reading <a title="Unit testing with mocks – Rhino Mocks basics (Part 2)" href="http://www.tigraine.at/2008/11/05/unit-testing-with-mocks-rhino-mocks-basics-part-2/">Unit testing with mocks – Rhino Mocks basics (Part 2)</a></p>

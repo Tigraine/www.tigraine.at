@@ -1,0 +1,20 @@
+---
+layout: post
+title: "Troublesome testing"
+guid: http://www.tigraine.at/2009/05/21/troublesome-testing/
+postid: 519
+---
+<p>This may be the very first time I blog about a bug in the CLR, but it’s annoying nonetheless.</p>  <p>Apparently a bug in the CLR’s System.Reflection.Emit prevents Rhino.Mocks from working when generic constraints are applied to a method.</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:faa60999-e381-42d9-874a-b670db8025e9" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+void Add&lt;T, TType&gt;()
+&#160;&#160;&#160;&#160;where T : class
+&#160;&#160;&#160;&#160;where TType : T;
+</pre></div>
+
+<p>As long as the TType : T constraints is present, all tests will fail with a System.BadImageFormatException. 
+  <br />Now, the bug <a href="http://groups.google.co.il/group/RhinoMocks/browse_thread/thread/387f454f285344ff">is known</a> and it looks like it can’t really be helped on the framework side. But, I didn’t want to drop this constraint in my production code just to make the class testable. </p>
+
+<p>So, I went back to the dark ages and actually wrote a Mock class by hand that counted calls to methods, returned preset values for methods. </p>
+
+<p>Overall, the Mock is a mess. There are like 5-6 fields counting all sorts of different stuff just for a simple interface with two methods. </p>
+
+<p>Thank god there are tools like <a href="http://ayende.com/projects/rhino-mocks/downloads.aspx">Rhino.Mock</a> that keep me from writing code like that (I really can’t praise Ayende enough for Rhino.Mocks).</p>

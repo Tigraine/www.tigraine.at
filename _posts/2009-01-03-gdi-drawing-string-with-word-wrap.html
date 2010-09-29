@@ -1,0 +1,7 @@
+---
+layout: post
+title: "GDI Drawing: String with word-wrap"
+guid: http://www.tigraine.at/2009/01/03/gdi-drawing-string-with-word-wrap/
+postid: 423
+---
+<p>GDI drawing is magic and not very well documented. Finding out how to make GDI draw a string inside a fixed width without constraining the height took me about 20 minutes, hopefully this post saves you 20 minutes of your life nobody will give you back :). </p>  <p>The problem with Graphics.DrawString() is that you can either supply a PointF that will be used as the origin, or you supply a RectangleF as layout rectangle. The rectangle’s sizes and position will be forced upon the text and word-wrap will happen to fit the text inside the rectangle, anything not fitting in the rectangle (given the font-size) will be cut off.    <br />So if you don’t want to confine width or the height, <strong>setting that property</strong> <strong>on the RectangleF</strong> <strong>to 0</strong> will make GDI not &quot;cut off” but expand the rectangle as needed. </p>  <p>Needless to say that this behavior isn’t mentioned on the <a href="http://msdn.microsoft.com/en-us/library/21kdfbzs.aspx">MSDN page for DrawString</a>, that may have saved me time.</p>

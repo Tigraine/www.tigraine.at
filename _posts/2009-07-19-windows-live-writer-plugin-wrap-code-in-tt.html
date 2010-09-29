@@ -1,0 +1,30 @@
+---
+layout: post
+title: "Windows Live Writer Plugin: Wrap code in &lt;tt&gt;"
+guid: http://www.tigraine.at/2009/07/19/windows-live-writer-plugin-wrap-code-in-tt/
+postid: 647
+---
+<p>As of late I try to mark code parts inside normal text with the <tt>&lt;tt&gt;</tt> tags to make them stand out as code. While writing my <a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">MonoRail tutorial</a> yesterday I got really annoyed by switching between source and normal view inside Windows Live writer to add <tt>&lt;tt&gt;</tt> all over the place, so I figured I’d use the <a href="http://msdn.microsoft.com/en-us/library/aa738863.aspx">WLW Plugin API</a> to write a plugin that wraps text inside <tt>&lt;tt&gt;</tt>. </p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:dbe6f6ea-0f9f-47a6-a00b-63c073b159a1" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+namespace wlwWrapIn
+{
+&#160;&#160;&#160;&#160;using System;
+&#160;&#160;&#160;&#160;using System.Windows.Forms;
+&#160;&#160;&#160;&#160;using WindowsLive.Writer.Api;
+
+&#160;&#160;&#160;&#160;[WriterPlugin("37CB2E7F-1809-4344-9527-526768A99E9F", "WrapInTT", PublisherUrl = "http://www.tigraine.at")]
+&#160;&#160;&#160;&#160;[InsertableContentSource("Wrap in &lt;tt&gt;", MenuText = "Wrap in &lt;tt&gt;", SidebarText = "Wrap in &lt;tt&gt;")]
+&#160;&#160;&#160;&#160;public class WlwWrapIn : ContentSource
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public override System.Windows.Forms.DialogResult CreateContent(System.Windows.Forms.IWin32Window dialogOwner, ref string content)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;content = String.Format("&lt;tt&gt;{0}&lt;/tt&gt;", content);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return DialogResult.OK;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
+}
+
+</pre></div>
+
+<p>Oh yeah it is that simple, just reference the WindowsLive.Writer.Api class and you can write a plugin like that. </p>
+
+<p>In case someone needs my <tt>&lt;tt&gt;</tt> wrapping plugin, you can get it here: <a href="http://bitbucket.org/Tigraine/tigraine-samples/downloads/WrapInTT.dll">WrapInTT.dll</a></p>

@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Virtual member call in constructor and NHibernate"
+guid: http://www.tigraine.at/2008/11/07/virtual-member-call-in-constructor-and-nhibernate/
+postid: 389
+---
+<p>As you may have noticed, I’ve been doing some <a href="http://www.hibernate.org/343.html">NHibernate</a> work lately and really had a great time with this absolutely amazing ORM. Especially now that Microsoft <a href="http://ayende.com/Blog/archive/2008/10/31/microsoft-kills-linq-to-sql.aspx">abandoned Linq to SQL</a> I really feel good about having made the step towards NHibernate.</p>  <p>Yesterday was one of those tricky days when something breaks and you have no clue why.</p>  <p>I have a table called “Orders” and there are “OrderItems”.</p>  <p><img title="image" style="display: inline" height="136" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/11/image.png" width="433" /></p>  <p>By writing the tests upfront, I found out that I’d like to be able to just say Repository.Add(Order) instead of persisting the Order and afterwards looping through the OrderItems and persisting them too.</p>  <p>To achieve this I changed the mapping to something like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:df243c42-dfa1-40ed-9e26-d72d6adc3da2" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;set name="OrderItems" cascade="all"&gt;
+&#160;&#160;&lt;key column="OrderId" /&gt;
+&#160;&#160;&lt;one-to-many class="OrderItem"/&gt;
+&lt;/set&gt;
+</pre></div>
+
+<p>The cascade=all statement is what I searched for initially. When the order gets persisted, all OrderItems in the collection get persisted too, and everything is well.</p>
+
+<p></p>
+
+<p>But, since my POCO object looks like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:419c4335-c87d-4c54-b6a1-05801cae3403" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Order
+{
+&#160;&#160;&#160;&#160;public virtual long Id { get; set; }
+&#160;&#160;&#160;&#160;public virtual ISet&lt;OrderItem&gt; OrderItems { get; set; }
+}
+</pre></div>
+
+<p>I got NullReferenceException whenever I tried to access OrderItems on new Order objects. And I thought, hey.. kinda sucks newing up the collection in my business layer, why not init it in it’s constructor:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3dcc5ecb-e4f7-40f5-aeca-3426570fc7f5" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+&#160;&#160;&#160;&#160;public Order()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;OrderItems = new HashedSet&lt;OrderItem&gt;();
+&#160;&#160;&#160;&#160;}
+</pre></div>
+
+<p>So I could just do Order.OrderItems.Add(OrderItem) without having to instantiate a HashedSet anywhere. 
+  <br />I got a bit cautious when Visual Studio underlined OrderItems and made the cryptic announcement: “Virtual member call in constructor”. 
+
+  <br />Totally unaware of what this means, I just went on and ran my tests.</p>
+
+<p>Imagine my face when almost all my tests failed due to an omnious nHibernateException:</p>
+
+<blockquote>
+  <p><strong>NHibernate.HibernateException: Illegal attempt to associate a collection with two open sessions</strong></p>
+</blockquote>
+
+<p>I didn’t figure this out until today, but it had to do with the “Virtual member call in constructor” warning. I discovered <a href="http://blogs.msdn.com/brada/archive/2004/08/12/213951.aspx">this post by Brad Abrams</a> that explains the topic.</p>
+
+<p>Looks like if you set the collection in the constructor of the POCO object NHibernate will break with the above Exception. 
+  <br />Solution to avoid this? Init the collection from calling-code instead of within the object. </p>
+
+<p>What would have helped the issue would be to not have concrete POCO objects but rather use interfaces instead of virtual members (Read Fabio Maulo’s post <a href="http://fabiomaulo.blogspot.com/2008/10/entity-name-in-action-entity.html">entity-name in action: Entity Abstraction</a> on that topic).</p>

@@ -1,0 +1,7 @@
+---
+layout: post
+title: "Do the simplest thing you can get away with"
+guid: http://www.tigraine.at/2008/07/31/do-the-simplest-thing-you-can-get-away-with/
+postid: 349
+---
+<p>So, yesterday I was talking to a customer about a new project I will be developing over the next month or so.    <br />And half way through the project (revamping a legacy system), I was asked if I could insert sorting into a statistical grid view. </p>  <p>I immediately started thinking about using a ASP.NET grid view control with sorting and paging capabilities enabled. But just before I could open my mouth, it hit me: Why in the heck should I do something that stupid? </p>  <p>My customer isn't only good at using Excel, these guys are traders! They probably know better how to do sorting in Excel than I know how to do it in ASP.NET!</p>  <p>So, because this grid was filled through some pretty complex selection criteria, why in the hell wasn't my first idea to simply give them a CSV list with <strong>all </strong>the data they need and let them do it themselves. </p>  <p>This solution isn't only superior for the customer, it's also much better for me because code you don't write can't break! Excel is giving my customer all the things he otherwise would demand from my application, with added benefits like pie charts and custom functions. Why should I even bother to take on this?</p>  <p><strong>The smartest code is no code at all!</strong></p>  <p>If you can get away without writing code, do it immediately. Every line you write less is one you don't have to care about later.</p>

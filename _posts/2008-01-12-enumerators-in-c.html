@@ -1,0 +1,78 @@
+---
+layout: post
+title: "Enumerators in C#"
+guid: http://www.tigraine.at/2008/01/12/enumerators-in-c/
+postid: 202
+---
+<p>I am still trying to figure out if what I did was useful or not.</p>  <p>Based on the assumption that sometimes you may need a variable typed IEnumerable&lt;T&gt; to hold a value that only implements IEnumerable I wrote this adapter class (you find it after the jump).</p>  <blockquote>   <p><strong>What's IEnumerator?</strong>       <br />IEnumerator it the old non-generic implementation of the Iterator pattern, while IEnumerator&lt;T&gt; is the strongly-typed generic version introduced in .NET 2.0.</p> </blockquote>  <p>IEnumerable&lt;T&gt; implements IEnumerable, but there is no way to cast IEnumerable to IEnumerable&lt;T&gt;. So I wondered how you could comply to the <a href="http://en.wikipedia.org/wiki/Iterator" target="_blank">Iterator pattern</a>. </p>  <p>My first suspicion came when I tried foreach on both IEnumerables. Foreach has no problem with both of them, so I dug out my C# language spec and discovered that foreach has to use two different methods for either IEnumerable or IEnumerable&lt;T&gt; (That's not really clear there, anyone to falsify my assumption?).    <br />They could have gone the other way and use the non-generic IEnumerable for the iteration, but that would need an implicit typecast on every iteration (and that would slow things down I guess).</p>  <p>In a scenario like the following one you can't pass the Enumerator created by an Array.GetEnumerator() because it uses IEnumerator instead of the generic version IEnumerator&lt;T&gt;.</p>  <p><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">void</span><span style="color: #000000"> PrintList(</span><span style="color: #2b91af">IEnumerable</span><span style="color: #000000">&lt;</span><span style="color: #2b91af">String</span><span style="color: #000000">&gt; MyList)      <br />{       <br />&#160;&#160; </span><span style="color: #0000ff">foreach</span><span style="color: #000000"> (</span><span style="color: #2b91af">String</span><span style="color: #000000"> Entry</span><span style="color: #0000ff">in</span><span style="color: #000000"> MyList)      <br />&#160;&#160;&#160; {       <br />&#160;&#160;&#160;&#160;&#160;&#160; </span><span style="color: #2b91af">Console</span><span style="color: #000000">.WriteLine(</span><span style="color: #a31515">&quot;{0}&quot;</span><span style="color: #000000">, Entry);      <br />&#160;&#160;&#160; }       <br />}</span></p>  <p>Because IEnumerable&lt;T&gt; implements IEnumerable you could just switch back to the non-generic version, but that's something I don't really like (although it may be more practical).</p> 
+<!--more-->
+  <p></p>  <p>So here are 2 (very simple) adapter classes that will provide upward-compatibility to your IEnumerable and IEnumerator needs:</p>  <p></p>  <pre><span color="black">
+</span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">class</span><span style="color: #000000"> </span><span style="color: #2b91af">GenericEnumerableAdapter</span><span style="color: #000000">&lt;T&gt; : </span><span style="color: #2b91af">IEnumerable</span><span style="color: #000000">&lt;T&gt;
+{
+    </span><span style="color: #0000ff">private</span><span style="color: #000000"> </span><span style="color: #2b91af">IEnumerable</span><span style="color: #000000"> _Old;
+    
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> GenericEnumerableAdapter(</span><span style="color: #2b91af">IEnumerable</span><span style="color: #000000"> OldEnumerable)
+    {
+        </span><span style="color: #0000ff">this</span><span style="color: #000000">._Old = OldEnumerable;
+    }
+
+</span><span style="color: #0000ff">    #region</span><span style="color: #000000"> IEnumerable&lt;T&gt; Members
+
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000">&lt;T&gt; GetEnumerator()
+    {
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> </span><span style="color: #0000ff">new</span><span style="color: #000000"> </span><span style="color: #2b91af">GenericEnumeratorAdapter</span><span style="color: #000000">&lt;T&gt;(_Old.GetEnumerator());
+    }
+
+</span><span style="color: #0000ff">    #endregion
+
+    #region</span><span style="color: #000000"> IEnumerable Members
+
+    </span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000"> </span><span style="color: #2b91af">IEnumerable</span><span style="color: #000000">.GetEnumerator()
+    {
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> _Old.GetEnumerator();
+    }
+
+</span><span style="color: #0000ff">    #endregion
+</span><span style="color: #000000">}
+
+</span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">class</span><span style="color: #000000"> </span><span style="color: #2b91af">GenericEnumeratorAdapter</span><span style="color: #000000">&lt;T&gt; : </span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000">&lt;T&gt;
+{
+    </span><span style="color: #0000ff">private</span><span style="color: #000000"> </span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000"> _OldEnum;
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> GenericEnumeratorAdapter(</span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000"> OldEnumerator)
+    {
+        _OldEnum = OldEnumerator;
+    }
+
+</span><span style="color: #0000ff">    #region</span><span style="color: #000000"> IDisposable Members
+
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">void</span><span style="color: #000000"> Dispose()
+    {
+        </span><span style="color: #0000ff">this</span><span style="color: #000000">._OldEnum = </span><span style="color: #0000ff">null</span><span style="color: #000000">;
+    }
+
+</span><span style="color: #0000ff">    #endregion
+
+    #region</span><span style="color: #000000"> IEnumerator&lt;T&gt; Members
+
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> T Current
+    {
+        </span><span style="color: #0000ff">get</span><span style="color: #000000"> { </span><span style="color: #0000ff">return</span><span style="color: #000000"> (T)_OldEnum.Current; }
+    }
+
+    </span><span style="color: #0000ff">object</span><span style="color: #000000"> </span><span style="color: #2b91af">IEnumerator</span><span style="color: #000000">.Current
+    {
+        </span><span style="color: #0000ff">get</span><span style="color: #000000"> { </span><span style="color: #0000ff">return</span><span style="color: #000000"> _OldEnum.Current; }
+    }
+
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">bool</span><span style="color: #000000"> MoveNext()
+    {
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> _OldEnum.MoveNext();
+    }
+
+    </span><span style="color: #0000ff">public</span><span style="color: #000000"> </span><span style="color: #0000ff">void</span><span style="color: #000000"> Reset()
+    {
+        _OldEnum.Reset();
+    }
+
+</span><span style="color: #0000ff">    #endregion
+</span><span style="color: #000000">}</span></pre>

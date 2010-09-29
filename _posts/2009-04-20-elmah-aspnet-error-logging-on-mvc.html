@@ -1,0 +1,67 @@
+---
+layout: post
+title: "ELMAH ASP.NET Error logging on MVC"
+guid: http://www.tigraine.at/2009/04/20/elmah-aspnet-error-logging-on-mvc/
+postid: 511
+---
+<p>Some of you may already know <a href="http://code.google.com/p/elmah/">ELMAH</a>, a great error logging tool that hooks into ASP.NET applications logs all exceptions encountered during runtime. </p>  <p>There are some <a href="http://code.google.com/p/elmah/wiki/DotNetSlackersArticle">great articles</a> on how to set up ELMAH for traditional ASP.NET articles in their <a href="http://code.google.com/p/elmah/w/list">wiki</a>, but ASP.NET MVC is not mentioned (it’s really simple nonetheless).</p>  <p><strong>Step 1: Referencing the assemblies</strong></p>  <p>First, grab the <a href="http://code.google.com/p/elmah/downloads/list">latest binary release</a> of elmah from the project’s page and extract the \bin folder to your application folder.    <br />I’m a huge fan of <a href="http://www.tigraine.at/2008/10/13/handling-dependencies/">having all external assemblies in a lib folder</a> besides the app, so to my delight elmah requires no installation, you just have to drop the 3 files in \bin to your lib folder and reference the Elmah.dll from within your app.</p>  <p><strong>Step 2: Edit your web.config to call ELMAH</strong></p>  <p>First add the following code to your <strong>&lt;configSections&gt;</strong> to make ELMAH read it’s configuration from web.config:</p>  <p>   <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:5809603e-fa0f-46de-a74e-baf7f1b6b9a9" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;sectionGroup name="elmah"&gt;
+&#160;&#160;&lt;section name="security" requirePermission="false" type="Elmah.SecuritySectionHandler, Elmah" /&gt;
+&#160;&#160;&lt;section name="errorLog" requirePermission="false" type="Elmah.ErrorLogSectionHandler, Elmah" /&gt;
+&#160;&#160;&lt;section name="errorMail" requirePermission="false" type="Elmah.ErrorMailSectionHandler, Elmah" /&gt;
+&#160;&#160;&lt;section name="errorFilter" requirePermission="false" type="Elmah.ErrorFilterSectionHandler, Elmah" /&gt;
+&lt;/sectionGroup&gt;
+</pre></div>
+</p>
+
+<p>Next go to your <strong>&lt;httpHandlers&gt;</strong> section and add the elmah file handler:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f4e149d2-c162-49bc-bb15-e46d00eea362" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;add verb="POST,GET,HEAD" path="elmah.axd" type="Elmah.ErrorLogPageFactory, Elmah" /&gt;
+</pre></div>
+
+<p></p>
+
+<p>This will reroute all requests to a file called elmah.axd to the ELMAH error-overview page. So when you want to look at the list of errors you’ll access <a href="http://server/elmah.axd">http://server/elmah.axd</a> . The name doesn’t matter, feel free to rename it, but be aware that the extension has to be mapped to the ASP.NET pipeline inside IIS (so naming it .html wouldn’t work if not configured correctly).</p>
+
+<p>At last add the ELMAH logging module to your &lt;httpModules&gt; section:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:45604f66-174d-4272-b0b1-882823d2b834" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;add name="ErrorLog" type="Elmah.ErrorLogModule, Elmah"/&gt;
+</pre></div>
+
+<p><strong>Step 3: Configure ELMAH</strong></p>
+
+<p>I’d suggest you read the wiki articles on how to configure ELMAH correctly, but for my application I chose to log all errors to a XML file by simply adding this code to the web.config:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0471a371-86a5-44b2-aa20-6211f7312bda" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;elmah&gt;
+&#160;&#160;&lt;errorLog type="Elmah.XmlFileErrorLog, Elmah" logPath="~/App_Data" /&gt;
+&lt;/elmah&gt;
+</pre></div>
+
+<p>This instructs ELMAH to create xml files in your App_Data directory (so make sure the ASP.NET process has sufficient access rights to that folder) and generate output like this:</p>
+
+<p><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="104" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/04/image1.png" width="416" border="0" /></p>
+
+<p><strong>Step 4: Configure routing</strong>&#160;</p>
+
+<p>Up until now we were 100% true to the normal configuration routine for normal ASP.NET applications, there is only one slight adjustment to making it work in MVC.</p>
+
+<p>You need to allow the requests to the ELMAH frontend (elmah.axd in this example) to pass through the MVC routing logic unchanged so that it gets handled by normal ASP.NET behind MVC. This is as trivial as adding a ignore route to your routing table in Gobal.asax.cs:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:969c7905-2bb8-46a1-b607-bdbc5a8631d1" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static void RegisterRoutes(RouteCollection routes)
+{
+&#160;&#160;&#160;&#160;routes.IgnoreRoute("elmah.axd");
+</pre></div>
+
+<p></p>
+
+<p></p>
+
+<p>Once all the above is done, you’ll see all unhandled exceptions that result in a yellowscreen-of-death be also logged into the XML files inside your App_Data and you can then watch them remotely by accessing <a href="http://server/elmah.axd">http://server/elmah.axd</a>. You’ll get a rather nice overview page like this one:</p>
+
+<p><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="253" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/04/image2.png" width="776" border="0" /></p>
+
+<p>Having no errors in the first place is a way to make this work obsolete, but it’s nice to know for sure that your users aren’t encountering errors when using&#160; your site. There are advanced configuration guides in the wiki on how to set up email notification and security, but I’ll leave that to the project wiki.</p>

@@ -1,0 +1,27 @@
+---
+layout: post
+title: "Useful Resharper Live Template for WPF development"
+guid: http://www.tigraine.at/2010/04/29/useful-resharper-live-template-for-wpf-development/
+postid: 855
+---
+<p>While doing some work in WPF for a customer project I found myself writing far too often code like this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b615157c-4b99-4860-ba0b-66974eecb1b5" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+private bool isSelected;
+
+public bool IsSelected
+{
+&#160;&#160;&#160;&#160;get { return isSelected; }
+&#160;&#160;&#160;&#160;set
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;isSelected = value;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;OnPropertyChanged("IsSelected");
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Auto-properties simply don’t work with INotifyPropertyChanged so you have to do all the grunt work over again .. Thank god there is Resharper!</p>
+
+<p>It’s said lazyness is a virtue on a programmer, so I made this little Live Template that will create all that code with you only having to fill in type and name of your property:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2010/04/image3.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2010/04/image_thumb2.png" width="236" height="193" /></a> </p>
+
+<p>Download it here: <a href="http://tigraine.at/wpfprop.xml">wpfprop.xml</a></p>

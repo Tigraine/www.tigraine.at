@@ -1,0 +1,19 @@
+---
+layout: post
+title: "Ship!"
+guid: http://www.tigraine.at/?p=413
+postid: 413
+---
+You may have noticed that I have been trying to do some DDD design with NHibernate and lately, and I guess I should expand a bit on that.
+
+I got hired to build a financial business application for a customer that’s in the process of expanded his business. His old business software was written in classic ASP some years ago and couldn’t handle the new requirements in any way, and although I usually advocate not to rewrite stuff, this time a rewrite needed to happen (no tests, thousand violations of DRY, no seperation of concerns, unreadable code …).
+
+So I was asked to write something new (but similar) and the first meeting went like this “rebuild the basic structure of the old thing and then we’ll cover the details on how to handle x y z”.
+And stupid me went off to do exactly that. So I spent almost a month of my life trying to make sense out of the old db model, and writing interfaces for peripheral entities.
+
+That was a mistake!
+The solution my customer needed was something completely different than what he demanded. He thought he knew, but as a software engineer it’s your job to solve the problem in the most appropriate way, not to trust the customer to choose the solution.
+
+So, after said mistake it took me another two meetings to ask the most important question of all <em>“Why do we do this as a web application instead of a desktop app?”</em> (yeah, that one got me some strange looks). But guess what, nobody had an answer, they demanded a web app because the last one was one, not because they actually needed one. Turned out that they may need a different web interface for customer interaction in the future, but at the moment they need a business software that has to be running exclusively within their office network.
+
+And since there are people working 8 hours a day (I knew that upfront) I really wanted to get the user experience right. While initially working on the web-application I was challenged with two things: Create the app, and make it work like a desktop app. On the desktop app I was only focusing on the application itself, updating some controls that actually have state

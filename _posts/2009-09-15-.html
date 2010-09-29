@@ -1,0 +1,38 @@
+---
+layout: post
+title: "Windows Live Writer failure"
+guid: http://www.tigraine.at/?p=745
+postid: 745
+---
+In short: My Windows Live Writer crashes whenever I try to start it up :(.
+
+Apparently something about the font "Courier New" not having a "regular" cut breaks WLW during init and I'm unable to resolve this at the moment.
+All I get upon starting WLW is this:
+
+<a href="http://www.tigraine.at/wp-content/uploads/2009/09/wlw.png"><img class="size-full wp-image-746 alignnone" title="wlw" src="http://www.tigraine.at/wp-content/uploads/2009/09/wlw.png" alt="wlw" width="396" height="277" /></a>
+
+Along with this StackTrace:
+<blockquote>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">System.ArgumentException: Die Schriftart Courier New unterstützt den Schnitt Regular nicht.</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei System.Drawing.Font.CreateNativeFont()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei System.Drawing.Font.Initialize(FontFamily family, Single emSize, FontStyle style, GraphicsUnit unit, Byte gdiCharSet, Boolean gdiVerticalFont)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei System.Drawing.Font.Initialize(String familyName, Single emSize, FontStyle style, GraphicsUnit unit, Byte gdiCharSet, Boolean gdiVerticalFont)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei System.Drawing.Font..ctor(String familyName, Single emSize)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.HtmlEditor.HtmlSourceEditorControl..ctor(ISpellingChecker spellingChecker)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostHtmlEditing.HtmlSourceEditorControl..ctor(ISpellingChecker spellingChecker)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostHtmlEditing.BlogPostHtmlSourceEditorControl..ctor(IBlogPostSpellCheckingContext spellingContext)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostHtmlEditing.BlogPostHtmlEditor.InitializeSourceEditor()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostHtmlEditing.BlogPostHtmlEditor..ctor(IMainFrameWindow mainFrameWindow, Control editorContainer, Control editorTopStripControl, IBlogPostEditingSite postEditingSite, CommandBarDefinition commandBarDefinition)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorMainControl.InitializeHtmlEditor()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorMainControl.InitializeUI()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorMainControl.Init(IMainFrameWindow mainFrameWindow, IBlogPostEditingContext editingContext)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorMainControl..ctor(IMainFrameWindow mainFrameWindow, IBlogPostEditingContext editingContext)</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorForm.CreateMainControl()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.ApplicationFramework.SatelliteApplicationForm.OnInitializeWorkspace()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.PostEditor.PostEditorForm.OnInitializeWorkspace()</div>
+<div id="_mcePaste" style="position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">bei WindowsLive.Writer.ApplicationFramework.SatelliteApplicationForm.OnLoad(EventArgs e</div></blockquote>
+I've reinstalled WLW now about 3 times and can't it to work at all. So I'm a bit impaired in my ability to blog at the moment.
+
+But worst of all: Windows Live Writer stores drafts in a binary file format that is only readable by Windows Live Writer. So now that WLW is down I have no other choice but to take my drafts to another computer to make them readable (let's just hope WLW didn't break there too).
+
+I hope I'll be back with some interesting content real soon, but right now this is a real show-stopper

@@ -1,0 +1,64 @@
+---
+layout: post
+title: "DefaultValue attribute for Castle MonoRail"
+guid: http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/
+postid: 688
+---
+<p>While reading through <a href="http://weblogs.asp.net/scottgu/archive/2009/07/31/asp-net-mvc-v2-preview-1-released.aspx">ScottGu’s announcement of the ASP.NET MVC 2 Preview 1</a> I noticed this rather interesting little feature that’s in there:</p>  <p><a href="http://weblogs.asp.net/scottgu/archive/2009/07/31/asp-net-mvc-v2-preview-1-released.aspx" target="_blank"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="DefaultValue attribute in ActionMethod" border="0" alt="DefaultValue attribute in ActionMethod" src="http://www.tigraine.at/wp-content/uploads/2009/08/step19.png" width="621" height="78" /></a> </p>  <p>MonoRail is <a href="http://www.tigraine.at/2009/07/31/mvc-vs-monorail-action-methods/" target="_blank">much smarter about action methods</a> than MVC so there are already things going on with default values through routing etc. But this particular thing wasn’t in the framework until now. So I took <a href="http://www.kenegozi.com/blog/2008/09/15/creating-a-custom-parameter-binder-for-monorail-actions-iparameterbinder.aspx" target="_blank">Ken Egozi’s sample</a> about using <tt>IParameterBinder </tt>to implement the <tt>DefaultValueAttribute </tt>in MonoRail.</p>  <p>The result in syntax is identical to ASP.NET MVC 2 P1 and it was very easy to do:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6720626e-6c92-4f24-8966-4562a682642c" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public void Browse([DefaultValue("beer")] string category, [DefaultValue(1)] int page)
+{
+&#160;&#160;&#160;&#160;
+}
+</pre></div>
+
+<p>How is this done? Well, I suggest you read <a href="http://www.kenegozi.com/blog/2008/09/15/creating-a-custom-parameter-binder-for-monorail-actions-iparameterbinder.aspx" target="_blank">Ken Egozi’s post</a> since he does a much better job at explaining that thing. Anyway, here is the code to make that happen:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:377739e2-84f1-4f8d-a880-717ccccb7ef7" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+using System;
+using System.Reflection;
+using Castle.MonoRail.Framework;
+
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+public class DefaultValueAttribute : Attribute, IParameterBinder
+{
+	private readonly object value;
+	public DefaultValueAttribute(object value)
+	{
+		this.value = value;
+	}
+
+	public int CalculateParamPoints(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
+	{
+		var token = context.Request[parameterInfo.Name];
+		if (CanConvert(parameterInfo.ParameterType, token))
+			return 10;
+		return 0;
+	}
+	
+	private static bool CanConvert(Type targetType, string token)
+	{
+		if (token == null)
+			return false;
+
+		try
+		{
+			Convert.ChangeType(token, targetType);
+			return true;
+		}
+		catch (FormatException)
+		{
+			return false;
+		}
+	}
+
+	public object Bind(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
+	{
+		string token = context.Request[parameterInfo.Name];
+		Type type = parameterInfo.ParameterType;
+		if (CanConvert(type, token))
+			return Convert.ChangeType(token, type);
+		return value;
+	}
+}
+
+</pre></div>

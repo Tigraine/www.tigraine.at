@@ -1,0 +1,89 @@
+---
+layout: post
+title: "Introducing IronLess.Net &ndash; your duct tape solution to LessCss in ASP.NET"
+guid: http://www.tigraine.at/2009/08/24/introducing-ironlessnet-your-duct-tape-solution-to-lesscss-in-aspnet/
+postid: 712
+---
+<p>Some time ago while writing the CSS for the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/" target="_blank">ImagineClub website</a> I found out the hard way that there are two ways of developing XHTML sites: Clean presentation/markup separation or mixing of the both to achieve CSS reusability. </p>  <p>What I mean by mixing is markup code like the following:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a4fdffe0-bd5d-4dc0-9274-d8f6c9894e34" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;div class="floated thick-border highlight"&gt;
+	&lt;p&gt;Stuff&lt;/p&gt;
+&lt;/div&gt;
+</pre></div>
+
+<p>I have problems with the above, since I am clearly mixing presentation with data. I want my XHTML to transport structured data that gets styled through CSS. Separation of concerns teaches us that we should rarely have to touch the markup if we want to change appearance, and we should not have to touch the markup if we change the data we are presenting. 
+  <br />So the above code clearly blurs the line somewhat, and while still being somewhat semantic markup, it’s also intermingled with presentation concerns what I don’t like at all. </p>
+
+<p>Why code like the above exists has a reason: CSS is endlessly verbose and leads to tons and tons of code-duplication if only applied to DOM structures and IDs, so naturally webdesigners have started to use the mixing of classes in markup to avoid some of the duplication while still leveraging the power of CSS. </p>
+
+<p>During a chat with <a href="http://www.nephilistic.com/" target="_blank">Kristof</a> about this particular issue the conclusion we reached was that my way of doing it was theoretically better, but only if backed by some sort of server-side framework that would enhance CSS to avoid duplication and verbosity that comes with my approach. </p>
+
+<p>And looking over the Microsoft fence, somewhere in those fluffy green lands inhabited by Ruby people, I found the answer to my problems: <a href="http://lesscss.org/" target="_blank">LessCss</a>! 
+
+  <br />But I don’t do ruby development so I filed it away under “cool but unreachable”, until I came across this tweet some two weeks ago: </p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image7.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb6.png" width="610" height="278" /></a> </p>
+
+<p>I was immediately sold to the idea and contacted <a href="http://blog.smoothfriction.nl/" target="_blank">Erik</a>, to contribute to the project. Turns out, he’s a really nice guy and working hard on writing a parser to read LessCss fully in managed code through the use of ANTLR. </p>
+
+<p>But being the simple guy I am one of the first questions I had for Erik was: “Why don’t we just wrap the original Less project inside the DLR and run it from there?”.</p>
+
+<p>Well, at that time Erik had no real answer for that, and I didn’t either so I decided to give it a try while Erik had some <a href="http://blog.smoothfriction.nl/archive/2009/08/17/less.net-update.aspx" target="_blank">very valid reasons to continue working</a> on a full C# implementation. 
+
+  <br />And now this is the post to tell you of my <a href="http://en.wikipedia.org/wiki/Pyrrhic_victory" target="_blank">pyrrhic victory</a>:</p>
+
+<p>First: I did it. It’s here and it can be used: <a href="http://github.com/Tigraine/IronLess.Net/tree/master" target="_blank">IronLess.Net</a>.
+
+  <br /><em><strong><u>Disclaimer: It’s a pain in the ass to use.</u></strong></em> </p>
+
+<p><strong>Installing IronLess.Net</strong></p>
+
+<p>When I write a library I want it to be one thing: self-contained. I don’t want to mess with your local IronRuby installation or with your current gem setup on the machine. So IronLess comes packed with a full catalog of IronRuby/Ruby class libraries all packed into a 0.9mb <a href="http://www.7-zip.org/" target="_blank">7zip</a> file. This file contains 2.228 files in 482 folders all together forming the complete IronRuby environment needed to run the original LessCss.</p>
+
+<p>I did some (simple) magic with NAnt to alleviate that pain, so if you checkout the code you’ll just have to run <tt>build.bat</tt> and NAnt will compile IronLess and also extract the IronRuby libraries to your build folder, making it completely self-contained. You’ll end up with the following folder structure you just need to move (copy will take forever) to your /bin folder:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image8.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb7.png" width="253" height="282" /></a> </p>
+
+<p>Once that’s done you only have to add the following HttpHandler to your ASP.NET web.config and add some initialization code to your <tt>Global.asax.cs</tt> to be all set.</p>
+
+<p>web.config</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b82e3cbb-be8e-4d9a-9bea-3930aea081a6" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;add verb="*" path="*.less" type="IronLess.Wrapper.IronLessHandler, IronLess.Wrapper" validate="false"/&gt;
+</pre></div>
+
+<p>Global.asax:</p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b1260150-b250-41b1-8581-7655a6fd8dfe" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+protected void Application_Start()
+{
+&#160;&#160;&#160;&#160;IronLess.Wrapper.RubyEngine.Initialize(Context);
+}
+</pre></div>
+
+<p>That should suffice to redirect all request for a <tt>.less</tt> file to the <tt>IronLessHandler </tt>that will compile <tt>.less</tt> to <tt>.css </tt>using LessCss.</p>
+
+<p><strong><u>Downsides:</u></strong></p>
+
+<p>There are a thousand reasons to use this, but I’ve another thousand why you shouldn’t: </p>
+
+<ol>
+  <li>Startup is painfully slow: Initializing the LessCss ruby script takes &gt;20 seconds. So every application start takes 20 seconds now since we call the RubyEngine initializer in Application_Start (that will kick off the init of the LessCss script that itselfs makes IronRuby parse all the imported libraries resulting in a 20 second library load). That itself makes it completely unbearable since every debug run in Visual Studio now takes 20 seconds to load.</li>
+
+  <li>LessCss through the DLR can’t read windows line-endings. You have to open up your<tt>.less </tt>file in a editor like <a href="http://notepad-plus.sourceforge.net/de/site.htm" target="_blank">Notepad++</a> and convert it to UNIX style endings (CR-LF -&gt; LF). Not pretty and even less practicable.</li>
+
+  <li>Error handling / debugging is impossible. I didn’t dare to modify the LessCss.rb script so errors will be outputted to the command-line that you aren’t seeing. So if your .less file has errors you’ll see no useable results on why it failed to load. </li>
+
+  <li>Compilation of <tt>.less </tt>to <tt>.css </tt>takes between 50 to 200ms inside a running web-app. Running the IronLess.Compiler takes about 30 seconds. Both figures are way to slow to be actually useable, going with the native Ruby gem from the commandline would be much faster.</li>
+</ol>
+
+<p>So, why bother? 
+  <br />Actually, that’s the question I asked myself halfway through doing IronLess. Since it’s so painful to deploy and startup, I don’t see any real use for this at this point. If someone has the skills to make the DLR run LessCss faster than light by flipping some magic bit, please go ahead and <a href="http://github.com/Tigraine/IronLess.Net/tree/master" target="_blank">fork my repository on github</a> and tell the world about it.
+
+  <br />Also I find the installation process to be just too painful. C’mon, 2.228 files in the <tt>/bin</tt> directory just to write CSS just isn’t cutting it for me. What I want is one simple dll I reference from <tt>/lib</tt> and I’m set. </p>
+
+<p><strong><u>Going further</u></strong></p>
+
+<p>I’ll be going to help Erik get Less.Net out of the door as quickly as possible, in the hopes of bringing something much needed to the ASP.NET world while avoiding all the troubles with external dependencies you get when trying to call into the ruby world from .NET code.
+  <br />Also it’s a nice excuse for me to dig into ANTLR.</p>
+
+<p>So finally, if you decide to use this you are entering a world of hurt. Either you can improve IronLess to a point where it gets useable (I can’t), or you wait for Less.Net.</p>

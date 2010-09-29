@@ -1,0 +1,81 @@
+---
+layout: post
+title: "Juggling generics"
+guid: http://www.tigraine.at/2009/06/10/juggling-generics/
+postid: 566
+---
+<p>I’ve spent the last two days working on true generic registrations inside <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> to enable scenarios like this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:73aa4680-2e43-445f-9ad0-0ef2f3c48290" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Fact]
+public void CanResolveRealGenericAsSubdependency()
+{
+&#160;&#160;&#160;&#160;store.Register(p =&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; p.Service&lt;IService&gt;()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .Implementor&lt;ClassDependingOnGenericClass&gt;();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; p.Generic(typeof (GenericClass&lt;&gt;))
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .Implementor(typeof (GenericClass&lt;&gt;))
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .ForAllTypes();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; });
+&#160;&#160;&#160;&#160;Assert.DoesNotThrow(() =&gt; container.Resolve&lt;IService&gt;());
+}
+</pre></div>
+
+<p>Well, if you look at the <a href="http://bitbucket.org/Tigraine/pandora-container/changeset/535b9f3f9dba/">last changeset</a>, I apparently succeeded for the above example, but decided to revert the changes and <a href="http://bitbucket.org/Tigraine/pandora-container/changeset/7d72f5cc90d3/">start over fresh</a>. Generics are a difficult topic to tackle, and the current implementation feels too much like a hack to me. </p>
+
+<p>But there are some things this failed experiment has taught me:</p>
+
+<p>First: Generic types are just Types. And there are two subclasses of them:</p>
+
+<ol>
+  <li>GenericTypeDefinition – This one represents the generic with no supplied type argument. Eg: typeof(Service&lt;&gt;)&#160; Cannot be activated. </li>
+
+  <li>GenericType – Represents the final type that can be treated like a normal type. Eg: typeof(Service&lt;string&gt;) </li>
+</ol>
+
+<p>So, how do you tell those 3 apart (the third being a normal non-generic)? 
+  <br />Simple: Both generic types have the <a href="http://msdn.microsoft.com/en-us/library/system.type.isgenerictype.aspx">IsGenericType</a> property set to true and GenericTypeDefinition also has <a href="http://msdn.microsoft.com/en-us/library/system.type.isgenerictypedefinition.aspx">IsGenericTypeDefinition</a> set to true. </p>
+
+<p>If you are faced with a GenericType, you can always extract the GenericTypeDefinition by calling <a href="http://msdn.microsoft.com/en-us/library/system.type.getgenerictypedefinition.aspx">GetGenericTypeDefinition()</a> (very useful if you try to compare types in some scenarios). 
+
+  <br />The inverse can also be done (creating a GenericType from a definition) by calling <a href="http://msdn.microsoft.com/en-us/library/system.type.makegenerictype.aspx">MakeGenericType()</a>:</p>
+
+<p></p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e3f4d34b-26d6-4e67-a613-9fddede8baa5" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var type = typeof (string);
+Type genericType = typeof (GenericClass&lt;&gt;).MakeGenericType(type);
+</pre></div>
+
+<p></p>
+
+<p>And, in case you want to know what the argument type (T part) of a generic type is you can use the <a href="http://msdn.microsoft.com/en-us/library/system.type.getgenericarguments.aspx">GetGenericArguments()</a> method to find out:</p>
+
+<p></p>
+
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0dcf08a7-64f8-4842-89e0-6a001f22a568" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Fact]
+public void ExtractGenericArgumentType()
+{
+&#160;&#160;&#160;&#160;var type = typeof (SuperGeneric&lt;string, int, long, float&gt;);
+&#160;&#160;&#160;&#160;Type[] arguments = type.GetGenericArguments();
+&#160;&#160;&#160;&#160;foreach (var argument in arguments)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Console.WriteLine(argument.Name);
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p></p>
+
+<p>The above produces the following: </p>
+
+<blockquote>
+  <p>String
+    <br />Int32
+
+    <br />Int64
+
+    <br />Single</p>
+</blockquote>
+
+<p>Ps: Try this stuff out for yourself! Reflection is real fun and surely helped me understand some things better. Don’t let yourself be thrown off by comments like “Reflection is too slow, never use it” etc.. Reflection and dynamic activation can make your life much easier if you know how to use it!</p>

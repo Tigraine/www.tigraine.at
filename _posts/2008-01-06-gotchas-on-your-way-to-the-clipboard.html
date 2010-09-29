@@ -1,0 +1,49 @@
+---
+layout: post
+title: "Gotchas on your way to the Clipboard"
+guid: http://www.tigraine.at/2008/01/06/gotchas-on-your-way-to-the-clipboard/
+postid: 180
+---
+<p>We all know that lovely thing nobody can live without: Clipboard.    <br />Have you ever tried to read the clipboard from your C# code?</p>  <p>Your code may have looked like this:</p>  <pre class="code"><span style="color: #2b91af">Clipboard</span>.GetDataObject();</pre>
+
+<p>Ok, this code works perfectly fine whenever you try it from a normal Windows-Forms Application Template. 
+  <br />Now, go try accessing the Clipboard from within an Console-Application!</p>
+
+<p>Ok, I know you didn't try, that's why I'm writing this anyway. 
+  <br />Clipboard isn't accessible as long as your Main() isn't looking like this:</p>
+
+<pre class="code">[<span style="color: #2b91af">STAThread</span>]
+        <span style="color: blue">public static void </span>Main()
+        {
+            
+        }</pre>
+
+<p>Why? All the magic lies in the <strong>STAThread</strong> Attribute! 
+
+  <br />The STAThread Attribute changes the appartment state of the current thread to be single-threaded. This is necessary for some features especially of Windows Forms (where Clipboard resides in). Why? 
+
+  <br />Mainly because those features are done through COM-Interop and need to be single-threaded.</p>
+
+<p>Great, my whole application relies on <strong>MTAThread</strong>, now I'm screwed?? 
+
+  <br />No! Thanks to threading you can always fire up a new thread that is using STA.</p>
+
+<pre class="code">[<span style="color: #2b91af">MTAThread</span>]
+        <span style="color: blue">public static void </span>Main()
+        {
+            <span style="color: #2b91af">Thread </span>newThread = <span style="color: blue">new </span><span style="color: #2b91af">Thread</span>(<span style="color: blue">new </span><span style="color: #2b91af">ThreadStart</span>(StartingPoint));
+            newThread.SetApartmentState(<span style="color: #2b91af">ApartmentState</span>.STA);
+            newThread.Start();
+        }
+
+        <span style="color: blue">public static void </span>StartingPoint()
+        {
+            <span style="color: #2b91af">Clipboard</span>.GetDataObject();
+        }</pre>
+
+<p>Voila, now we have a new Thread that can access the Clipboard without having to change the apartment state of our old thread. 
+  <br />Just remember to set the ApartmentState through the <em>SetApartmentState()</em> function before hitting <em>Start()</em>!</p>
+
+<p>You could also just stick the [MTAThread] attribute ontop of your ThreadStart-Method (but that would be too simple wouldn't it?)</p>
+
+<p>So.. be warned, I had an hour of headaches because of this!</p>

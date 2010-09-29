@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Using Extension Methods as a Factory Method for an Adapter"
+guid: http://www.tigraine.at/2008/10/02/using-extension-methods-as-a-factory-method-for-an-adapter/
+postid: 371
+---
+<p>Sometimes you have existing code you don't want to change. And sometimes you need to write libraries that consume these old legacy objects as input to function.    <br />No need to say that it's usually a bad idea to couple your code to not properly tested and poorly designed legacy code.</p>  <p>So it's generally a good idea to abstract it away from new code and try to mask the old objects through adapters and interfaces from being too tightly coupled to your new code.</p>  <p>Either way, you're trying to put square blocks into round holes. And the adapter classes need to be initialized by your callers every time your class gets used.</p>  <div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:364d5cc0-797c-4dc6-8ea4-d99cd42af81f" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+&#160;&#160;&#160;&#160;public class LegacyFoo
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public void SomeFoo()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{}
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;public interface IFoo
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;void Foo();
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;public class FooAdapter : IFoo
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;private readonly LegacyFoo Foo_;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public FooAdapter(LegacyFoo foo)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Foo_ = foo; }
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public void Foo()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{ Foo_.SomeFoo(); }
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;public class FooConsumer
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public void DoSomethingWithOldFoo(IFoo oldFoo)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{ oldFoo.Foo(); }
+&#160;&#160;&#160;&#160;}
+</pre></div>
+
+<p>So instead of providing yet another Factory that constructs the adapter object, you could instead just put the factory method onto the legacy object by using an extension method:</p>
+
+<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:884cef41-1b3f-4fa7-91c9-bedc327b10a1" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+&#160;&#160;&#160;&#160;public static class FooExtensions
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public static IFoo GetFooAdapter(this LegacyFoo foo)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{ return new FooAdapter(foo); }
+&#160;&#160;&#160;&#160;}
+</pre></div>
+
+<p>Now your callers can conveniently construct the Adapter object by calling: </p>
+
+<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:75282b84-9f42-459d-960f-6e2d90f3635e" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+LegacyFoo foo = new LegacyFoo();
+foo.GetFooAdapter()
+</pre></div>

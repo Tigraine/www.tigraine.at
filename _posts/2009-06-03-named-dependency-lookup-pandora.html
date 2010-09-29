@@ -1,0 +1,35 @@
+---
+layout: post
+title: "Named dependency lookup &ndash; Pandora"
+guid: http://www.tigraine.at/2009/06/03/named-dependency-lookup-pandora/
+postid: 549
+---
+<p>One rather essential feature for a DI container is to be able to lookup components by some key. For example retrieving a specific IController class based on the controller name specified by the request.</p>  <p>So the usual use case for the above looks like this:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9c0291a9-1dac-4a4b-ad6b-bcb2409d4bd4" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var store = new ComponentStore();
+store.Add&lt;IRepository, MemoryRepository&gt;("memory.repository");
+store.Add&lt;IRepository, SqlRepository&gt;("db.repository");
+var container = new PandoraContainer(store);
+
+var service = container.Resolve&lt;IRepository&gt;("db.repository");
+</pre></div>
+
+<p>Now, there is another thing too: What if I want one controller to use one special repository out of the registered ones:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:fba531aa-f450-458c-b68d-941e11732d50" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var store = new ComponentStore();
+store.Add&lt;IRepository, SqlRepository&gt;("db.repository");
+store.Add&lt;IRepository, MemoryRepository&gt;("memory.repository");
+store.Add&lt;Controller, Controller&gt;()
+&#160;&#160;&#160;&#160;.Parameters("repository").Eq("memory.repository");
+var container = new PandoraContainer(store);
+
+var controller = container.Resolve&lt;Controller&gt;();
+</pre></div>
+
+<p>Well, yes Pandora can do those kinds of things too. </p>
+
+<p>If you know Windsor’s Fluent interface .Parameters().Eq() may sound familiar to you. That’s intentionally. I like the Windsor Fluent syntax.</p>
+
+<p>What I really underestimated was how to do the fluent interface. It’s not terribly hard, but it’s takes some tinkering ;).</p>
+
+<p>You can find the source to <a href="http://bitbucket.org/Tigraine/pandora-container/">Pandora at the project website</a> on Bitbucket.</p>

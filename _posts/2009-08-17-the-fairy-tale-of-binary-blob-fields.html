@@ -1,0 +1,42 @@
+---
+layout: post
+title: "The fairy tale of binary blob fields"
+guid: http://www.tigraine.at/2009/08/17/the-fairy-tale-of-binary-blob-fields/
+postid: 700
+---
+<p>One of the main advantages students get from being members of imagineClub is that they get access to uploaded course materials through the website. Naturally, the new site has to support file upload and download somehow, and yesterday I started implementation of that feature.</p>  <p>In theory this sounds really simple, especially since the <a href="http://www.tigraine.at/2009/07/24/fileupload-in-monorail/">file upload in MonoRail is so trivial</a> I figured it wouldn’t be a problem to implement.</p>  <p>One major thing to consider when designing a file upload feature is the question: Save to disk or save to database? Let’s look at the two options:</p>  <p><strong>Save to disk: </strong></p>  <p>Pro: Very easy    <br />Con: Requires metadata to be kept in the database. Could go out of sync with the db. Requires backup. Requires special permissions.</p>  <p><strong>Save to db:</strong></p>  <p>Pro: Zero setup. Data all in one place, backup hugely simplified. Enforces data integrity    <br />Con: Non-trivial implementation.</p>  <p>Now, I naturally went with the db option. Deployment is hugely facilitated if you don’t need to look at file permissions, and most hosters have databases backed up anyway. So things go south, the only thing I need to recover the site would be the database file.</p>  <p>Some searching revealed that binary data could be mapped to the database through AR quite easily:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c4ebda2c-eb71-449a-ace5-20028abc0d39" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+[Property(ColumnType = "BinaryBlob", SqlType = "varbinary(MAX)")]
+public byte[] BinaryData { get; set; }
+</pre></div>
+
+<p>Problem with that is that it crashed ALL of my database dependant unit-tests:</p>
+
+<blockquote><tt>
+    <p>------------ System.Data.SQLite.SQLiteException : SQLite error 
+      <br />near &quot;MAX&quot;: syntax error</p>
+  </tt></blockquote>
+
+<p>Apparently SqlLite can’t figure out that MAX thing and will crash. Since it would accept a numeric value instead I looked at the <a href="http://msdn.microsoft.com/en-us/library/ms188362.aspx">SqlServer 2008 documentation for varbinary</a> to find out what MAX would be. Turns out it’s exaclty 2147483647 (2^31-1), so my natural reaction was to change the SqlType to be exactly <tt>varbinary(2147483647)</tt> instead of MAX. Now SqlLite can interpret it and all tests run great again, but creating the schema on SqlServer isn’t possible any more due to the following (odd) error:</p>
+
+<blockquote><tt>
+    <p>The size (2147483647) given to the column 'BinaryData' exceeds the maximum allowed for any data type (8000).</p>
+  </tt></blockquote>
+
+<p>So, what we just saw is a leaky abstraction inside the ORM. But NHibernate never claimed to abstract the DB completely away from me, so we’ll not use that against it. NHibernate explicitly supports these scenarios and in a real NHibernate scenario it’s just a matter of having two different mapping files, one mapping to the appropriate SQLite datatype and the other mapping to the Sql2008 datatype that would be varbinary(MAX). 
+  <br />But, I’m not using NHibernate here, I’m using ActiveRecord that handles mapping through attributes on the data classes, and I’ve no intention of using <tt>#ifdef</tt> statements anywhere around my code. </p>
+
+<p>The problem here is mainly that whenever you are trying to use two different <a href="http://en.wikipedia.org/wiki/Relational_database_management_system" target="_blank">RDBMS</a> at once you are limiting yourself to the least common denominator, and you have to deal with that. 
+
+  <br />I won’t be able to use advanced Sql2008 features, and I also won’t be able to use anything fancy inside SQLite either. </p>
+
+<p>The <u>least common denominator in this case is the datatype <tt>IMAGE</tt></u>, something that Microsoft is discouraging people to do in their documentation:</p>
+
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image4.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb3.png" width="590" height="146" /></a> </p>
+
+<p>This puts me in a delicate position since the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/" target="_blank">imagineClub website</a> is hosted on a server I don’t control. So I could just wake up one morning and seeing the <a href="http://www.tigraine.at" target="_blank">iC website</a> down because the hosting company decided to upgrade all users to 2010 (or whatever version the next SQL Server will have). 
+
+  <br />And I know, usually providers send out warning for stuff like this, but I doubt that through all the <a href="http://www.tigraine.at/2009/06/21/imagineclub-students-for-students/" target="_blank">structural changes with imagineClub lately</a> they even know where to send those warnings to.</p>
+
+<p>So: Long story short, use <tt>image </tt>over <tt>varbinary(MAX)</tt> if you plan on doing in-memory SQLite testing, just keep in mind that your app will break when you upgrade to a newer version of SqlServer.</p>
+
+<p><em>Update: Looks like </em><a href="http://devlicio.us/blogs/krzysztof_kozmic/default.aspx"><em>Krzysztof Kozmic</em></a><em> had the same issues and found </em><a href="http://devlicio.us/blogs/krzysztof_kozmic/archive/2009/08/17/adjusting-nhibernate-mapping-for-tests.aspx" target="_blank"><em>a quite clever solution for that</em></a><em>. I’m not totally clear on how to do this with ActiveRecord, but it’s a very pragmatic approach to a problem that seems to not have a perfect solution anyway.</em></p>

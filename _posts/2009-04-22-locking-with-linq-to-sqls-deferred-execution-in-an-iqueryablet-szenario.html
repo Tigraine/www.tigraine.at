@@ -1,0 +1,121 @@
+---
+layout: post
+title: "Locking with Linq to SQL&rsquo;s deferred execution"
+guid: http://www.tigraine.at/2009/04/22/locking-with-linq-to-sqls-deferred-execution-in-an-iqueryablet-szenario/
+postid: 512
+---
+<p>If you have been reading this blog lately you may have noticed that I’m currently working on a project where I chose Linq to Sql as my data-source, inspired by the IQueryable&lt;T&gt; Repository <a href="http://blog.wekeroad.com/">Rob Conery</a> introduced in his <a href="http://blog.wekeroad.com/mvc-storefront/mvc-storefront-part-1/">MVC Storefront</a> series.</p>  <p>The basic idea of the IQueryable&lt;T&gt; repository is to have the repository return a IQueryable list of C# domain objects that can then be filtered, queried, parsed at higher layers of the application.    <br />So things like paging, filtering etc (all business concerns) can be applied to the query at a later stage instead of having to propagate all of these requirements down to the Repository (Ayende wrote <a href="http://ayende.com/Blog/archive/2009/04/17/repository-is-the-new-singleton.aspx">something</a> <a href="http://ayende.com/Blog/archive/2009/04/18/the-dal-should-go-all-the-way-to-ui.aspx">great</a> on the death of Repository you should check out).</p>  <p>So my business code would call the repository for all objects and then apply logic to it:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6daf8c8f-911d-4218-8c2b-52ff70236fa6" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+var preferredUsers = 
+&#160;&#160;&#160;&#160;repository.GetAll()
+&#160;&#160;&#160;&#160;.Where(p =&gt; p.JoinDate &lt; DateTime.Now.AddYears(-1))
+&#160;&#160;&#160;&#160;.Skip(PAGE_SIZE*pageNumber)
+&#160;&#160;&#160;&#160;.Take(PAGE_SIZE);
+</pre></div>
+
+<p></p>
+
+<p>I loved it. Not having to propagate concerns like paging and filtering to the DAL was awesome, and since the interface is so damn simple I very quickly came up with decorators that did error handling, caching and logging at the DAL level.</p>
+
+<p>Since I’ve become a dependency injection nut, I then came up with a <a href="http://www.tigraine.at/2009/04/10/how-to-make-a-linq2sql-datacontext-ioc-friendly/">injectable datacontext</a> so my repositories don’t have anything to do with the data context creation (thus sparing me the configuration concerns in that class). 
+
+  <br />My concrete repository implementation then looked like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:714c0f85-546f-4daf-8387-7152f3c40006" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class UserRepository : IRepository&lt;BlogUser&gt; 
+{
+&#160;&#160;&#160;&#160;private DataClassesDataContext context;
+
+&#160;&#160;&#160;&#160;public UserRepository(DataClassesDataContext context)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.context = context;
+&#160;&#160;&#160;&#160;}
+
+&#160;&#160;&#160;&#160;public IQueryable&lt;BlogUser&gt; GetAll()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return from u in context.Users
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; select new BlogUser
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Id = u.Id,
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Username = u.Name,
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Password = u.Password
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>You see, the context gets injected and besides the query there is nothing in the repository, <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">SRP</a> .. check.</p>
+
+<p>Now, the logical thing to do in my IoC configuration was to have the repositories be singletons, and so every repository has one datacontext attached to it.</p>
+
+<p>And this is where it blew up in my face, having multiple threads access the repository leads to some nasty race conditions for the datacontext, and I found no sane way of dealing with this at the DAL level. 
+  <br />Try this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:54cf09da-b233-4945-aff2-012654cf0fcb" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static void main()
+{
+&#160;&#160;&#160;&#160;var repository = new UserRepository(new DataClassesDataContext());
+&#160;&#160;&#160;&#160;new Thread(() =&gt; ThreadStart(repository)).Start();
+&#160;&#160;&#160;&#160;new Thread(() =&gt; ThreadStart(repository)).Start();
+}
+
+public static void ThreadStart(IRepository&lt;BlogUser&gt; repository)
+{
+&#160;&#160;&#160;&#160;const int PAGE_SIZE = 10;
+&#160;&#160;&#160;&#160;int pageNumber = 1;
+&#160;&#160;&#160;&#160;var preferredUsers = 
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;repository.GetAll()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Where(p =&gt; p.JoinDate &lt; DateTime.Now.AddYears(-1))
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Skip(PAGE_SIZE*pageNumber)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Take(PAGE_SIZE);
+&#160;&#160;&#160;&#160;preferredUsers.ToList();
+}
+</pre></div>
+
+<p>The same query as before, but two threads that share the same repository, therefore sharing the same datacontext. Once started, the whole thing will blow up with a InvalidOperationException stating that the connection is closed. </p>
+
+<p>I didn’t bother to go into the DataContext source and check out why they are closing the connection, but apparently after the query is executed it takes some time for the context to “recover” and be able to accept a new query.</p>
+
+<p>I immediately tried to solve the problem by adding a lock on the datacontext in the repository class (since the contexts are pooled, it was the only thing that made sense since I don’t need to lock all connections, just the one I’m currently using).</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b0da435e-d6bd-414d-af12-47ea932727ba" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public IQueryable&lt;BlogUser&gt; GetAll()
+{
+&#160;&#160;&#160;&#160;lock (context)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return from u in context.Users
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; select new BlogUser
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Id = u.Id,
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Username = u.Name,
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Password = u.Password
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p></p>
+
+<p></p>
+
+<p>I intentionally said I tried, because it didn’t work. The lock gets executed alright, but the query isn’t run inside the lock{} but rather at the calling code, in my business class (the power of deferred execution). So the only way to prevent a race condition for my datacontext would have been to add locking to the business code:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:7642f6e0-5df3-43d0-ba12-eae54d40e337" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+const int PAGE_SIZE = 10;
+int pageNumber = 1;
+var preferredUsers = 
+&#160;&#160;&#160;&#160;repository.GetAll()
+&#160;&#160;&#160;&#160;.Where(p =&gt; p.JoinDate &lt; DateTime.Now.AddYears(-1))
+&#160;&#160;&#160;&#160;.Skip(PAGE_SIZE*pageNumber)
+&#160;&#160;&#160;&#160;.Take(PAGE_SIZE);
+lock(repository)
+{
+&#160;&#160;&#160;&#160;preferredUsers.ToList();
+}
+</pre></div>
+
+<p>Omg right? So, besides the fact that I can’t guarantee that two repositories don’t use the same datacontext (and therefore racing against each other), I just opened the Pandora's box of possible errors (give me a month and I’ll forget the locking at least 3 times). 
+  <br />Also, it’s just painful to see an implementation detail of the data access layer leak into the business code for no apparent reason.</p>
+
+<p>And the only way I found on how to <em>solve that problem was to supply a new datacontext to every query</em>, so I get rid of the whole locking. I did so by injecting a datacontext factory into the repository and call the factory every time I execute a query.</p>
+
+<p>This fixed the issue for now, but<em>&#160;</em>I don’t feel too good about the solution. Creating new datacontext object for every query somehow feels wrong, and I’d love to hear suggestions from you on how to change that. </p>

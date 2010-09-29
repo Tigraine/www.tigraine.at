@@ -1,0 +1,63 @@
+---
+layout: post
+title: "The power of delegates in C#"
+guid: http://www.tigraine.at/2008/12/12/delegates-and-eventing-in-c/
+postid: 409
+---
+<p>The common way to learn OOP design and best practices is through books on Java or books on C# that got translated from Java.    <br />And since Java and C# both work pretty similar as far as objects are concerned, I never saw delegates put to good use except for events where they were automagically generated and used by the winforms designer.     <br />I always knew delegates as a method signature that had to be present for an event to work (since the event requires a delegate type), but knew little else about their usage and workings.</p>  <p>So, I was quite amazed when I found out how useful delegates really are besides when doing events.    <br />The delegate is simply put a “method signature type”, something like a interface for a method (or you could call it “function pointer” if you’re an oldschool C guy).     <br />So it is essentially a type that represents a method, allowing you to call or pass around any method that matches that signature as a object.</p>  <p>So imagine the following two classes that share a common signature but no supertype or interface:</p>  <p></p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f2ba912d-00c8-4c4d-921d-0c45ddb7921f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Class1
+{
+&#160;&#160;&#160;&#160;public void Notify()
+&#160;&#160;&#160;&#160;{}
+}
+public class Class2
+{
+&#160;&#160;&#160;&#160;public void Notify()
+&#160;&#160;&#160;&#160;{}
+}
+</pre></div>
+
+<p></p>
+
+<p>Now imagine you need to have those Subject classes in a list and you need to loop through them and call Notify on each of them. No problem if they share a supertype or a interface, and if they don’t you could extract an interface easily. </p>
+
+<p>But if you don’t control that code (because it’s from a 3rd party etc), you’re forced to write some sort of adapter class that provides a common interface if you want to call that one method on all of them in some unified way.</p>
+
+<p>Now C# has solved this problem gracefully by treating methods as a type, so if you omit the parentheses on your method call it will return a object representing that method. And that object can then be stored in a variable of a delegate type that matches the original method’s signature.</p>
+
+<p>So I could define a delegate that can then be called to reference methods in different classes as long as they match my delegate signature:</p>
+
+<p></p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a1fd5bf0-81e3-4f04-a00a-02854725c934" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public delegate void doNotify();
+</pre></div>
+
+<p></p>
+
+<p>I could then create a variable of type doNotify that contains a reference to my Notify method in Class1 and call that variable instead of the concrete method on Class1:</p>
+
+<p></p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bcb93b5a-10fd-4ae9-a218-d43544bed490" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+doNotify method1 = new Class1().Notify;
+method1();
+</pre></div>
+
+<p></p>
+
+<p>The real beauty of this is that I can also pass that delegate around to other methods that know nothing about the type, only about that one method signature. Therefore I could write code like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:941413ca-2a79-4158-8c3d-a16e4de824d4" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public static void DoSomethingAndNotifyAll(IList&lt;doNotify&gt; subjects)
+{
+&#160;&#160;&#160;&#160;foreach (var notify in subjects)
+&#160;&#160;&#160;&#160;{ notify(); }
+}
+</pre></div>
+
+<p>Where this came really handy (and where I found out about it) was when doing a pretty simple list interface that had a dropdown field that controlled sorting of the list. It was pretty standard, I had 3 methods that sorted the list (and I know I should have extracted strategy classes, but that seemed too heavy for the task at hand) and depending on the selected item in the dropdown one of those 3 should get called. The usual course of action would be to switch on the value of the dropdown, but that would have created a maintenance nightmare in the long term (inserting and dealing with the value would be somewhat redundant and I’d have to update 2 code passages for one change in the future). So the simplest solution I came up with was to create a delegate for the sort methods (<em>public delegate void doSort()</em>) and create a class that took a text and that delegate and exposed it as fields. Now I could use the DisplayMember property on my dropdown to display the text for the sort function and when needed I could just call the sort function through the delegate. </p>
+
+<p>This then leads me to the apparent lack of generic controls in .NET that make all this interface work feel awkward and wrong because you are casting to and forth all the time, but that’s another story. </p>
+
+<p>That all being said, I can’t say I encourage heavy use of delegates because the concept can be so easily abused. In most cases it’s better to use interfaces and object composition because they are not only better known, but also more explicit (you don’t see the delegate use as easy as some implemented interface). Use them wisely and you have a very powerful tool at hand, overuse it and you will end up with some pretty hard to read code.</p>

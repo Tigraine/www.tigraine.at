@@ -1,0 +1,25 @@
+---
+layout: post
+title: "Interessanter Ansatz f&uuml;r ein Server-Protokoll"
+guid: http://www.tigraine.at/2007/11/08/interessanter-ansatz-fur-ein-server-protokoll/
+postid: 130
+---
+Ich glaube mir ist aus Versehen was interessantes gelungen.
+
+Im Rechnernetze Kurs an der Uni war von uns gefragt ein eigenes Protokoll für einen Socket Server unter Java zu entwerfen.
+
+Im Grunde wollten man wohl ein relativ simples HTTP ähnliches Protokoll mit GET, POST und LIST von uns. Ich musste aber natürlich über das Ziel hinwegballern.
+
+Rausgekommen ist ein IMAP ähnlicher Socket-Server der nicht nur für jedes Socket einen Thread öffnet sondern auch für jeden Command einen weiteren startet um nie zu blockieren.
+Und auch wenn das jetzt ziemlich brutal klingt, der tiefere Sinn dahinter war der dass man dadurch Befehle aneinanderreihen kann und das im Server sehr simpel über Thread.join() gelöst wird.
+
+Spezielles zum Konzept und der Paket Syntax gibts unter more.
+
+<!--more--><a href="http://www.tigraine.at/wp-content/uploads/2007/11/javaserver.JPG" title="Java Source Code of Packet Spec"><img src="http://www.tigraine.at/wp-content/uploads/2007/11/javaserver.JPG" alt="Java Source Code of Packet Spec" /></a>
+
+Sämtliche Befehle werden mit einem Token prefixed (wie in <a href="http://www.faqs.org/rfcs/rfc3501.html">IMAP</a>) und dieser Token wird vom ClientHandler (der eigene Thread für jeden Client) in einer Hashtable als Key angelegt während der zu launchende Thread (CommandExecution) die Value ist. Existiert der Key bereits in der Hashtable so wird der alte Thread durch den gerade neuen ersetzt und der neue macht Thread.join() auf den alten. Dadurch wird der neue erst ausgeführt wenn der alte Befehl abgearbeitet ist, also dessen run() Methode durch ist.
+Der Token diehnt auch dazu dass der Client die Response vom Server zuordnen kann (wie in IMAP).
+
+Was auf jeden Fall noch verändert werden muss bevor man damit irgendwas bauen kann ist dass alles auf Threadpools umgebaut werden muss (Das andauernde Threads starten frisst enorm Ressourcen). Außerdem ist der Server momentan sehr verwundbar gegen <a href="http://de.wikipedia.org/wiki/Denial_of_Service">DoS</a> Attacken.
+
+Ich werde versuchen bis nächste Woche mal den Java Code soweit aufzubereiten dass ich ihn ohne mir Spott und Hohn einzuhandeln hier unter der GPL herzeigen kann.

@@ -1,0 +1,69 @@
+---
+layout: post
+title: "override vs new in C#"
+guid: http://www.tigraine.at/2009/02/25/override-vs-new-in-c/
+postid: 481
+---
+<p>The class diagram is rather simple:</p>  <p><img title="image" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="210" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/02/image4.png" width="412" border="0" /> </p>  <p>Yes, it’s that simple. I have an Image and I want to modify the behavior of the Url getter method for it (I can’t compose the URL string inside a Linq to Sql expression since I’d have to call a resolveFileType method that can’t get translated into SQL). So, I figured the best way to solve that problem is to have a subclass with a custom implementation of Url to handle that. I supply the required information through the ctor and when called the Url gets composed. The general idea is to assign an BoxImage to an Image field, hiding the custom implementation from the rest of the code.</p>  <p>Since I had not marked my fields as virtual I could not override them, I thought just writing new would do the job.    <br />That failed miserably.</p>  <p>Actually, the new keyword does not hide the base classes method. Instead, a new method gets created that lives only on the derived class and that won’t get called if you are calling the base type.</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b9bfafb3-91f9-4c4c-ae53-19c4b4640eb8" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Image
+{
+&#160;&#160;&#160;&#160;public bool Url()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
+&#160;&#160;&#160;&#160;}
+}
+
+public class BoxImage : Image
+{
+&#160;&#160;&#160;&#160;public new bool Url()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return false;
+&#160;&#160;&#160;&#160;}
+}
+
+public class Image_Fixture
+{
+&#160;&#160;&#160;&#160;[Fact]
+&#160;&#160;&#160;&#160;public void Should_Return_False()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Image img = new BoxImage();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.True(img.Url());
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.False(((BoxImage)img).Url());
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>The unit test should be self explanatory, only if the type that gets the call is actually a BoxImage the new method will get called, if not, the base implementation will get used and your polymorphism goes out of the window :).</p>
+
+<p>Doing this right would require the Url method to be virtual so you can properly override it:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:d8716ba7-a718-4a8b-93d4-2a68f7f98c6a" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+public class Image
+{
+&#160;&#160;&#160;&#160;public virtual bool Url()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
+&#160;&#160;&#160;&#160;}
+}
+
+public class BoxImage : Image
+{
+&#160;&#160;&#160;&#160;public override bool Url()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return false;
+&#160;&#160;&#160;&#160;}
+}
+
+public class Image_Fixture
+{
+&#160;&#160;&#160;&#160;[Fact]
+&#160;&#160;&#160;&#160;public void Should_Return_False()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Image img = new BoxImage();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.False(img.Url());
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assert.False(((BoxImage)img).Url());
+&#160;&#160;&#160;&#160;}
+}
+</pre></div>
+
+<p>Oh, and by the way. If you got the impression I don’t know about the fundamentals of the language I’m using, you are right. I try to learn as I encounter the problems, one feature at a time, one minor annoyance at a time :). </p>

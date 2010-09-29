@@ -1,0 +1,48 @@
+---
+layout: post
+title: "Help! My provider hijacks my DNS requests!"
+guid: http://www.tigraine.at/2009/06/26/help-my-provider-hijacks-my-dns-requests/
+postid: 593
+---
+Today I followed a link to a no longer active domain and suddenly found myself on UPC’s (my provider) search looking for that URL:
+
+<a href="http://suche.upc.at/upcatassist/dnsassist/main/?domain=www.fkljsdajklsdaklfsadlkflasdflsadf.com"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image7.png" border="0" alt="image" width="632" height="162" /></a>
+
+My first reflex was to check if my default search provider may be set wrong:
+
+<img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image8.png" border="0" alt="image" width="453" height="82" />
+
+Woot? No, my search provider is Google. I just queried a DNS record that does not exist, and I got a result back instead of a DNS error. Now, imagine my head going red and some danger lights starting to flash.
+
+First test I did to confirm my suspicions: open a raw putty connection on port 80 to some random DNS I know doesn’t exist:
+
+<img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image9.png" border="0" alt="image" width="304" height="131" />
+
+Then I just did a basic HTTP GET request from my console to see what the server would return:
+
+<img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image10.png" border="0" alt="image" width="533" height="151" />
+
+<strong>Ok, so what just happened here?</strong> First of all, <span style="text-decoration: underline;">there should be no web server to accept my connection</span>! Hell, I shouldn’t even be able to resolve to an IP address!
+
+So, running a quick nslookup turned up something interesting:
+<blockquote>nslookup www.lksdafklsdlkfdsf.com
+Server:  viedns09.chello.at
+Address:  195.34.133.21</blockquote>
+Apparently, UPC is abusing the trust I place in them (by using their DNS server) <span style="text-decoration: underline;">and resolves ALL requests that can’t be resolved</span> (don’t exist) <span style="text-decoration: underline;">to their own server</span> that will redirect all HTTP traffic with a 302 status code to their search service.
+
+Now, why is this bad? Isn’t search something I like when mistyping a URL?
+
+Oh, it’s bad I promise you. It’s bad for many different reasons:
+<ol>
+	<li>All browsers will search anyway if a URL can’t be resolved</li>
+	<li>My browser thinks the bad domain name actually exists</li>
+	<li>UPC search sucks</li>
+	<li>I can’t do anything about it short for changing my DNS server</li>
+</ol>
+I do set that search provider inside my browser quite consciously, and I do that for a reason. Google knows my preferences, Google has a search history I use quite often, Google is set to US so it won’t sort German results to the top of the list. And most important: Google has a cached version of almost every page on the interwebz so even expired sites can be looked at with Google.
+
+So, whenever UPC is hijacking my bad DNS request to redirect me to their stupid little search, they take away my freedom of choice and force me (and all users of Chello/Inode in Austria) to override my browsers default behavior in favor of an inferior solution so they generate more search volume on their stupid service!
+
+Only Solution: Pick another DNS. There are plenty of DNS servers out there that will gladly satisfy requests, only drawback is that they aren’t located in my provider’s subnet and therefore won’t be as fast as the one I used before.
+
+This is just sad. Very very sad.

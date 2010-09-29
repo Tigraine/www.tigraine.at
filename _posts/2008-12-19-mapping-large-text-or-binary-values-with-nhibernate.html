@@ -1,0 +1,20 @@
+---
+layout: post
+title: "Mapping large text or binary values with NHibernate"
+guid: http://www.tigraine.at/2008/12/19/mapping-large-text-or-binary-values-with-nhibernate/
+postid: 415
+---
+<p>I encountered the following error when trying to map a large String to my SQL2005 database:</p>  <blockquote>   <p>SQL Error Code -2146232060: “String or binary data would be truncated”</p> </blockquote>  <p>The issue here is that Nhibernate maps all string values by default as nvarchar(255) and so inserting something bigger to a field causes this nasty sql error. My mapping declaration looked like this:</p>  <p>   <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:76fdf55d-70fe-4d24-9b29-e51fd1219d77" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;property name="Comments" /&gt;
+</pre></div>
+</p>
+
+<p>After some searching I found Ayende’s post on <a href="http://ayende.com/Blog/archive/2006/12/30/NHibernateAndLargeTextFieldsGotchas.aspx">NHibernate and large text fields gotchas</a> that almost solved the issue, except for one thing, I didn’t know where to put the sql-type attribute. Turns out it’s defined in chapter 15 of the NHibernate doc (while mapping files are chapter 5).&#160;&#160; <br />The sql-type=”NTEXT” attribute can only reside on the &lt;column node beneath the &lt;property node. So the correct mapping looks like this:</p>
+
+<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:12fe7a8c-64e2-4028-9ab4-96ab8358042d" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
+&lt;property name="Comments" type="StringClob"&gt;
+&#160;&#160;&lt;column name="Comments" sql-type="NTEXT"/&gt;
+&lt;/property&gt;
+</pre></div>
+
+<p>If you don’t define the sql-type attribute even the StringClob field will be created as a nvarchar(255) by NHibernate (but it can map to a NText field if the schema exists).</p>
