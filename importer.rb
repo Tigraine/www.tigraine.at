@@ -49,6 +49,15 @@ doc.elements.each("*/channel/item") do |element|
        targetFile.puts("title: \"#{title}\"")
        targetFile.puts("guid: #{guid}")
        targetFile.puts("postid: #{postid}")
+       targetFile.puts("--- # categories")
+
+       element.elements.each("category") do |category|
+	      if category.attributes["domain"] == nil then
+		      next
+	      end
+	      targetFile.puts("- #{category.text}")
+       end
+
        targetFile.puts("---")
        targetFile.write(element.elements["content:encoded"].text)
        targetFile.close
