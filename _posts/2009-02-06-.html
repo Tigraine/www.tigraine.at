@@ -3,8 +3,8 @@ layout: post
 title: "Inversion of Control with Castle Windsor"
 guid: http://www.tigraine.at/?p=468
 postid: 468
---- # categories
-- Uncategorized
+categories:
+- uncategorized
 ---
 <p>Ok, this may be old news to many of you, but I believe what had the most impact (quality wise) on my work last year was my discovery of the dependency injection pattern. So, yes I guess I’ll have to blog about it :).    <br />Also I am going to deliver a talk at the <a href="http://www.barcamp.at/BarCamp_Klagenfurt_2009">Barcamp Klagenfurt 09</a> on the topic.</p>  <p>Ok, so what is the dependency injection pattern?    <br />Consider the following scenario: You have a class that will monitor traffic and notify authorities in case of an accident. Let’s say we are OO savy enough that we created a separate class that takes care of sending notification emails called EmailNotifier (it’s not that common you know, I’ve seen and done enough inline email sending to deserve a lifelong prison sentence if Bob Martin or Fowler would have a word in that).     <br />Now our TrafficWatcher class can simply instantiate the EmailNotifier class, supply some configuration (SMTP server etc) and call the Nofify() method.     <br />So our code for NotificationService would look like this:</p>  <p></p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:935132ca-40bb-448c-a907-060cc8d3a9e7" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class NotificationService

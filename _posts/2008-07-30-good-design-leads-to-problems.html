@@ -3,8 +3,8 @@ layout: post
 title: "Good design leads to problems"
 guid: http://www.tigraine.at/2008/07/30/good-design-leads-to-problems/
 postid: 348
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>Bad design is in most cases the result of people not knowing better, and while I am constantly struggling to learn more about good architecture design I sometimes feel like: How in the hell can I ever make this work inside of ASP.NET?</p>  <p>I mean, most &quot;good&quot; things like IOC, TDD, information hiding, separation of concerns etc all rely on you having total control over your classes.</p>  <p>But, that's something you can only achieve in ASP.NET by throwing a whole bunch of code at things that would have worked effortless without the &quot;good&quot; stuff.</p>  <p>Best example of this may be simple ASP.NET pages that come with Request, Response and Context objects that cannot be swapped out as easily.    <br />Now your usual course of action to keep your code testable would be to simply put the business code into underlying classes that then get called by the untestable ASP.NET page. But, this now leads to the problem that I can't really use the full power of ASP.NET any more, SqlDataSource has just gotten off limits, because we don't want to expose our data access layer to the application (or at least try to avoid that). </p>  <p>So, because comprehensive data binding just left the building, what did we get for our good design?    <br />We just got the even bigger task at hand to do databinding by hand. And now we are even more in trouble than we were with the untestable app, because now we will find ourselves writing even more code we need to test even more. </p>  <p>You see what I'm getting at? If we would have been using data binding, we could have just relied on working, well tested code (hey that's what Microsoft for!), without the hassle to reinvent the wheel again and being concerned with the wheel's quality.</p>  <p>So, I still can't offer a suitable solution for this dilemma, maybe use object-data-source a lot more? But what about update support? I'll be looking into this topic and when I've come up with something I'll let you know.</p>

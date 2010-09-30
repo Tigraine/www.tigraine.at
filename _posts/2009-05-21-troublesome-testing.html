@@ -3,9 +3,9 @@ layout: post
 title: "Troublesome testing"
 guid: http://www.tigraine.at/2009/05/21/troublesome-testing/
 postid: 519
---- # categories
-- .NET
-- Testing
+categories:
+- net
+- testing
 ---
 <p>This may be the very first time I blog about a bug in the CLR, but it’s annoying nonetheless.</p>  <p>Apparently a bug in the CLR’s System.Reflection.Emit prevents Rhino.Mocks from working when generic constraints are applied to a method.</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:faa60999-e381-42d9-874a-b670db8025e9" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 void Add&lt;T, TType&gt;()

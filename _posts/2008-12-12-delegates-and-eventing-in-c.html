@@ -3,9 +3,9 @@ layout: post
 title: "The power of delegates in C#"
 guid: http://www.tigraine.at/2008/12/12/delegates-and-eventing-in-c/
 postid: 409
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>The common way to learn OOP design and best practices is through books on Java or books on C# that got translated from Java.    <br />And since Java and C# both work pretty similar as far as objects are concerned, I never saw delegates put to good use except for events where they were automagically generated and used by the winforms designer.     <br />I always knew delegates as a method signature that had to be present for an event to work (since the event requires a delegate type), but knew little else about their usage and workings.</p>  <p>So, I was quite amazed when I found out how useful delegates really are besides when doing events.    <br />The delegate is simply put a “method signature type”, something like a interface for a method (or you could call it “function pointer” if you’re an oldschool C guy).     <br />So it is essentially a type that represents a method, allowing you to call or pass around any method that matches that signature as a object.</p>  <p>So imagine the following two classes that share a common signature but no supertype or interface:</p>  <p></p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f2ba912d-00c8-4c4d-921d-0c45ddb7921f" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 public class Class1

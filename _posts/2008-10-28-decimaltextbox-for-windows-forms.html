@@ -3,15 +3,15 @@ layout: post
 title: "DecimalTextbox for Windows Forms"
 guid: http://www.tigraine.at/2008/10/28/decimaltextbox-for-windows-forms/
 postid: 383
---- # categories
-- .NET
-- Coding
-- .NET
-- .NET
+categories:
+- net
+- programmierung
+- 
+- net
+- 
 - controls
-- controls
-- windows forms
-- windows forms
+- 
+- windows-forms
 ---
 <p>I’ve been doing some Windows Forms development lately and really love it. After doing web development for the last couple of years I am thankful for the change. Being able to create compelling UIs without having to worry about Javascript is something I’ve been longing for quite some time. </p>  <p>But when trying to build intuitive and user-friendly UIs, you hit the boundaries of Microsoft’s control toolbox pretty fast. (Not as fast as with Webcontrols, but still).    <br />I needed a Textbox that accepts only decimal input and that formats itself rather nicely for a finance application I’m building right now.</p>  <p>I first turned to the MaskedTextBox control that’s already there, but that turned out to be completely useless because numbers have no fixed length.    <br />So I decided to create a Custom Control that derives from TextBox that does exactly what I need – take decimals and nothing else.</p>  <p>The whole process is rather simple, so I’ll just give you the code and be done with it. The DecimalTextbox control won’t accept any input that’s not numeric except for one comma. If you leave the control empty or non-decimal (however you accomplish that) it will revert to 0,00 on validation.</p>  <p>The code is after the break</p> 
 <!--more-->

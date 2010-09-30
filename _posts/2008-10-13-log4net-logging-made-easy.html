@@ -3,19 +3,19 @@ layout: post
 title: "Log4Net &ndash; Logging made easy"
 guid: http://www.tigraine.at/2008/10/13/log4net-logging-made-easy/
 postid: 376
---- # categories
-- .NET
-- Coding
-- Tools
-- .NET
-- .NET
+categories:
+- net
+- programmierung
+- tools
+- 
+- net
+- 
 - library
-- library
+- 
 - log4net
-- log4net
+- 
 - logging
-- logging
-- opensource
+- 
 - opensource
 ---
 <p>I confess, I’ve done projects that have Console.WriteLine or Debug.Print written all over the place. Sometimes I encapsulated that stuff into a separate Log Class that got passed around to every one, or sometimes I just created this little singleton that did the logging.</p>  <p>Either way, it was code I didn’t really want to write until late in development where I had to go back and retrofit logging into the application. And almost every time I did this it sucked and wasn’t satisfying at all. It worked, but I could have spent countless hours on polishing the logging stuff.</p>  <p>That was until I found <a href="http://logging.apache.org/log4net/">Log4Net</a>, the .NET implementation of the open-source log4j framework.</p>  <p>Log4Net enables you to just forget about the logging altogether while you develop your application. Just categorize your log statements into the 5 prioritized levels (DEBUG, INFO, WARN, ERROR, FATAL) and think about the configuration some other day. </p>  <p>Log4Net is completely Xml configuration driven and provides a very high degree of extensibility (Just implement new Appenders, Filters or Layouts).    <br />So it keeps decisions about the where/how/when to log absolutely open until the very end. </p>  <p>Hell, you can even <a href="http://logging.apache.org/log4net/release/manual/configuration.html#Configuration%20Attributes">configure a file watcher</a> and change the Log4Net Xml configuration during runtime!</p>  <p>Log4Net has just made it to my imaginary “must reference in each project” list. I strongly suggest you check it out.</p>

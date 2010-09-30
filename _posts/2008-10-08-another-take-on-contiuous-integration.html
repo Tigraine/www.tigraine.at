@@ -3,19 +3,19 @@ layout: post
 title: "Another take on Contiuous Integration"
 guid: http://www.tigraine.at/2008/10/08/another-take-on-contiuous-integration/
 postid: 375
---- # categories
-- Tools
-- .NET
-- .NET
+categories:
+- tools
+- 
+- net
+- 
 - ccnet
-- ccnet
+- 
 - configuration
-- configuration
-- continuous integration
-- continuous integration
-- Source Control
-- Source Control
-- svn
+- 
+- continuous-integration
+- 
+- source-control
+- 
 - svn
 ---
 <p>Ok, since my <a href="http://www.tigraine.at/2008/06/05/setting-up-cruise-control-net/">last post</a> where I tried out <a href="http://ccnet.thoughtworks.com">CruiseControl.NET</a> some time has passed.</p>  <p>Although I said last time setting up CCNet is easy and quick, this time I didn't listen to my own advice, and so when I needed a Continuous Integration system I went <a href="http://www.jetbrains.com/teamcity/">TeamCity</a>.</p>  <p>TeamCity is great, just click on some buttons and your CI is running.    <br />Log in to the website, configure everything through GUI and you're done.</p>  <p>Sadly, I wasn't done. Something with TeamCity's build runners wasn't working right and it wouldn't resolve my NUnit dependencies and fail to build at all.    <br />I then tried to troubleshoot TeamCity for almost a day before I finally gave up and just installed CruiseControl.NET again.</p>  <p>CCnet on the other hand just worked great, and I was up and running smoothly after an hour or so. And since my last post was lacking, after the break is a step-by-step guide to setting&#160; it up.</p> 

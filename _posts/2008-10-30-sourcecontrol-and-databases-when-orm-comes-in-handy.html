@@ -3,16 +3,16 @@ layout: post
 title: "Sourcecontrol and Databases, when ORM comes in handy"
 guid: http://www.tigraine.at/2008/10/30/sourcecontrol-and-databases-when-orm-comes-in-handy/
 postid: 384
---- # categories
-- Coding
-- Subversion
-- NHibernate
-- NHibernate
+categories:
+- programmierung
+- subversion
+- 
+- nhibernate
+- 
 - orm
-- orm
+- 
 - sourcecontrol
-- sourcecontrol
-- svn
+- 
 - svn
 ---
 <p>I encourage every one (even single developers) to use a Sourcecontrol system such as <a href="http://subversion.tigris.org/">SVN</a> and <a href="http://www.tigraine.at/2008/09/04/ankhsvn-20-subversion-client-for-visual-studio/">AnkhSVN</a> to do development. Put all your project files (<a href="http://www.tigraine.at/2008/10/13/handling-dependencies/">and external dependencies</a>) under source control and maybe even get a <a href="http://www.tigraine.at/2008/10/08/another-take-on-contiuous-integration/">continuous integration server setup</a>.</p>  <p>And still, even if you’ve done all of this, chances are high you still have one external dependency in your project: the Database!</p>  <p>And this is where the pain starts, if you don’t find some way how to put your DB schema under source control too, you’ll end up going back to old versions and having no database of that date.</p>  <p>There are however several ways to solve this that I can think of:</p>  <ul>   <li>Make your CI server fetch a schema script every time a build is triggered. </li>    <li>Make creating a schema script part of your build process </li> </ul>  <p>And .. guess what? There’s a simpler way :).    <br />If you’re using a ORM tool you should always have your database model somewhere in the mapping files.</p>  <p>Because the mapping files tell the ORM the structure of the DB, they essentially <em>contain</em> all relevant information needed to generate a schema without the need to have SQL scripts.</p>  <p>In <a href="http://www.hibernate.org/343.html">NHibernate</a> for example, you can simply do a:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b082d54d-9a6e-4154-9bb0-001a828ea629" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">

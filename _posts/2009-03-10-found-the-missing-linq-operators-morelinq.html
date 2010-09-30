@@ -3,8 +3,8 @@ layout: post
 title: "Found the missing Linq operators: MoreLinq"
 guid: http://www.tigraine.at/2009/03/10/found-the-missing-linq-operators-morelinq/
 postid: 495
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>I complained before that there are operators like the <a href="http://www.tigraine.at/2009/02/11/ienumerableteach-as-c-extension-method/">IEnumerable&lt;T&gt;.Each()</a> are somewhat missing from the default implementation of Linq, but I never really gave it too much thought since then.</p>  <p>Until today I read a blog post from <a href="http://msmvps.com/blogs/jon_skeet/default.aspx">Jon Skeet</a> (Mr. Stackoverflow himself) about <a href="http://msmvps.com/blogs/jon_skeet/archive/2009/02/27/what-s-in-a-name.aspx">how hard it is to name methods</a> in his <a href="http://code.google.com/p/morelinq/">MoreLinq</a> effort.</p>  <p>So, curious me I immediately peeked at the source and found some really cool stuff in there that I may very well use in the future.    <br />There aren’t only missing things in there like list <a href="http://code.google.com/p/morelinq/source/browse/trunk/MoreLinq/Pull/Concatenation.cs">concatenation</a>, also generator methods for <a href="http://code.google.com/p/morelinq/source/browse/trunk/MoreLinq/Pull/Sequence.cs">sequences</a> (great when doing mock expectations) but also cool things I never thought of before but that might come in handy like a <a href="http://code.google.com/p/morelinq/source/browse/trunk/MoreLinq/Pull/Miscellaneous.cs">consume method</a> that triggers Linq execution immediately without consuming memory (You could do that with .ToList() but that would allocate a IList&lt;T&gt; in memory).</p>  <p>So, don’t miss out on the fun in MoreLinq. I’m sure there is something cool in there for everyone.   <br />And also, don’t forget to suggest to Jon Skeet good method names if you come up with one :</p>

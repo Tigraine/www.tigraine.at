@@ -3,8 +3,8 @@ layout: post
 title: "Most annoying thing to ever happen: Configuration manager screwup"
 guid: http://www.tigraine.at/2009/08/02/most-annoying-thing-to-ever-happen-configuration-manager-screwup/
 postid: 683
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>I think I was pretty close to a major nervous breakdown due to this one misconfiguration of my Visual Studio that I have no explanation for:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb.png" width="710" height="441" /></a> </p>  <p>Imagine yourself trying to test some new behavior that according to your unit tests works, but simply refuses to work inside your web-app because the call to it hasn’t been compiled yet!</p>  <p>Breakpoints don’t get hit, changes don’t appear.. Mayhem! (Oh, and to top it off, since views aren’t compile you still see <em>some </em>of your changes, just not the ones in real code).</p>  <p>I first thought it’s some problem with the ASP.NET MVC project type, but eventually I noticed that if I don’t manually recompile the project none of my changes appear. </p>  <p>Way to go, I should have seen that yesterday instead of spending almost an hour hunting bugs where none where to be found.</p>  <p><strong>Update</strong>: To add insult to injury I again forgot that checkbox turned off after taking the above screenshot.</p>

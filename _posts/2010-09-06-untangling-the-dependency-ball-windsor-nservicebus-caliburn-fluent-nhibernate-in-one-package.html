@@ -3,11 +3,11 @@ layout: post
 title: "Untangling the dependency ball! Windsor + NServiceBus + Caliburn + Fluent Nhibernate in one package"
 guid: http://www.tigraine.at/2010/09/06/untangling-the-dependency-ball-windsor-nservicebus-caliburn-fluent-nhibernate-in-one-package/
 postid: 906
---- # categories
-- .NET
-- Castle
-- Coding
-- NHibernate
-- WPF
+categories:
+- net
+- castle
+- programmierung
+- nhibernate
+- wpf
 ---
 <p><a href="http://www.tigraine.at/wp-content/uploads/2010/09/confusingroadsignlargewebview.jpg"><img style="background-image: none; border-bottom: 0px; border-left: 0px; margin: 0px 10px 3px 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="confusing-road-sign-large-web-view" border="0" alt="confusing-road-sign-large-web-view" src="http://www.tigraine.at/wp-content/uploads/2010/09/confusingroadsignlargewebview_thumb.jpg" width="211" height="244" /></a></p>  <p>Unfortunately <a href="http://www.tigraine.at/2010/08/25/the-fastest-way-to-install-dotless-nubular-nu/">nu</a> is still falling short on one thing: Making sure that all the stuff you install is actually compatible with the other stuff you have already installed. There is a <a href="http://github.com/nu/nu/issues/issue/13">ticket for this</a> and I’m fairly confident this will get resolved (please vote the ticket up), but for now I was back to figuring out what version of what framework to use to make my app compile.</p>  <p>As always, the main problem was Castle.Core, being present in 3 different versions. (NSB used version 1.1, Caliburn 1.2 and the latest Windsor release targets 2.5) </p>  <p>I decided to back down and use 1.2 since there is a NHibernate gem for 1.2 and a Windsor gem for 1.2. I’m now using NHibernate 3.0 alpha so think about using this “stack”. </p>  <p>Anyway, this is a collection of:</p>  <ol>   <li>NServiceBus 2.0 .NET 4 (2.0.0.1219)</li>    <li>NServiceBus.ObjectBuilder.CastleWindsor</li>    <li>Castle.Windsor (2.1)</li>    <li>Caliburn 2.0 (still unreleased from the trunk)</li>    <li>NHibernate 3.0.0.1002</li>    <li>FluentNhibernate 1.1 (Updated to NHibernate 3.0)</li>    <li>AutoMapper</li> </ol>  <p>Disclaimer: The whole thing is built for .NET 4.0 and works on my machine. Don’t blame me if it’s broken for you.</p>  <p>Anyway. You can download the whole package of libraries here: <a href="http://www.tigraine.at/wp-content/uploads/2010/09/castle-stack.rar">castle-stack.rar</a></p>

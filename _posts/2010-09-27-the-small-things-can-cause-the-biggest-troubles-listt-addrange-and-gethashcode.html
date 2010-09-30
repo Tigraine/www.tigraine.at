@@ -3,8 +3,8 @@ layout: post
 title: "The small things can cause the biggest troubles: List&lt;T&gt;.AddRange and GetHashCode"
 guid: http://www.tigraine.at/2010/09/27/the-small-things-can-cause-the-biggest-troubles-listt-addrange-and-gethashcode/
 postid: 956
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>I just spent some hours performance optimizing an application I wrote a while back. The architecture was actually quite nice and I had implemented my own Lazy-Loading using DynamicProxy. Things worked great and performance was never an issue.</p>  <p>Fast forward 2 years: I left the company after the project was finished and development carried on. Additions to the code where made and after some time performance got a serious problem.</p>  <p>After hours of profiling I finally found the issue: <u>Apparently List&lt;T&gt;.AddRange invokes GetHashCode on all items you add to the list</u>.</p>  <p>Why is that a problem? Well: My Proxy objects where designed to return some key data that was eagerly fetched (stuff like Id, and some filter columns) and once the filter logic had narrowed down the list of thousands of items to the 2 or 3 that were going to be displayed, the Proxy transparently fetched the real data from the database and cached it. So every object in itself was doing a select once a method besides the prefetched data was requested. </p>  <p>I hadn’t thought of GetHashCode and any call to GetHashCode was not handled directly in the Proxy but caused a lazy load. And since .Add does not call GetHashCode but AddRange does, the bug never came up during development. </p>  <p>Imagine my face when I saw this profiler graph:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2010/09/image14.png"><img style="background-image: none; border-bottom: 0px; border-left: 0px; margin: 0px 10px 3px 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2010/09/image_thumb13.png" width="627" height="117" /></a></p>  <p>Needless to say that fetching 64 items from the database instead of 1 really brought the app down to a crawl.</p>

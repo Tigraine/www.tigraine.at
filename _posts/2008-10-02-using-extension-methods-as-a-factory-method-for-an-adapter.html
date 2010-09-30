@@ -3,10 +3,10 @@ layout: post
 title: "Using Extension Methods as a Factory Method for an Adapter"
 guid: http://www.tigraine.at/2008/10/02/using-extension-methods-as-a-factory-method-for-an-adapter/
 postid: 371
---- # categories
-- .NET
-- Coding
-- Patterns
+categories:
+- net
+- programmierung
+- patterns
 ---
 <p>Sometimes you have existing code you don't want to change. And sometimes you need to write libraries that consume these old legacy objects as input to function.    <br />No need to say that it's usually a bad idea to couple your code to not properly tested and poorly designed legacy code.</p>  <p>So it's generally a good idea to abstract it away from new code and try to mask the old objects through adapters and interfaces from being too tightly coupled to your new code.</p>  <p>Either way, you're trying to put square blocks into round holes. And the adapter classes need to be initialized by your callers every time your class gets used.</p>  <div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:364d5cc0-797c-4dc6-8ea4-d99cd42af81f" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 &#160;&#160;&#160;&#160;public class LegacyFoo

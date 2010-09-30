@@ -3,8 +3,8 @@ layout: post
 title: "Linq to Sql Association weirdness"
 guid: http://www.tigraine.at/2009/02/24/linq-to-sql-association-weirdness/
 postid: 479
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>When your dbml designer shows an association, you’d expect to be able to traverse it in code don’t you?</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/02/image2.png"><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="143" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/02/image-thumb2.png" width="524" border="0" /></a> </p>  <p></p>  <p>So, funny thing. The Post entity lacks a “PostTags” Field that should be there according to the designer.</p>  <p>After a few minutes of tinkering, I realized that PostTag has no primary key of it’s own. Since in my real application it’s a m:n association table and no entity on it’s own I didn’t use a primary key. But apparently Linq to Sql <strong>needs a primary key to work </strong>with, so once I changed the table to have a PK magically a PostTags field appeared:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/02/image3.png"><img title="image" style="border-right: 0px; border-top: 0px; display: inline; border-left: 0px; border-bottom: 0px" height="160" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/02/image-thumb3.png" width="486" border="0" /></a> </p>  <p>Once again I get how “version 1” Linq to Sql really is, but sadly there won’t be a version 2 since Microsoft is now pushing all resources towards the Entity Framework.</p>  <p>Why not EF? Too complex, once I reach a level of complexity that would justify the use of EF, I use NHibernate.    <br />What I need out of Microsoft right now, is some Linq enabled ORM that’s dead simple with a very DB-centric view that works. Something like Linq to Sql v2.</p>

@@ -3,8 +3,8 @@ layout: post
 title: "Keep away from regions!"
 guid: http://www.tigraine.at/2010/04/23/keep-away-from-regions/
 postid: 852
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>Well, I’m currently digging a bit deeper into WPF and the thousand little things you can do with it. Naturally I’ve been looking through my fair share of demo apps and tutorials too. And that’s where I stumbled upon this little gem of information hiding:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2010/04/image1.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2010/04/image_thumb1.png" width="346" height="196" /></a> </p>  <p>Exactly, that is what you get to see of a 200 LoC file when opening it up in Visual Studio. And the author did that for every single file, so whenever I opened a file I had to hit “Toggle all outlining” (Shortcut by default is CRTL+M, L).</p>  <p>Now, I’m all for clean code and tidy classes. But there are one thing fundamentally flawed with regions:</p>  <p><strong>Once you need regions – Your code is simply too long</strong>.     <br />My most successful (and biggest) project to date had no class that exceeded 100 lines of code, and you simply can’t imagine what a joy it was to work with that codebase. You simply can’t put enough logic into 100 LoC to make it hard to test, just by limiting the length of a class&#160; you also lower the possible complexity of test and maintenance by a huge amount. Nice side effect: 100 LoC almost fit onto one screen so you understand the code without having to scroll through 3 pages of code to look up the name of a field.</p>  <p>Fix the root problem, not hide it! </p>  <p>What again reminds me of Jeff Atwood and he is totally right:</p>  <p><a href="http://twitter.com/codinghorror/statuses/837284151"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2010/04/image2.png" width="513" height="226" /></a></p>

@@ -3,8 +3,8 @@ layout: post
 title: "SQL Server 2005 GUI complexity"
 guid: http://www.tigraine.at/2008/02/15/sql-server-2005-gui-complexity/
 postid: 236
---- # categories
-- Coding
-- Job
+categories:
+- programmierung
+- job
 ---
 <p>You know what?    <br />I really love SQL Server 2005, just because it got rid of the Enterprise Manager stuff and introduced SQL Server Management Studio. </p>  <p>What's bugging me now is that although the Management Studio is great to work with most of the time, there are some tiny little things I really hate whenever I create new databases!</p>  <p><img style="border-right: 0px; border-top: 0px; border-left: 0px; border-bottom: 0px" height="78" alt="sqldb" src="http://www.tigraine.at/wp-content/uploads/2008/02/sqldb.jpg" width="324" border="0" /> </p>  <p>Whenever I want a field to be a primary key id field I need to go to declare it as primary key, and then define the identity specification.</p>  <p>And there is the design flaw. You can't just double click Identity Specification to change it from No to Yes, you actually have to first click the + to expand the section in the property grid before I can set the Yes/No value.    <br />I see the added complexity in some points where the increment or seed aren't appropriate, but to be honest, most of our ids start at 1 and increment by 1. So in 99,9% of the cases you don't need the extra complexity.</p>

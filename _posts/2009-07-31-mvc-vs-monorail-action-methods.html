@@ -3,10 +3,10 @@ layout: post
 title: "MVC vs MonoRail &ndash; Action Methods"
 guid: http://www.tigraine.at/2009/07/31/mvc-vs-monorail-action-methods/
 postid: 677
---- # categories
-- .NET
-- Castle
-- Coding
+categories:
+- net
+- castle
+- programmierung
 ---
 <p>Many people have said nasty things about the Castle MonoRail framework since ASP.NET MVC has come out. Both serve the same purpose but both frameworks are pretty different. I did/do projects in both these days, and usually all features of A are also present in B, just slightly different. </p>  <p>One thing where this isn’t true is the layout of ActionMethods in MVC:</p>  <p>In short, MonoRail can have unlimited method overloads for ActionMethods while MVC can only overload twice (once for each HttpVerb). </p>  <p>What do I mean?</p>  <p>MVC:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c76a91dc-46e8-4fde-bd10-3d0879fe7f46" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class HomeController : Controller

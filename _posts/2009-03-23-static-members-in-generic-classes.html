@@ -3,9 +3,9 @@ layout: post
 title: "Static members in generic classes"
 guid: http://www.tigraine.at/2009/03/23/static-members-in-generic-classes/
 postid: 497
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>I have been using generics quite heavily lately for writing decorators to Repository classes that do logging and caching on top of the repository (I’ll talk about that another time).</p>  <p>Since I implemented an asynchronous cache clear method I immediately ran into some troubles with shared resources like the DB connection and so I figured the whole problem would be solved with a simple lock around the cache fill.</p>  <p>   <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:79f31316-324a-4016-bfde-027601635997" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 public class Cache&lt;T&gt;

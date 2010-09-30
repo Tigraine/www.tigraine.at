@@ -3,9 +3,9 @@ layout: post
 title: "ASP.NET MVC: Hide the HttpContext services with Windsor and a custom ControllerFactory"
 guid: http://www.tigraine.at/2009/01/21/aspnet-mvc-hide-the-httpcontext-services-with-windsor-and-a-custom-controllerfactory/
 postid: 446
---- # categories
-- .NET
-- Testing
+categories:
+- net
+- testing
 ---
 <p>ASP.NET MVC was designed to be a very “clean” and testable framework for creating web applications from Microsoft. And they failed really badly in one place: HttpContext!</p>  <p>The fact that the ASP.NET MVC Contrib project has a whole project dedicated to mocking out the whole HttpContext for testing simply illustrates one point: It’s broken, period.   <br />There is this one gigantic god hash table that has 5 other hash tables hanging from it that knows everything about the incoming request. And although it’s possible to fake the whole thing with RhinoMocks (as the MVC Contrib guys do it), it’s still a pretty stupid idea to have all those concerns in one class called “context” (and accessible to the controller code).     <br />So, although the HttpContextBase is already an abstraction of the real context, I wanted to extract those things into specialized service classes that I have full control over (and that could then be used for even more specialized classes that handle data retrieval, thus making “magic strings” go away when dealing with requests and sessions).</p>  <p>I set out to create a request service class that follows a very simple Interface:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:efdd4eb3-db3b-4a75-8afb-35effa607d26" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public interface IRequestService

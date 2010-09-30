@@ -3,10 +3,10 @@ layout: post
 title: "Comparing Castle ActiveRecord to Fluent NHibernate"
 guid: http://www.tigraine.at/?p=533
 postid: 533
---- # categories
-- .NET
-- Castle
-- NHibernate
+categories:
+- net
+- castle
+- nhibernate
 ---
 <p>I’ve used my fair share of ORM tools lately and I keep coming back to NHibernate more and more. But sometimes it feels like “too much”. Going for a dedicated data access layer often feels like a bit of overkill and isn’t all that exciting to do, so for smaller projects I sometimes took the easy way and used LinQ to Sql.   <br />Usually LinQ to Sql would then come around to bite me at some point and I’d hate myself for using it. So when I lately tried Castle ActiveRecord (watch this wonderful presentation by Ayende and Hammet at InfoQ: <a href="http://www.infoq.com/presentations/eini-verissimo-castle-active-record">Painless Persistence with Castle ActiveRecord</a>) I was blown away: A simpler way to build stuff with NHibernate.    <br />No complete abstraction of NHibernate, but a layer ontop that makes life easier. (You can access the Session manually and do your crazy NHibernate stuff if you want to).</p>  <p>Since ActiveRecord was created to avoid some of the crazy configuration stuff that was in NHibernate at that time, I thought it might be interesting to compare ActiveRecord to the current state of NHibernate configuration, namely: <a href="http://wiki.fluentnhibernate.org/show/HomePage">Fluent NHibernate</a>.</p>  <p>This is by no means a matchup, what you use hugely depends on your needs. And since both are essentially the same it boils down to taste. I haven’t used either for any real application (only old NHibernate with XML), so this is my personal rundown on the samples and spikes I did lately.</p>  <p>Let’s assume the typical Blog sample model:</p>  <p><img title="model" style="border-top-width: 0px; display: inline; border-left-width: 0px; border-bottom-width: 0px; border-right-width: 0px" height="229" alt="model" src="http://www.tigraine.at/wp-content/uploads/2009/05/image3.png" width="704" border="0" /></p>  <p>I’ll only focus on the BlogPost class since it is on both ends of a parent/child relationship.</p>  <p><strong>Mapping</strong></p>  <p>First, how does the the ActiveRecord mapping look like:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b6a4d10e-01de-4cc2-b41c-6c8badf629ab" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
 [ActiveRecord]

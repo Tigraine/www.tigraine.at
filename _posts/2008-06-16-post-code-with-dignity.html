@@ -3,8 +3,8 @@ layout: post
 title: "Post Code with Dignity"
 guid: http://www.tigraine.at/2008/06/16/post-code-with-dignity/
 postid: 303
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p>After finally getting really really fed up with Windows Live Writer about the way it tries to tidy up your HTML code I decided that I need to do something about it.</p>  <p>So I did, writing a Live Writer plugin is very easy and straight forward, so I did a plugin that will take your clipboard, replace typical things like &lt; &gt; through &amp;lt; &amp;gt; and replace every 2 spaces through 2 &amp;nbsp;.    <br />So make sure you are using a even number of spaces for source indentation in your IDE.</p>  <p>The plugin is far away from perfect, and I think I'll make it a bit more configurable tomorrow. I also think I'll put it up on Google code and maybe release it to the Windows Live Gallery.</p>  <p>They key? Windows Live Writer fucks up your markup no matter what you do. So I simply departet from posting pure text as a ContentSource, yet the plugin is treating HTML as a SmartContentSource that will appear as a block inside Windows Live Writer, saving it from it's catastrophic markup-killing html-tidy algorithm.</p>  <p><strong>Update: </strong>I already released the source at CodePlex and you can get the most up to date binary from there:</p>  <p>CodePlex Project Page: <a title="http://www.codeplex.com/wlwPostCode" href="http://www.codeplex.com/wlwPostCode">http://www.codeplex.com/wlwPostCode</a></p>  <p>Installation:    <br />Simply put the dll into your Live\Writer\Plugins directory and start WLV!     <br />It will now show up in your Insert-List as Insert Code.. </p>  <p>Btw: The Plugin assumes you are using the same <a href="http://www.tigraine.at/2008/06/05/major-site-rehaul/">syntax highlighting script</a> as I do and will put your code into a &lt;pre&gt; tag.</p>

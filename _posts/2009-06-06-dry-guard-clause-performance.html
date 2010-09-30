@@ -3,9 +3,9 @@ layout: post
 title: "DRY Guard clause performance"
 guid: http://www.tigraine.at/?p=559
 postid: 559
---- # categories
-- .NET
-- Coding
+categories:
+- net
+- programmierung
 ---
 <p><a href="http://bradwilson.typepad.com/">Brad Wilson</a> left me an inspiring comment on my <a href="http://www.tigraine.at/2009/06/06/good-ideas-worth-spreading-guards/">post about his Guard class</a> that I immediately tried out:</p>  <blockquote>   <p>If you target 3.5, you could write a guard which used expressions, and then you could evaluate the expression in order to fill things out. Unfortunately, the syntax ends up a little wonky, but at least you’re not repeating yourself:</p>    <p>Guard.ArgumentNotNull(() =&gt; username);</p>    <p>You could also do the same thing with complex expressions:</p>    <p>Guard.Precondition(() =&gt; username.Length &gt; 10);</p>    <p>and when you throw the exception, it can even contain the actual condition code, extracted from the expression.</p> </blockquote>  <p>I went off to implement this using an Expression and ended up with the following ArgumentNotNull method:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:15c7cecb-4953-4609-850a-3d699ab98d1e" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public static void ArgumentNotNull(Expression&lt;Func&lt;object&gt;&gt; action)

@@ -3,12 +3,12 @@ layout: post
 title: "Common gotchas with Inherited Forms"
 guid: http://www.tigraine.at/2008/11/04/common-gotchas-with-inherited-forms/
 postid: 386
---- # categories
-- .NET
-- Coding
-- .NET
-- .NET
-- windows forms
-- windows forms
+categories:
+- net
+- programmierung
+- 
+- net
+- 
+- windows-forms
 ---
 <p>Don’t repeat yourself is one of the most important principles I know of. And there are many ways to follow DRY when it comes to normal code.</p>  <p>But when you go to Winforms-land most people forget about DRY and create the same Gui code over and over again. Some of them are clever and abstract the “handlers” away from the buttons, but they still draw most of the buttons multiple times for forms that look almost exactly the same.</p>  <p>But it’s pretty common to have multiple views of the same forms. Like a CreateNewUser and a UpdateExistingUser mask, they both share almost all textboxes, but their values get processed differently.</p>  <p>You could try to use the same form for both operations, but that violates SRP (and makes things a lot harder), or you have two different forms that inherit the controls from a parent form. </p>  <p>Tha't’s then called Visual Inheritance. And, sadly the Windows Forms designer within Visual Studio is pretty bad at it, it crashed on my multiple times. </p>  <p>After 2 hours of fooling around with the Designer to get my Forms to show again I decided to share my experience, since there are some simple rules that you can follow to not break your design surface:</p>  <p><strong>Don’t remove the default constructor from your parent form</strong></p>  <p>The designer depends on a parameterless constructor, if you want to have parameters create a new constructor (and therefore don’t forget to call InitializeComponent again)</p>  <p><strong>Don’t hook up Form_Load events in your parent form</strong></p>  <p>I sincerely have no clue why this breaks the designer, but it does.</p>  <p>&#160;</p>  <p>It’s rather tragic that the designer breaks on working code (compiling and running my code always worked, the designer just couldn’t load the form to show the design surface), but if you follow the above guidelines everything should work out fine.</p>  <p>There is also another way to remove code duplication by using Custom Controls and User Controls, these get handled better by the designer, but require a bit more thinking when creating (You may get in trouble when you try to modify their instantiation because that’s done during the InitializeComponent call).</p>

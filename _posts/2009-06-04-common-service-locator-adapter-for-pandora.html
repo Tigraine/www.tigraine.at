@@ -3,10 +3,10 @@ layout: post
 title: "Common Service Locator adapter for Pandora"
 guid: http://www.tigraine.at/2009/06/04/common-service-locator-adapter-for-pandora/
 postid: 553
---- # categories
-- .NET
-- Coding
-- Pandora
-- Projects
+categories:
+- net
+- programmierung
+- pandora
+- projects
 ---
 <p>In case you haven’t heard. Some time ago Microsoft sat with most authors of leading IoC containers and defined a common interface for Dependency Injection / Service Location. You can get all the relevant information about the Common Service Locator through reading <a href="http://codebetter.com/blogs/glenn.block/archive/2008/10/02/iservicelocator-a-step-toward-ioc-container-service-locator-detente.aspx">Glenn Block</a>, <a href="http://ayende.com/Blog/archive/2008/10/02/the-common-service-locator-library.aspx">Ayende Rahien</a> or <a href="http://www.tavaresstudios.com/Blog/post/Announcing-The-IServiceLocator-interface.aspx">Chris Travares</a> and you can download it from it’s <a href="http://commonservicelocator.codeplex.com/">Codeplex site</a>. There is a comprehensive <a href="http://commonservicelocator.codeplex.com/Wiki/View.aspx?title=API%20Reference">API reference</a> in their wiki too.</p>  <p>Ayende sums the purpose of the CSL up pretty well:</p>  <blockquote>   <p>The idea is based off a post that <a href="http://codebetter.com/blogs/jeremy.miller/archive/2008/08/16/it-s-time-for-ioc-container-detente.aspx">Jeremy Miller</a> had about a month ago, having a common, shared interface across several IoC implementation. That would allow library authors to make use of the benefits of a container without taking a dependency on a particular implementation.</p>    <p>The alternative for that is to each library to create its own abstraction layer. A good example of that is NServiceBus' IBuilder interface, or ASP.NET MVC's IControllerFactory. That is just annoying, especially if you are integrating more than a single such framework.</p> </blockquote>  <p>In <a href="http://www.tigraine.at/2009/05/21/my-very-own-inversion-of-control-container/">Pandora</a> I aimed for CSL compliance from the beginning, and the CSLAdapter class has been there for quite some time now. But since Pandora only recently got the <a href="http://www.tigraine.at/2009/06/03/named-dependency-lookup-pandora/">named lookups feature</a> I never finished it. </p>  <p>Until now. Today I finally implemented the <a href="http://bitbucket.org/Tigraine/pandora-container/src/tip/src/Pandora/CommonServiceLocatorAdapter.cs">CommonServiceLocatorAdapter</a> that (for me) somehow “verifies” that Pandora supports most mandatory lookup features needed from a DI container. </p>  <p>On the implementation side: I first tried to implement IServiceLocator directly, until I discovered the abstract ServiceLocatorImplBase class that wraps all of the overloads and generic/nongeneric stuff, saving you a bunch of boilerplate code.</p>  <p>Coming up next in Pandora will be component lifestyles, forwards and then maybe DLR configuration.</p>
