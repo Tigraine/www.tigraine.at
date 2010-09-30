@@ -1,1 +1,6 @@
-exclude: wordpress.xml, importer.rb, Rakefile
+exclude: 
+- wordpress.xml
+- importer.rb
+- Rakefile
+permalink: /:year/:month/:day/:title
+pygments: true

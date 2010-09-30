@@ -1,73 +1,71 @@
+--- 
+layout: default 
 ---
-layout: default
----
+<div class="post">
+    <!-- This is the posts header text -->
+    <h2>
+        <a href="http://www.tigraine.at{{page.id}}" rel="bookmark" title="{{page.title}}">{{page.title}}</a></h2>
+    <!-- This is the date and author -->
+    <small>{{page.date | date: "%B %d,%Y"}} . by Daniel Hoelbling</small>
+    <div class="entry">
+        {{content}}
+    </div>
+    <p class="postmetadata">
+        <a href="http://www.tigraine.at/{{page.url}}#comments"
+            title="Comment on .less repository has moved to it&rsquo;s own GitHub account"><span
+                class="dsq-postid" rel="{{page.postid}} http://www.tigraine.at{{page.id}}/">View
+                Comments</span> </a>
+    </p>
 
+    <!-- Disqus Comment System -->
+    <div id="disqus_thread">
+        <div id="dsq-content">
+        </div>
+    </div>
+    <ul id="dsq-comments">
+    </ul>
+    <script type="text/javascript">
+        var disqus_url = 'http://www.tigraine.at{{page.id}}/ ';
+        var disqus_identifier = '{{page.postid}} http://www.tigraine.at{{page.id}}/';
+        var disqus_container_id = 'disqus_thread';
+        var disqus_domain = 'disqus.com';
+        var disqus_shortname = 'tigraine';
+        var disqus_title = "{{page.title}}";
+        var disqus_config = function () {
+            var config = this; // Access to the config object
 
-<div class="post" id="post-956"> 
-				<!-- This is the posts header text --> 
-						<h2><a href="http://www.tigraine.at{{page.id}}" rel="bookmark" title="{{page.title}}">{{page.title}}</a></h2> 
- 
-						<!-- This is the date and author --> 
-				    		<small>{{page.date | date: "%B %d,%Y"}} . by Daniel Hoelbling</small> 
-			<div class="entry"> 
-				{{content}}
-			</div> 
-			
-			<p class="postmetadata"> 
-                  <a href="http://www.tigraine.at/2010/03/04/less-repository-has-moved-to-its-own-github-account/#comments" title="Comment on .less repository has moved to it&rsquo;s own GitHub account">
-				  <span class="dsq-postid" rel="{{page.postid}} http://www.tigraine.at{{page.id}}/">View Comments</span>
-				  </a>
-		    </p> 
-			
-			<div id="disqus_thread"> 
-				<div id="dsq-content"> 
-				</div> 
-			</div>
-			<ul id="dsq-comments"> </ul> 
-			<script type="text/javascript"> 
-				var disqus_url = 'http://www.tigraine.at{{page.id}}/ ';
-				var disqus_identifier = '{{page.postid}} http://www.tigraine.at{{page.id}}/';
-				var disqus_container_id = 'disqus_thread';
-				var disqus_domain = 'disqus.com';
-				var disqus_shortname = 'tigraine';
-				var disqus_title = "{{page.title}}";
-					var disqus_config = function () {
-					var config = this; // Access to the config object
-			 
-					/* 
-					   All currently supported events:
-						* preData — fires just before we request for initial data
-						* preInit - fires after we get initial data but before we load any dependencies
-						* onInit  - fires when all dependencies are resolved but before dtpl template is rendered
-						* afterRender - fires when template is rendered but before we show it
-						* onReady - everything is done
-					 */
-			 
-					config.callbacks.preData.push(function() {
-						// clear out the container (its filled for SEO/legacy purposes)
-						document.getElementById(disqus_container_id).innerHTML = '';
-					});
-							config.callbacks.onReady.push(function() {
-						// sync comments in the background so we don't block the page
-						DISQUS.request.get('?cf_action=sync_comments&post_id=956');
-					});
-						};
-			</script> 
+            /* 
+            All currently supported events:
+            * preData — fires just before we request for initial data
+            * preInit - fires after we get initial data but before we load any dependencies
+            * onInit  - fires when all dependencies are resolved but before dtpl template is rendered
+            * afterRender - fires when template is rendered but before we show it
+            * onReady - everything is done
+            */
 
-			<script type="text/javascript"> 
-				var DsqLocal = {
-					'trackbacks': [
-					],
-					'trackback_url': "http:\/\/www.tigraine.at\/2010\/09\/27\/the-small-things-can-cause-the-biggest-troubles-listt-addrange-and-gethashcode\/trackback\/"	};
-			</script> 
-			 
-			<script type="text/javascript"> 
-			(function() {
-				var dsq = document.createElement('script'); dsq.type = 'text/javascript';
-				dsq.async = true;
-				dsq.src = 'http://' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=2.50';
-				(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-			})();
-			</script>
-
+            config.callbacks.preData.push(function () {
+                // clear out the container (its filled for SEO/legacy purposes)
+                document.getElementById(disqus_container_id).innerHTML = '';
+            });
+            config.callbacks.onReady.push(function () {
+                // sync comments in the background so we don't block the page
+                DISQUS.request.get('?cf_action=sync_comments&post_id=956');
+            });
+        };
+    </script>
+    <script type="text/javascript">
+        var DsqLocal = {
+            'trackbacks': [],
+            'trackback_url': "http:\/\/www.tigraine.at\/2010\/09\/27\/the-small-things-can-cause-the-biggest-troubles-listt-addrange-and-gethashcode\/trackback\/"
+        };
+    </script>
+    <script type="text/javascript">
+        (function () {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=2.50';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <!-- End of Disqus Comment System -->
 </div>
