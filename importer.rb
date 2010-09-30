@@ -49,13 +49,13 @@ doc.elements.each("*/channel/item") do |element|
        targetFile.puts("title: \"#{title}\"")
        targetFile.puts("guid: #{guid}")
        targetFile.puts("postid: #{postid}")
-       targetFile.puts("--- # categories")
+       targetFile.puts("categories:")
 
        element.elements.each("category") do |category|
 	      if category.attributes["domain"] == nil then
 		      next
 	      end
-	      targetFile.puts("- #{category.text}")
+	      targetFile.puts("- #{category.attributes["nicename"]}")
        end
 
        targetFile.puts("---")
