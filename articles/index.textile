@@ -1,0 +1,80 @@
+---
+layout: default
+title: articles
+---
+
+h2. Articles
+
+!http://farm3.static.flickr.com/2459/3712189122_9917d10fdd_m.jpg!:http://www.flickr.com/photos/xanxhor/3712189122/
+
+
+Over the years I accumulated a number of (at least sometimes) useful how-to articles and tutorials on various topics that I frequently lookup through Google when I need to refresh my memory on something.
+
+Unfortunately, I don't always find my own stuff right away so I thought it may be useful to have a page where all of this content is linked to.
+
+h3. MonoRail
+
+* "Using ELMAH Error logging with Castle MonoRail Rescues":/2009/07/03/using-elmah-error-logging-with-castle-monorail/
+* "Mixing static strings with NVelocity variables":/2009/07/14/mixing-static-strings-with-nvelocity-variables/
+* "ActiveRecord gotchas when testing with an in memory database.":/2009/07/15/activerecord-gotchas-when-testing-with-an-in-memory-database/
+* "Building a databound contact form with MonoRail - Part 1: Views and Databinding":/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/
+* "Building a databound contact form with MonoRail - Part 2: Sending Emails":/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/
+* "ARFetch attribute in MonoRail":/2009/07/20/arfetch-attribute-in-monorail
+
+h3. Castle Windsor
+
+* "Castle Windsor XML Configuration Schema":/2009/01/27/castle-windsor-xml-configuration-schema/
+* "Extensibility can equal configurability":/2009/02/02/extensibility-can-equal-configurability/
+
+h3. Continous Integration
+
+* "Setting up Cruise Control .NET":/2008/06/05/setting-up-cruise-control-net/
+* "Another take on Continous Integration":/2008/10/08/another-take-on-contiuous-integration/
+
+h3. ASP.NET
+* "Custom ASP.NET Membership Provider":/2008/07/08/custom-aspnet-membership-provider/
+* "ASP.NET HttpModule that detects debug mode":/2008/07/04/aspnet-httpmodule-that-detects-debug-mode-on-production-servers/
+* "Session handling in ASP.NET":/2008/07/17/session-handling-in-aspnet/
+* "Validation controls in ASP.NET":/2008/07/15/validation-controls-in-aspnet/
+* "Precompiled deployment in ASP.NET":/2008/08/07/precompiled-deployment-in-aspnet/
+
+h3. ASP.NET MVC
+* "Hide the HttpContext services with Windsor and a custom ControllerFactory":/2009/01/21/aspnet-mvc-hide-the-httpcontext-services-with-windsor-and-a-custom-controllerfactory/
+* "DateTime parsing in ASP.NET MVC RouteEngine":/2009/01/15/datetime-parsing-in-aspnet-mvc-routeengine/
+* "ELMAH ASP.NET Error logging on MVC":/2009/04/20/elmah-aspnet-error-logging-on-mvc/ ("Elmah wiki":http://code.google.com/p/elmah/wiki/MVC)
+
+h3. Visual Studio
+* "Stop VS from injecting IDs into your markup":/2008/09/02/id-injection-can-be-stopped/
+* "Dark Visual Studio Theme - Come to the dark side":/2008/10/23/come-to-the-dark-side-we-have-cookies/
+* "Conditional breakpoints in Visual Studio":/2008/11/11/conditional-breakpoints-in-visual-studio/
+* "Sharing a common AssemblyInfo between projects in a solution":/2009/01/22/sharing-a-common-assemblyinfo-between-projects-in-a-solution/
+* "Essential tools for .NET Developers":/2009/05/31/essential-tools-for-net-developers/
+
+h3. jQuery
+* "The deprecated target attribute and jQuery":/2008/09/24/the-deprecated-target-attribute-and-jquery/
+
+h3. Project organization
+* "Handling dependencies":/2008/10/13/handling-dependencies/
+* "Sourcecontrol and Databases, when ORM comes in handy":/2008/10/30/sourcecontrol-and-databases-when-orm-comes-in-handy/
+
+h3. Unit-Testing
+* "Unit testing with mocks (Part 1)":/2008/11/04/unit-testing-with-mocks-part-1/
+* "Unit testing with mocks - Rhino Mocks basics (Part 2)":/2008/11/05/unit-testing-with-mocks-rhino-mocks-basics-part-2/
+* "Tests should last forever":/2009/03/25/tests-should-last-forever/
+* ".NET Unit testing tools":/2009/05/31/net-unit-testing-tools/
+* "Don't forget the Refactor in Red-Green-Refactor":/2009/07/01/dont-forget-the-refactor-in-red-green-refactor/
+
+h3. C#
+* "The power of delegates in C#":/2008/12/12/delegates-and-eventing-in-c/
+* "LinQ isn't only for SQL but also for memory":/2008/12/16/dont-get-spoiled-by-linq-to-sql/
+* "override vs new in C#":/2009/02/25/override-vs-new-in-c/
+* "Static members in generic classes":/2009/03/23/static-members-in-generic-classes/
+* "Juggling generics":/2009/06/10/juggling-generics/
+
+h3. NHibernate
+* "Mapping large text or binary values with NHibernate":/2008/12/19/mapping-large-text-or-binary-values-with-nhibernate/
+* "Fluent NHibernate gotchas when testing with an in memory database.":/2009/05/29/fluent-nhibernate-gotchas-when-testing-with-an-in-memory-database/
+
+h3. WPF
+* "WebKit like focus indicator for WPF Windows":/2009/06/22/webkit-like-focus-indicator-for-wpf-windows/
+
