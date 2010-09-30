@@ -1,0 +1,23 @@
+---
+layout: default
+title: About me
+---
+
+h2. About me
+
+<img src="/images/daniel.jpg" alt="Daniel Hoelbling portrait" style="float: right; margin-left: 15px" />
+
+Hi, thanks for visiting my Blog! My name is Daniel Hoelbling and I am currently studying computer science at the "University of Klagenfurt":http://www.uni-klu.ac.at.
+
+While broadly interested in anything technology related my primary focus is .NET development, best practices, test-driven-development, oo-design and  software architecture.
+
+In the past I have been CTO of pixelpoint multimedia to help them architect and implement the "kaernten.at":http://www.tigraine.at/2009/05/12/the-technology-behind-kaerntenat/ tourism platform for Carinthia.
+
+h3. Contact
+
+You can contact me through email at: "tigraine@tigraine.at":mailto:tigraine@tigraine.at
+Or follow me on "Twitter":http://www.twitter.com/tigraine
+You can also contact me through MSN (tigraine@tigraine.at)
+or Skype: Illuvatan
+
+You can also find me on "Facebook":http://www.facebook.com/Tigraine or "LinkedIn":http://www.linkedin.com/in/danielhoelbling
