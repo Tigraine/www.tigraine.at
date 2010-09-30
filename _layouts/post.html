@@ -4,14 +4,14 @@ layout: default
 <div class="post">
     <!-- This is the posts header text -->
     <h2>
-        <a href="http://www.tigraine.at{{page.id}}" rel="bookmark" title="{{page.title}}">{{page.title}}</a></h2>
+        <a href="{{page.url}}" rel="bookmark" title="{{page.title}}">{{page.title}}</a></h2>
     <!-- This is the date and author -->
     <small>{{page.date | date: "%B %d,%Y"}} . by Daniel Hoelbling</small>
     <div class="entry">
         {{content}}
     </div>
     <p class="postmetadata">
-        <a href="http://www.tigraine.at/{{page.url}}#comments"
+        <a href="{{page.url}}#comments"
             title="Comment on .less repository has moved to it&rsquo;s own GitHub account"><span
                 class="dsq-postid" rel="{{page.postid}} http://www.tigraine.at{{page.id}}/">View
                 Comments</span> </a>
