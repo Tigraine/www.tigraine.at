@@ -18,6 +18,8 @@ files.each() do |file|
 {% endhighlight %}'
 	
 		content = content.gsub /&#160;/, ' '
+		content = content.gsub /(?!^title:)&gt;/, '>'
+		content = content.gsub /(?!^title:)&lt;/, '<'
 
 		content = content.gsub /{% highlight/, "\n{% highlight"
 
