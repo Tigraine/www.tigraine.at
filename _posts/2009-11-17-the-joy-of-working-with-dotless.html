@@ -9,26 +9,28 @@ categories:
 - projects
 - dotless
 ---
-<p>Ok, I just spent some time on the <a href="http://www.imagineclub.at/" target="_blank">imagineClub website</a> adding our board’s <a href="http://www.imagineclub.at/Team/List.aspx" target="_blank">bio page</a>. The HTML is not really interesting, but since imagineClub was written while <a href="http://www.dotlesscss.com/" target="_blank">dotless</a> was still in development I wrote the CSS the old fashioned way. </p>  <p>Since <a href="http://www.dotlesscss.com/" target="_blank">dotless</a> has reached some maturity I’ve been dogfooding it on imagineClub to make use of the minifier and the caching, but never had any real LESS code in there.     <br />When I had to fix something today I was so happy to be able to write CSS like this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0e883ed5-13b7-458a-a7a7-adbf63e7a330" class="wlWriterEditableSmartContent"><pre name="code" class="css">
+<p>Ok, I just spent some time on the <a href="http://www.imagineclub.at/" target="_blank">imagineClub website</a> adding our board’s <a href="http://www.imagineclub.at/Team/List.aspx" target="_blank">bio page</a>. The HTML is not really interesting, but since imagineClub was written while <a href="http://www.dotlesscss.com/" target="_blank">dotless</a> was still in development I wrote the CSS the old fashioned way. </p>  <p>Since <a href="http://www.dotlesscss.com/" target="_blank">dotless</a> has reached some maturity I’ve been dogfooding it on imagineClub to make use of the minifier and the caching, but never had any real LESS code in there.     <br />When I had to fix something today I was so happy to be able to write CSS like this:</p>  
+{% highlight css %}
 div#team
 {
-&#160;&#160;&#160;&#160;width: 414px;
-&#160;&#160;&#160;&#160;p
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;float: right;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;width: 300px;
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;h2
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;clear: right;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;font-size: @title-fontsize - 4;
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;img
-&#160;&#160;&#160;&#160;{&#160;&#160;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;width: 100px;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;margin-bottom: 4px;
-&#160;&#160;&#160;&#160;}
+    width: 414px;
+    p
+    {
+        float: right;
+        width: 300px;
+    }
+    h2
+    {
+        clear: right;
+        font-size: @title-fontsize - 4;
+    }
+    img
+    {  
+        width: 100px;
+        margin-bottom: 4px;
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>This is how CSS was supposed to be, and with <a href="http://www.dotlesscss.com/" target="_blank">dotless</a> it has become just mindlessly easy to do.. </p>

@@ -8,19 +8,21 @@ categories:
 - programmierung
 - nhibernate
 ---
-<p>Imagine the following scenario: </p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2010/06/nh.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="nh" border="0" alt="nh" src="http://www.tigraine.at/wp-content/uploads/2010/06/nh_thumb.png" width="506" height="291" /></a> </p>  <p>Townships has two <strong>m:n</strong> collections mapped to Region. My Controller has special actions for updating these collections, while there is a generic Edit method that takes care of updating normal properties on Township. The code in question looks quite innocent:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:95acc901-53bc-434a-b2e1-f3efa1e5d230" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Imagine the following scenario: </p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2010/06/nh.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="nh" border="0" alt="nh" src="http://www.tigraine.at/wp-content/uploads/2010/06/nh_thumb.png" width="506" height="291" /></a> </p>  <p>Townships has two <strong>m:n</strong> collections mapped to Region. My Controller has special actions for updating these collections, while there is a generic Edit method that takes care of updating normal properties on Township. The code in question looks quite innocent:</p>  
+{% highlight csharp %}
 [HttpPost]
 public virtual ActionResult Edit([Bind]T item)
 {
-&#160;&#160;&#160;&#160;if (!ModelState.IsValid) return View(item);
-&#160;&#160;&#160;&#160;using (var trans = session.BeginTransaction())
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;session.Update(item);
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;trans.Commit();
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;return RedirectToAction("List");
+    if (!ModelState.IsValid) return View(item);
+    using (var trans = session.BeginTransaction())
+    {
+        session.Update(item);
+        trans.Commit();
+    }
+    return RedirectToAction("List");
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Well, the problem is quickly found using NHProf:</p>
 
@@ -34,22 +36,24 @@ public virtual ActionResult Edit([Bind]T item)
 
 <p>Since I already used the Cascade Behavior in other places I decided to go with b and select the entity prior to updating it. The resulting code looks like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bcff4113-8ffc-4b78-bfb8-1b7f19852b48" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp %}
 [HttpPost]
 public override ActionResult Edit([Bind]Township item)
 {
-&#160;&#160;&#160;&#160;using (var trans = session.BeginTransaction())
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var township = session.Get&lt;Township&gt;(item.Id);
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;session.Evict(township);
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;item.WinterRegions = township.WinterRegions;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;item.SummerRegions = township.SummerRegions;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;session.Update(item);
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;trans.Commit();
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;return RedirectToAction("List");
+    using (var trans = session.BeginTransaction())
+    {
+        var township = session.Get<Township>(item.Id);
+        session.Evict(township);
+        item.WinterRegions = township.WinterRegions;
+        item.SummerRegions = township.SummerRegions;
+        session.Update(item);
+        trans.Commit();
+    }
+    return RedirectToAction("List");
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Notice that it is important to first evict the fetched entity from the session, otherwise you’ll get an Exception stating that the same identified is already associated with this session cache.</p>
 

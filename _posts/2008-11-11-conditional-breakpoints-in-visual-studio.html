@@ -8,43 +8,49 @@ categories:
 - programmierung
 - tools
 ---
-<p>Sometimes you do something and you never really think about what you’re doing.    <br />Like the following code:</p>  <div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ddf50501-392a-47d7-92b9-f2ff2858e5d4" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Sometimes you do something and you never really think about what you’re doing.    <br />Like the following code:</p>  
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
-&#160;&#160;&#160;&#160;if (input == true)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;else
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return false;
-&#160;&#160;&#160;&#160;}
+    if (input == true)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>It’s so obvious, I never thought about what I was really doing there, let alone seen the mistake I made. I mean, without any knowledge about boolean evaluation you still should figure out how to get rid of the bracket porn and produce something like this:</p>
 
-<div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c3756d04-9a77-418c-94e6-0678c99fb115" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
-&#160;&#160;&#160;&#160;if (input == true)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return true;
-&#160;&#160;&#160;&#160;return false;
+    if (input == true)
+        return true;
+    return false;
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>But that’s only syntactic, the whole statement itself is still silly. The whole <em>== true</em> is completely redundant because you already check a boolean condition to evaluate it to a boolean. 
 
   <br />So it boils down to:</p>
 
-<div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:25cce3db-6459-4402-a83c-c36e26264ef8" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
-&#160;&#160;&#160;&#160;return input;
+    return input;
 }
-</pre></div>
 
-<p>And that’s it. You just saved yourself 6 lines of code that where completely useless (<strike>and I guess the compiler is smart enough to optimize that anyway</strike>&#160; <strong>Update: </strong>actually, this does make a difference. The compiler <strong>can’t </strong>figure this out and will produce more IL code because of this).</p>
+{% endhighlight %}
+
+<p>And that’s it. You just saved yourself 6 lines of code that where completely useless (<strike>and I guess the compiler is smart enough to optimize that anyway</strike>  <strong>Update: </strong>actually, this does make a difference. The compiler <strong>can’t </strong>figure this out and will produce more IL code because of this).</p>
 
 <p>But once I did this I felt I lack the ability to put a breakpoint on the <em>return false </em>statement. And I eventually may have thought about going back to solution #2. But then I found this little thing in Visual Studio that made my day (and all major IDEs have that, only they hide it well):</p>
 

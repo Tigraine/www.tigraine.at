@@ -9,26 +9,28 @@ categories:
 - programmierung
 - nhibernate
 ---
-<p>I believe the simplest way to store binary data is to just put in the database. Whenever I’ve agreed to throw data to a disk I’ve had issues with deployment, administration or disaster recovery. </p>  <p>Simply put: Once you have a dependency from your database to your file system, you no longer have the luxury of only thinking about recovering the database. You now need to keep two pieces of your system “safe”, both requiring a completely different toolset than the other. </p>  <p>Besides the obvious second point of headache for backup/recovery, you also bring yourself into a world of hurt for deployment / maintenance scenarios.    <br />Filesystem access rights can be a huge pain in the ass, and having to set them right (and keep them that way) is usually a time-bomb waiting to go off. </p>  <p>So, storing your binary data in the db solves many problems, but some new ones arise. Mostly implementation details, but I’d like to show you some things to keep in mind when writing binary data to db. </p>  <p><strong>NHibernate supports no lazy loading of instance fields</strong></p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image5.png"><img style="border-right-width: 0px; display: inline; float: left; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb4.png" width="221" height="132" /></a> While with conventional ADO.NET I’d just put the binary data as a column inside the table it belongs to, NHibernate requires you to do things different. If you map your data like that NHibernate will fetch it whenever you read objects from that table, meaning that you’ll be querying large binary data fields for no reason, causing you application performance to significantly degrade over time. </p>  <p>&#160;</p>  <p>What you want is to have NHibernate fetch that field only if it is accessed (lazy load it), and that’s not possible for fields inside a class, but it is possible for references. So your database schema should look like this:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image6.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb5.png" width="676" height="171" /></a> </p>  <p></p>  <p>And your mapping will look similar to this (I’ll use ActiveRecord for easier understanding):</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9799a8e6-f500-4709-b2b1-715dace4fa21" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>I believe the simplest way to store binary data is to just put in the database. Whenever I’ve agreed to throw data to a disk I’ve had issues with deployment, administration or disaster recovery. </p>  <p>Simply put: Once you have a dependency from your database to your file system, you no longer have the luxury of only thinking about recovering the database. You now need to keep two pieces of your system “safe”, both requiring a completely different toolset than the other. </p>  <p>Besides the obvious second point of headache for backup/recovery, you also bring yourself into a world of hurt for deployment / maintenance scenarios.    <br />Filesystem access rights can be a huge pain in the ass, and having to set them right (and keep them that way) is usually a time-bomb waiting to go off. </p>  <p>So, storing your binary data in the db solves many problems, but some new ones arise. Mostly implementation details, but I’d like to show you some things to keep in mind when writing binary data to db. </p>  <p><strong>NHibernate supports no lazy loading of instance fields</strong></p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image5.png"><img style="border-right-width: 0px; display: inline; float: left; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb4.png" width="221" height="132" /></a> While with conventional ADO.NET I’d just put the binary data as a column inside the table it belongs to, NHibernate requires you to do things different. If you map your data like that NHibernate will fetch it whenever you read objects from that table, meaning that you’ll be querying large binary data fields for no reason, causing you application performance to significantly degrade over time. </p>  <p> </p>  <p>What you want is to have NHibernate fetch that field only if it is accessed (lazy load it), and that’s not possible for fields inside a class, but it is possible for references. So your database schema should look like this:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/08/image6.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/08/image-thumb5.png" width="676" height="171" /></a> </p>  <p></p>  <p>And your mapping will look similar to this (I’ll use ActiveRecord for easier understanding):</p>  
+{% highlight csharp %}
 [ActiveRecord]
-public class Invoice : ActiveRecordBase&lt;Invoice&gt;
+public class Invoice : ActiveRecordBase<Invoice>
 {
-&#160;&#160;&#160;&#160;[PrimaryKey]
-&#160;&#160;&#160;&#160;public int Id { get; set; }
+    [PrimaryKey]
+    public int Id { get; set; }
 
-&#160;&#160;&#160;&#160;[BelongsTo(Lazy = FetchWhen.OnInvoke, Cascade = CascadeEnum.SaveUpdate)]
-&#160;&#160;&#160;&#160;public BinaryData ScannedInvoice { get; set; }
+    [BelongsTo(Lazy = FetchWhen.OnInvoke, Cascade = CascadeEnum.SaveUpdate)]
+    public BinaryData ScannedInvoice { get; set; }
 }
 
 [ActiveRecord]
-public class BinaryData : ActiveRecordBase&lt;BinaryData&gt;
+public class BinaryData : ActiveRecordBase<BinaryData>
 {
-&#160;&#160;&#160;&#160;[PrimaryKey]
-&#160;&#160;&#160;&#160;public int Id { get; set; }
+    [PrimaryKey]
+    public int Id { get; set; }
 
-&#160;&#160;&#160;&#160;[Property(ColumnType = "BinaryBlob", SqlType = "IMAGE", NotNull = true)]
-&#160;&#160;&#160;&#160;public byte[] Data { get; set; }
+    [Property(ColumnType = "BinaryBlob", SqlType = "IMAGE", NotNull = true)]
+    public byte[] Data { get; set; }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Now whenever your Invoice is saved/inserted NHibernate will also check if <tt>BinaryData </tt>has to be updated/inserted, while only loading the binary field if you actually access the <tt>Invoices.ScannedInvoice </tt>field. </p>

@@ -7,67 +7,73 @@ categories:
 - net
 - programmierung
 ---
-<p>Today a friend woke me up by phone wanting to ask me how to best do internationalization (<a href="http://de.wikipedia.org/wiki/Internationalisierung_(Softwareentwicklung)">i18n</a>) in .NET. He already had read some guides that involved compiling satellite assemblies with global resource files etc, and that didn’t work all that well.     <br />My first thought went to that article I had read half a year before when I was tasked with i18n, and I tried to remember how I did it back then.</p>  <p>I remembered: <strong>I didn’t</strong>.</p>  <p>At no point in time was the scope of the application so big that it had warranted to jump through the hoops Microsoft hat set up to get to real internationalization.   <br />If you Google for the thing or ask on StackOverflow, you realize rather fast that you don’t want to have any of this i18n “goo” in your application logic, so the smartest thing is to simply abstract everything away into a separate class that handles all those things. </p>  <p>And once you have it abstracted from your application, nobody forces you any more to use the .NET i18n stuff any more.    <br />Simple switch statements will do if you only need 2 languages for a couple of strings, even reading something on the Globalization stuff from .NET takes longer than simply writing something similar to this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9dec461e-ac9c-49e7-ad88-4e614f3e9c3f" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Today a friend woke me up by phone wanting to ask me how to best do internationalization (<a href="http://de.wikipedia.org/wiki/Internationalisierung_(Softwareentwicklung)">i18n</a>) in .NET. He already had read some guides that involved compiling satellite assemblies with global resource files etc, and that didn’t work all that well.     <br />My first thought went to that article I had read half a year before when I was tasked with i18n, and I tried to remember how I did it back then.</p>  <p>I remembered: <strong>I didn’t</strong>.</p>  <p>At no point in time was the scope of the application so big that it had warranted to jump through the hoops Microsoft hat set up to get to real internationalization.   <br />If you Google for the thing or ask on StackOverflow, you realize rather fast that you don’t want to have any of this i18n “goo” in your application logic, so the smartest thing is to simply abstract everything away into a separate class that handles all those things. </p>  <p>And once you have it abstracted from your application, nobody forces you any more to use the .NET i18n stuff any more.    <br />Simple switch statements will do if you only need 2 languages for a couple of strings, even reading something on the Globalization stuff from .NET takes longer than simply writing something similar to this:</p>  
+{% highlight csharp %}
 public class LocalizationManager : ILocalizationManager
 {
-&#160;&#160;&#160;&#160;private IDictionary&lt;CultureInfo, IDictionary&lt;string, string&gt;&gt; dictionary;
+    private IDictionary<CultureInfo, IDictionary<string, string>> dictionary;
 
-&#160;&#160;&#160;&#160;public LocalizationManager(IDictionary&lt;CultureInfo, IDictionary&lt;string, string&gt;&gt; dictionary)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.dictionary = dictionary;
-&#160;&#160;&#160;&#160;}
+    public LocalizationManager(IDictionary<CultureInfo, IDictionary<string, string>> dictionary)
+    {
+        this.dictionary = dictionary;
+    }
 
-&#160;&#160;&#160;&#160;public string Translate(CultureInfo culture, string name)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var translationDictionary = dictionary[culture];
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (!translationDictionary.ContainsKey(name))
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new Exception("No translation found");
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return translationDictionary[name];
-&#160;&#160;&#160;&#160;}
+    public string Translate(CultureInfo culture, string name)
+    {
+        var translationDictionary = dictionary[culture];
+        if (!translationDictionary.ContainsKey(name))
+            throw new Exception("No translation found");
+        return translationDictionary[name];
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Now, the only trouble here is to fill that dictionary with values, and that can even be simply hardcoded into the application. 
   <br />To further facilitate the use of this you can now write Facades for your languages like this:</p>
 
 <p></p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bfee0b44-f0be-499d-a6c4-390219fcdac8" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp %}
 public class Translation : ITranslation
 {
-&#160;&#160;&#160;&#160;private readonly ILocalizationManager localizationManager;
-&#160;&#160;&#160;&#160;private readonly CultureInfo culture;
+    private readonly ILocalizationManager localizationManager;
+    private readonly CultureInfo culture;
 
-&#160;&#160;&#160;&#160;public Translation(ILocalizationManager localizationManager, CultureInfo culture)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.localizationManager = localizationManager;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.culture = culture;
-&#160;&#160;&#160;&#160;}
+    public Translation(ILocalizationManager localizationManager, CultureInfo culture)
+    {
+        this.localizationManager = localizationManager;
+        this.culture = culture;
+    }
 
-&#160;&#160;&#160;&#160;public string Translate(string name)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return localizationManager.Translate(culture, name);
-&#160;&#160;&#160;&#160;}
+    public string Translate(string name)
+    {
+        return localizationManager.Translate(culture, name);
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>And you can go even further (if you like hardcoding as much as I do) and write another facade like this to have intellisense on your translations:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:37e29798-7062-4f4a-a49a-b2dd89487c80" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp %}
 public class SpecializedTranslation
 {
-&#160;&#160;&#160;&#160;private readonly ITranslation translation;
-&#160;&#160;&#160;&#160;public SpecializedTranslation(ITranslation translation)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.translation = translation;
-&#160;&#160;&#160;&#160;}
+    private readonly ITranslation translation;
+    public SpecializedTranslation(ITranslation translation)
+    {
+        this.translation = translation;
+    }
 
-&#160;&#160;&#160;&#160;public string GetLoginMessage()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return translation.Translate("LoginMessage");
-&#160;&#160;&#160;&#160;}
+    public string GetLoginMessage()
+    {
+        return translation.Translate("LoginMessage");
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Also mind that since everything follows a rather simple Interface I can easily change these implementations later if I need to. But for something simple, this will do just fine. 
   <br />Also I advise to use this through an IoC container like Windsor so you could even go as far as to swap hardcoded translations through the <a href="http://www.tigraine.at/2009/02/02/extensibility-can-equal-configurability/">configuration</a>.</p>
