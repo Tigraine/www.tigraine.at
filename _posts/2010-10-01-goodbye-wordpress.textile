@@ -23,3 +23,5 @@ And btw: I finally managed to learn how to get around Vim. Did I mention that th
 In the end, the script is still rather simplistic. It will just take a _wordpress.xml_ file and extract all posts into the _posts directory, adding categories, title etc to the YAML Front Matter of each post. You can find it in my GitHub repository: "Importer.rb":http://github.com/Tigraine/www.tigraine.at/blob/master//importer.rb
 
 I'll put up a series of blogposts about the Wordpress -> Jekyll migration in the near future.
+
+*Update:* Sorry to all my feed subscribers for the spam there. I changed the format of the feed to atom and now your reader may show 20 unread posts when there is really only one.
