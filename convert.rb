@@ -12,12 +12,21 @@ files.each() do |file|
 		next
 	end
 
-	openFile = File.open("_posts\\#{file}", "w+")
+	openFile = File.open("_posts\\#{file}", "r")
 	content = ""
 	openFile.each {|line| content += line}
 	openFile.close
 
-	if content =~ /wlWriterEditableSmartContent/ then
-		puts "#{file} contains code"
+	if (content =~ /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*).*<.div>/) then
+		result = content.gsub /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*).*<.div>/, "{% highlight #{$1} %}
+		#{$2}
+		{% endhighlight %}"
+	
+		puts result
+		puts file
+		exit
 	end
 end
+
+puts "Number of files with code #{numberOfCodeFiles}"
+puts "Number of files with matches #{num3}"
