@@ -1,11 +1,6 @@
 require 'fileutils'
 
-test = "hello world"
-test =~ /world/
-
-puts $&
-
-
+numberOfChangedFiles = 0
 files = Dir.entries("_posts")
 files.each() do |file|
 	if (file == "." or file == "..") then
@@ -26,13 +21,12 @@ files.each() do |file|
 
 		content = content.gsub /{% highlight/, "\n{% highlight"
 
-		newFile = File.open("test.html", "w")
+		newFile = File.open("_posts\\#{file}", "w")
 		newFile.write(content)
 		newFile.close
 
-		exit
+		numberOfChangedFiles += 1
 	end
 end
 
-puts "Number of files with code #{numberOfCodeFiles}"
-puts "Number of files with matches #{num3}"
+puts "Number of changed files #{numberOfChangedFiles}"
