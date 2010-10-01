@@ -2,5 +2,6 @@ exclude:
 - wordpress.xml
 - importer.rb
 - Rakefile
+- Thumbs.db
 permalink: /:year/:month/:day/:title
 pygments: true
