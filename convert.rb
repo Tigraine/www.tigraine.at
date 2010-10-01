@@ -18,12 +18,18 @@ files.each() do |file|
 	openFile.close
 
 	if (content =~ /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*).*<.div>/) then
-		result = content.gsub /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*).*<.div>/, "{% highlight #{$1} %}
-		#{$2}
-		{% endhighlight %}"
+		content = content.gsub /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*?).*?<.div>/, '{% highlight \1 %}
+\2
+{% endhighlight %}'
 	
-		puts result
-		puts file
+		content = content.gsub /&#160;/, ' '
+
+		content = content.gsub /{% highlight/, "\n{% highlight"
+
+		newFile = File.open("test.html", "w")
+		newFile.write(content)
+		newFile.close
+
 		exit
 	end
 end
