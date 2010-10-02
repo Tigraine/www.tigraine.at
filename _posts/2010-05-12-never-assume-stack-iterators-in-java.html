@@ -9,7 +9,7 @@ categories:
 - java
 ---
 <p>I spent almost 2 hours of debugging Java code yesterday due to one assumption that proved fatally wrong: I assumed a Stack, by definition a <a href="http://en.wikipedia.org/wiki/LIFO">LIFO</a> data structure would iterate over it’s elements from the top of the stack to the bottom. </p>  <p>So inserting 1, 2, 3 the resulting order when iterating through the stack should be 3, 2, 1.</p>  <p>Well, at least that’s what .NET does. Java is different. Look at the following Java code:</p>  
-{% highlight java linenos %}
+{% highlight java %}
 Stack<Integer> stack = new Stack<Integer>();
 stack.push(1);
 stack.push(2);
@@ -24,7 +24,7 @@ for(Integer i : stack) {
 <p>And this C#:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var stack = new Stack<int>();
 stack.Push(1);
 stack.Push(2);

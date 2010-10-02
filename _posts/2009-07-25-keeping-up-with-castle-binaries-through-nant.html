@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>One of the main annoyances of running from the castle trunk for me was copying new assemblies to my projects. Whenever I see something interesting pop up in the mailing list I usually run a SVN update to see what changed. While the castle build process is pretty simple at this point, picking the right assemblies and copying them to an ongoing project manually is just painful. </p>  <p>I did this exactly twice before I remembered the golden rule: <strong><u>automate</u></strong>!</p>  <p>This little NAnt target is now in charge of copying assemblies I need to my <a href="http://www.tigraine.at/2008/10/13/handling-dependencies/">project’s lib directory</a>:</p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <target name="castle-update">
 <if test="${property::exists('castle-trunk-dir')}">
 	

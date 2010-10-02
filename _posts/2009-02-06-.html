@@ -7,7 +7,7 @@ categories:
 - uncategorized
 ---
 <p>Ok, this may be old news to many of you, but I believe what had the most impact (quality wise) on my work last year was my discovery of the dependency injection pattern. So, yes I guess I’ll have to blog about it :).    <br />Also I am going to deliver a talk at the <a href="http://www.barcamp.at/BarCamp_Klagenfurt_2009">Barcamp Klagenfurt 09</a> on the topic.</p>  <p>Ok, so what is the dependency injection pattern?    <br />Consider the following scenario: You have a class that will monitor traffic and notify authorities in case of an accident. Let’s say we are OO savy enough that we created a separate class that takes care of sending notification emails called EmailNotifier (it’s not that common you know, I’ve seen and done enough inline email sending to deserve a lifelong prison sentence if Bob Martin or Fowler would have a word in that).     <br />Now our TrafficWatcher class can simply instantiate the EmailNotifier class, supply some configuration (SMTP server etc) and call the Nofify() method.     <br />So our code for NotificationService would look like this:</p>  <p></p>  <p></p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class NotificationService
 {
     public void NotifyUser()
@@ -24,7 +24,7 @@ public class NotificationService
 <p>So, the usual approach here would have been to create a Factory that takes care of creating the EmailNotifier class and handles it’s configuration. That would now protect the LostPasswordService from changes in the object creation. To avoid us having to new up the factory in the NotificationService (creating the whole mess again) we’d use a static factory like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public static class NotifierFactory
 {
     public static EmailNotifier GetNotifierInstance()

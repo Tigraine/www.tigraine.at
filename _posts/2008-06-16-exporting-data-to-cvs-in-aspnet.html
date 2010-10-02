@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>So, today I tried the ASP.NET Wiki that's currently in Beta and thought, best way to do so is to expand an article. I'll blog about my Wiki experience later, but for now I'd like to share my code on this one.</p>  <p>I started out with the Wiki Article <a href="http://wiki.asp.net/page.aspx/401/export-to-csv-file/">Export to CSV file</a> (<a href="http://wiki.asp.net/page.aspx/401/export-to-csv-file/rev/3">revision 3</a>) and thought on how to improve it.</p>  <p>As you may have noticed, the topic at hand is so simple, it doesn't really need improving, except for the main flaw where you have to specify all column headers in code.</p>  <p>My take on this was to use the DataBinder API from the System.Web.UI namespace and remove the whole HttpContext.Current stuff to an instance variable so it's easier to test the stuff and you can put it into a class library (if you want that).</p>  <p>Let's assume I have a list of type Person I want to write to CSV</p> 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class Person
 {
     public String Name
@@ -24,7 +24,7 @@ public class Person
 
 <p>Now here's the CVSExporter class that you just need to pass 3 things: Your List&lt;Person&gt;, your HttpContext.Current and a List&lt;String&gt; that specifies what columns you want printed out (eg. Name, Family).</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class CSVExporter
 {
 		public static void WriteToCSV(List<Object> dataList, HttpContext httpContext, List<String> columnNames)

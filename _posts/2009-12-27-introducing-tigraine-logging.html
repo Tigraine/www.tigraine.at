@@ -9,7 +9,7 @@ categories:
 - projects
 ---
 <p>Stop rolling your eyes, I know there are more logging infrastructure libraries out there than there are projects using them. And I won’t say this one is different, it’s not. It’s more or less a little experiment I did to get accustomed to VS2010 and R#5.    <br />Also note that most of the code originated from me writing a logging architecture for a <a href="http://github.com/unixtam/EvoPaint" target="_blank">Java OSS project</a> I’m involved with and I wanted to carry the idea over to .NET.</p>  <p>But: I believe it turned out to be quite nice while very very lightweight. So I thought I’d just go ahead and share it. </p>  <p><strong>Usage</strong></p>  <p>Tigraine.Logging has a ILogger interface that exposes the usual suspects:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/12/image.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/12/image_thumb.png" width="381" height="181" /></a> </p>  <p>You just instantiate the appropriate ILogger implementation and are set to go, it will write everything you pass to it.</p>  <p>What makes out most of the code though is the ability to render objects passed into the logger as parameters. This idea came from the Java codebase where there was code like this scattered all over the place:</p>  
-{% highlight java linenos %}
+{% highlight java %}
 @Override
 public String toString() {
 	String ret = this.getClass().getSimpleName();
@@ -37,7 +37,7 @@ public String toString() {
 <p>Here is a sample:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var consoleLogger = new ConsoleLogger(LogLevel.Debug);
 consoleLogger.AddObjectRenderer<TestClass>(new TestClassRenderer());
 
@@ -54,7 +54,7 @@ consoleLogger.Error("Something went wrong with {0}", new TestClass());
 <p>And since implementing all renderers in their own classes would lead to a lot of code, there is a little helper class that should work for most of you by using some lambda syntax:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var compositeRenderer = new CompositeRenderer<TestClass>
     (p => p.Firstname + " " + p.Nickname + " " + p.Age);
 

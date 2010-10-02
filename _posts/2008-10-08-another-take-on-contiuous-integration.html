@@ -22,7 +22,7 @@ categories:
 <!--more-->
   <h2>Subversion</h2>  <p>I assume you have <a href="http://www.visualsvn.com/server/">Visual SVN Server</a> up and running already (or something else), so I'll skip this step.</p>  <h2>CruiseControl.NET</h2>  <p>Download and install the latest <a href="http://sourceforge.net/project/showfiles.php?group_id=71179&amp;package_id=83198">CruiseControl.NET from SourceForce</a></p>  <p>During installation CCnet installs two components, the webdashboard and the CCnet server. The webdashboard will automagically be installed into a IIS virtual directory so you can access it through <a href="http://localhost/ccnet">http://localhost/ccnet</a></p>  <p>Although you can already access the webdashboard, you will not find much to do there since the CCnet service isn't started by default and is also lacking configuration.</p>  <h2>Configuring the CruiseControl.NET server</h2>  <p>Now, this is when the fabulous <a href="http://confluence.public.thoughtworks.org/display/CCNET/Configuring+the+Server">CCnet documentation</a> comes in to play.     <br />In the <strong>C:\Program Files\CruiseControl.NET\server\</strong> directory you'll find a file called <strong>ccnet.config</strong>     <br />I won't cover all basic steps since they are already well documented, but just point out the important ones in my config.</p>  <p></p>  
   
-{% highlight xml linenos %}
+{% highlight xml %}
 <sourcecontrol type="svn">
   <executable>C:\Programme\VisualSVN Server\bin\svn.exe</executable>
   <trunkUrl>https://localhost:8443/svn/myProject/trunk/</trunkUrl>
@@ -38,7 +38,7 @@ categories:
 
 <p>The <a href="http://confluence.public.thoughtworks.org/display/CCNET/Subversion+Source+Control+Block"><sourcecontrol> block</a> configures CCnet to access Subversion and retrieve the source. Notably: tagOnSuccess will automatically create a new tag in the tagBaseUrl directory depending on the later <a href="http://confluence.public.thoughtworks.org/display/CCNET/Labeller+Blocks">labeller block</a>.</p>
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <labeller type="defaultlabeller">
   <prefix>myProject-alpha-0.1-build-</prefix>
   <incrementOnFailure>false</incrementOnFailure>

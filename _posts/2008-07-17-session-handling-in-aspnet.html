@@ -27,7 +27,7 @@ Session["userid"] = userid;
 
 <p>I suggest starting off with the session data object that we will use to store our data in:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Serializable()]
 public class UserSessionData
 {
@@ -42,7 +42,7 @@ public class UserSessionData
 <p>And now we need to store this object in the session, for that purpose we could just incorporate static methods into the class that would retrieve and set the object to the current session.
   <br />Because we're working with ASP.NET here we want this UserSessionData to be accessible from within our ASP.NET Webform so it's pretty cool to just subclass Web.UI.Page and use it afterwards as the base class for our Webforms:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class SessionHandler : System.Web.UI.Page
 {
     private const string SESSION_NAME = "UserSession";
@@ -66,7 +66,7 @@ public class SessionHandler : System.Web.UI.Page
 
 <p>Now we only need to open our code-behind file and change it's superclass from Page to our SessionHandler (that just wraps Page):</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public partial class _Default : SessionHandler
 {
     protected void Page_Load(object sender, EventArgs e)

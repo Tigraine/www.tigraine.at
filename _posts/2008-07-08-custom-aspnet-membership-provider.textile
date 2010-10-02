@@ -20,7 +20,7 @@ To achieve this on a already existing database you simply need to do one thing:
 
 Implement the abstract class "MembershipProvider":http://msdn.microsoft.com/en-us/library/system.web.security.membershipprovider.aspx and implement just one method: "ValidateUser":http://msdn.microsoft.com/en-us/library/system.web.security.membershipprovider.validateuser.aspx
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public override bool ValidateUser(string username, string password)
 {
 	if (username == "tigraine" && password == "tigraine")
@@ -33,7 +33,7 @@ You see where I'm going here, you basically just need to return true or false gi
 
 To make the magic actually work you need to add the new MembershipProvider (i've called it DBMembershipProvider) to your root web.config:
 
-{% highlight html linenos %}
+{% highlight html %}
 <authentication mode="Forms">
 	<forms loginUrl="Login.aspx"></forms>
 </authentication>
@@ -60,7 +60,7 @@ Yeah, I was so happy with that login working so I almost forgot to do this part.
 
 In case of a folder, just put a blank web.config in there and add the following directives:
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <system.web>
 	<authorization>
 		<deny users="?"/>

@@ -10,7 +10,7 @@ categories:
 - projects
 ---
 <p>Yesterday I finished <a href="http://bitbucket.org/Tigraine/pandora-container/wiki/FluentInterface">expanding the Pandora wiki</a> a bit on how to configure the container and while doing so I made one discovery:</p>  <p><strong>I never tested if Pandora can handle generic types!!</strong></p>  <p>Wow, why didn’t I think about that. One of the most important scenarios fully untested. Thank god, simple generic registration already worked:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact]
 public void CanResolveSpecificGenericClass()
 {
@@ -28,7 +28,7 @@ public void CanResolveSpecificGenericClass()
 <p>Still, it sucks having to specify one class explicitly 5 times if I want 5 to use it with 5 types. So I set out to support the following scenario:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact(Skip = "Not implemented yet")]
 public void CanRegisterAndResolveRealGenericRequests()
 {
@@ -47,7 +47,7 @@ public void CanRegisterAndResolveRealGenericRequests()
 <p>I want the container to just know the generic and then figure out if the generic registration can satisfy my requested service. Since this would obviously require Reflection in the resolving part of Pandora, I shelved that feature for a maybe more useful one that at least eases some of the generic pain:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 store.Register(
     p => p.Generic(typeof (GenericClass<>))
              .Implementor(typeof (GenericClass<>))

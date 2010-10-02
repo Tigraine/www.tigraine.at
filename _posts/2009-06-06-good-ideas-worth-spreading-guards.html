@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>It’s amazing how much smarter you can become by simply looking at other people’s code. So, today I spent almost half the morning looking at different test frameworks from the TDD/BDD world looking for cool tricks I haven’t thought of (I examined <a href="http://github.com/machine/machine.specifications/tree/master">MSpec</a>, <a href="http://www.codeplex.com/NBehave">NBehave</a>, <a href="http://nspec.tigris.org/">NSpec</a> and <a href="http://www.codeplex.com/xunit">xUnit</a>). One of those interesting little tricks (trivial at best, but valuable) is the following <a href="http://xunit.codeplex.com/SourceControl/changeset/view/32566#231174">I found in xUnit’s Guard.cs</a>: </p>  <blockquote>   <p>Guard class, used for guard clauses and argument validation</p> </blockquote>  <p>Imagine the following method:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool Authenticate(string username, string password)
 {
     return username == "daniel" && password == "tigraine";
@@ -19,7 +19,7 @@ public bool Authenticate(string username, string password)
 <p>Let’s say my specification for this method says: “input username and password can’t be null and should return a ArgumentNullException”. Reasonable, since we never trust input. So, usually I’d create guard clauses at the top of my method to protect me from said bad input:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool Authenticate(string username, string password)
 {
     if (username == null)
@@ -35,7 +35,7 @@ public bool Authenticate(string username, string password)
 <p>I always thought about this as rather readable and nice to work with, until I saw what xUnit did in <a href="http://xunit.codeplex.com/SourceControl/changeset/view/32566#231174">Guard</a>.cs, allowing me to shorten the above to a simple:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool Authenticate(string username, string password)
 {
     Guard.ArgumentNotNull("username", username);

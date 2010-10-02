@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>A very long time ago I went through the Ruby in 20 minutes tutorial when I saw this: </p>  
-{% highlight ruby linenos %}
+{% highlight ruby %}
 @names.each do |name|
   puts "Hallo, #{name}!"
 end
@@ -23,7 +23,7 @@ end
 <p>Oh and it’s so damn easy too:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public static class EachExtension
 {
     public static void Each<T>(this IEnumerable<T> enumberable, Action<T> action)
@@ -41,7 +41,7 @@ public static class EachExtension
 
 <p>
   
-{% highlight csharp linenos %}
+{% highlight csharp %}
 IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
 x.Each(Console.WriteLine);
 
@@ -52,7 +52,7 @@ x.Each(Console.WriteLine);
 
 <p>
   
-{% highlight csharp linenos %}
+{% highlight csharp %}
 IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
 x.Each(p => Console.WriteLine("{0}", p));
 
@@ -63,7 +63,7 @@ x.Each(p => Console.WriteLine("{0}", p));
 
 <p>
   
-{% highlight csharp linenos %}
+{% highlight csharp %}
 IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
 x.Each(p =>
            {

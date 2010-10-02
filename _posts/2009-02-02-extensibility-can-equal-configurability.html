@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>The following code is extensible and configurable:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class Worker
 {
     private IValueCalculator valueCalculator = new DefaultValueCalculator();
@@ -38,7 +38,7 @@ public class Worker
   <br />If I want to change the behavior for just one call i can do that very easily:
 
   
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var worker = new Worker();
 var oldCalculator = worker.ValueCalculator;
 worker.ValueCalculator = new AlternativeCalculator();
@@ -53,7 +53,7 @@ worker.ValueCalculator = oldCalculator;
   <br />But once a Windsor configuration is found you can swap the strategy classes through the configuration even without recompiling like this:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <components>
     <component 
         id="Worker"

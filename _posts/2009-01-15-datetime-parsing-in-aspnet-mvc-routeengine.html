@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>After doing so much winforms development lately I am getting started on an upcoming an MVC project. And while thinking about the basic structure of the whole thing and trying out some things I discovered some pretty funny behavior in the DateTime parsing of the routing engine.</p>  <p>Typical example. A route that should map urls like: </p>  <blockquote>   <p><a href="http://www.website.com/Archive/10-12-2008/">http://www.website.com/Archive/10-12-2008/</a></p> </blockquote>  <p>I have my route laid out like this:</p>  <p></p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 routes.MapRoute("Archive",
                 "Archive/{date}/",
                 new {controller = "Archive", action = "Show"});
@@ -18,7 +18,7 @@ routes.MapRoute("Archive",
 <p>And the controller action looks like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ArchiveController : Controller     
 {
     public ActionResult Show(DateTime date)

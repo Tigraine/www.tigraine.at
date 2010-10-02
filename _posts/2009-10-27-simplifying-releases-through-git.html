@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>I confess: I <strong>love </strong>writing build scripts. They are usually insanely easy to write, and provide you with a disproportional amount of value over time that it’s almost tragic not to have them. And, I love git.     <br />So, what’s better than to see git simplifying my buildfiles :).</p>  <p>Imagine the usual: Your assembly version is encoded in your buildfile, so whenever you want to release you do the following:</p>  <ol>   <li>Increment version number in buildfile </li>    <li>Run buildfile </li>    <li>Create a tag in your SCM for the released version </li> </ol>  <p>Now, thanks to the smart people at the castle mailing list I found out about the <tt>git describe</tt> command. By using <a href="http://mirrors.xservers.ro/software/scm/git-core/docs/git-describe.html">git-describe</a> you can simplify the above to just:</p>  <ol>   <ol>     <li>Create a tag in your SCM </li>      <li>Run buildfile </li>   </ol> </ol>  <p>The function for that is quite simple:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 function Get-Git-Commit
 {
     return git describe

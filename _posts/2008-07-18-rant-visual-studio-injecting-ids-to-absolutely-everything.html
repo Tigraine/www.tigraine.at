@@ -9,7 +9,7 @@ categories:
 ---
 <p>Ha, the weekends almost in and I'm readying myself to get afk for some days.    <br />But not before I've complained about how stupid Visual Studio gets when you're handling ASP.NET Tables!</p>  <p>Whenever something has a runat=&quot;server&quot; tag Visual Studio wants to attach an ID to it.    <br />But there is no point to attach IDs to <u>every cell/row in table</u>!</p>  <p>So, if you're writing everything by hand, you don't need to specify the ID attribute, so everything is fine. But once you want to copy&amp;paste that code, Visual Studio will instantly attach IDs to everything (with meaningful names as &quot;Table1, TableRow1&quot; etc..), and that's something I find very annoying when having to create large forms or something like that.</p>  <p>I mean, you have code like this:</p>  
 
-{% highlight html linenos %}
+{% highlight html %}
 <asp:Table runat="server">
     <asp:TableRow runat="server"></asp:TableRow>
 </asp:Table>
@@ -19,7 +19,7 @@ categories:
 
 <p></p>
 
-{% highlight html linenos %}
+{% highlight html %}
 <asp:Table ID="Table1" runat="server">
     <asp:TableRow ID="TableRow1" runat="server"></asp:TableRow>
 </asp:Table>

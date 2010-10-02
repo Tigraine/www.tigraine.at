@@ -11,7 +11,7 @@ categories:
 ---
 <p>If the title sounds familiar to you, it’s intentional. After having to <a href="http://www.tigraine.at/2009/05/29/fluent-nhibernate-gotchas-when-testing-with-an-in-memory-database/">deal with this in pure NHibernate</a> it came around to also bite me with ActiveRecord.</p>  <p>In short: in-memory SQLite will drop the schema whenever you close the NHibernate ISession object (since ActiveRecord uses NHibernate behind the scenes this poses a problem to us).</p>  <p>So, assuming you have setup ActiveRecord using an InPlaceConfiguratonSource similar to this:</p> 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 IDictionary<string, string> properties = new Dictionary<string, string>();
 properties.Add("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
 properties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
@@ -31,7 +31,7 @@ ActiveRecordStarter.CreateSchema();
 
 <p>Thank god I found <a href="http://notepad2.wordpress.com/2008/05/19/unit-testing-castle-active-record-using-sqlite-in-memory-database/">this handy guide</a> that suggested subclassing the DriverConnectionProvider class to replace the CloseConnection call with a fake like this:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.DriverConnectionProvider
 {
     public static System.Data.IDbConnection Connection = null;
@@ -49,7 +49,7 @@ public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.Dri
 
 <p>I then had to pass that new ConnectionProvider into NH through the configuration and all was well:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 properties.Add("connection.provider",
     "ImagineClub.Tests.SqLiteInMemoryTestingConnectionProvider, ImagineClub.Tests");</pre>
 {% endhighlight %}
@@ -58,7 +58,7 @@ properties.Add("connection.provider",
 
 <p>The final implementation for all my tests looks like this:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ActiveRecordInMemoryTestBase
 {
     public ActiveRecordInMemoryTestBase()
@@ -104,7 +104,7 @@ public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.Dri
 
 <p>So a database dependant unit test would look like this:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class DatabaseTest : ActiveRecordInMemoryTestBase
 {
 	[Fact]

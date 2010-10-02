@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>In this tutorial we will look the steps necessary to create a form with Castle MonoRail that then gets sent off by email. It will touch FormsHelpers, DataBinding and using the EmailTemplateService to style and EmailSender to send a message. </p>  <p>The tutorial will probably be split into three parts:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a></li>    <li>Validation </li> </ul>  <h1>Views and Databinding</h1>  <p>I assume you already have a (maybe blank) MonoRail site running, if not you could check out <a href="http://bitbucket.org/Tigraine/tigraine-samples/changeset/d881325e46f8/">this changeset</a> on my sample-repository where the MonoRail sample app is still pristine.</p>  <h3>1 – Creating the Controller</h3>  <p>There are two components to a contact form: The form and the thanks screen.    <br />In MVC speech that means we’ll have one Index action just serving up the view, and one Thanks action doing the email sending / heavy lifting.     <br />Anyway the controller for now looks fairly simple:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ContactController : SmartDispatcherController
 {
     public void Index()
@@ -31,7 +31,7 @@ public class ContactController : SmartDispatcherController
 <p>We all know how HTML works: we could go ahead and build a nice <a href="http://www.alistapart.com/articles/prettyaccessibleforms">accessible form</a> by putting together <input type… tags there and hand-coding everything ourselves. Or we’d just rely on the MonoRail <a href="http://www.castleproject.org/monorail/documentation/trunk/helpers/form/index.html">FormsHelper</a> to provide methods to generate the inputs for us:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <form method="post" action="$UrlHelper.For("%{action='Thanks'}")">
 <fieldset>
     <legend>Contact Form</legend>
@@ -61,7 +61,7 @@ public class ContactController : SmartDispatcherController
   <br />So we create a class called <tt>ContactRequest</tt> in the <tt>Models\</tt> folder that can easily hold our form data:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 namespace MonoRail.ContactForm.Models
 {
     public class ContactRequest
@@ -82,7 +82,7 @@ namespace MonoRail.ContactForm.Models
   <br />We just need to instruct MonoRail on our action method to bind to all Query parameters starting with FormData and stuff them into our ContactRequest object. Our controller now looks like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ContactController : SmartDispatcherController
 {
     public void Index()

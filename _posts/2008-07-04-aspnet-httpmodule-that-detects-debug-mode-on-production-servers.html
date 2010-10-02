@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>So, after reading some stuff about HttpModules lately I thought it would be fun to create one myself. And, so I came up with something that might be useful in some scenarios.</p>  <p>A HttpModule that will cry foul when you try to put up a ASP.NET website with debug=&quot;true&quot; onto a production server.    <br />It is actually rather simple. Just a standard HttpModule that will check wether the request is local and wether debug is enabled. The local request check is done to make the module transparent to you while developing the app on cassini, while you'll see it instantly when you copy it over to your web server.</p>  <p>The code is rather simple:</p>
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class DebugWarner : IHttpModule
 {
 
@@ -38,7 +38,7 @@ public class DebugWarner : IHttpModule
 <p>Making this work is quite easy too, simply put the above class in your App_Code directory and add this line to your <httpModules> (or <modules> on IIS7) section:</p>
 
 <p>
-{% highlight xml linenos %}
+{% highlight xml %}
 <add name="DebugWarner" type="DebugWarner"/>
 {% endhighlight %}
 </p>

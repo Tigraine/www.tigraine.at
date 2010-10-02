@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p><a href="http://honestillusion.com/Default.aspx" target="_blank">James Curran</a> <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/#comment-3250" target="_blank">pointed me at</a> one interesting flaw with my implementation of the <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/" target="_blank">DefaultValueAttribute for MonoRail</a> I blogged about some weeks ago. This tipped me off to actually read the MonoRail code to find out how exactly MonoRail selects what overload of a ActionMethod to call.</p>  <p>MonoRail’s approach is as simple as it is brilliant, and reading the code that does this is a very pleasant experience. It took about 5 minutes to figure out the following:</p>  <p><font style="background-color: #ffffff">If there are multiple public methods in a <tt>SmartDispatcherController </tt>that match the request’s action, MonoRail calculates a score of parameter points of each overload, picking the “heaviest” and executes it.       <br /></font>How that score is calculated is quite simple: Every matched parameter gets 10 points, unmatched 0.</p>  <p><font style="background-color: #ffffff">But there’s more detail to this:</font></p>  <p><font style="background-color: #ffffff">Every regular parameter (types not defining a attribute of IParameterBinder) where the parameter-name could be matched to the request parameter’s key, MR assumes assumes a weight of 10</font></p>  <p><font style="background-color: #ffffff">In detail this means: Given the following ActionMethod with two parameters:      <br /></font></p>  <p></p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Test(string category, int page)
 {    
 }
@@ -25,7 +25,7 @@ public void Test(string category, int page)
 <p><a href="http://localhost/">/Test.rails?category=beer</a></p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Test(string category, int page)
 {    
 }
@@ -42,7 +42,7 @@ public void Test(string category)
 <p>Let’s look at a sample implementation of <tt>CalculateParamPoints</tt> of the <tt>ARFetchAttribute</tt>:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public virtual int CalculateParamPoints(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 {
 	String paramName = RequestParameterName ?? parameterInfo.Name;

@@ -9,7 +9,7 @@ categories:
 - tools
 ---
 <p>Sometimes you do something and you never really think about what you’re doing.    <br />Like the following code:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
     if (input == true)
@@ -27,7 +27,7 @@ public bool TestSomething(bool input)
 <p>It’s so obvious, I never thought about what I was really doing there, let alone seen the mistake I made. I mean, without any knowledge about boolean evaluation you still should figure out how to get rid of the bracket porn and produce something like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
     if (input == true)
@@ -42,7 +42,7 @@ public bool TestSomething(bool input)
   <br />So it boils down to:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool TestSomething(bool input)
 {
     return input;

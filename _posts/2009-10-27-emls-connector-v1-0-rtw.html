@@ -10,7 +10,7 @@ categories:
 - elmsconnector
 ---
 <p>After almost a month and 3 weeks of having the connector in production I finally feel that it’s time for a v1.0. So, here it is. <a href="http://github.com/Tigraine/elms-connector/commits/v1.0.0.0">I just pushed the v1.0 tag to GitHub</a>!</p>  <p>You can grab the release zip containing everything you need here:</p>  <p><a href="http://github.com/Tigraine/elms-connector/downloads">ELMS-Connector v1.0 RTW</a></p>  <p>Note on this release: Some of the existing code I published in my initial article is now outdated. Some refactoring (and <a href="http://github.com/Tigraine/elms-connector/commit/ed57096164341cba8329c32b3a7ddfece9b18f13">a annoying typo</a>) has gone on and I don’t have any docs ready for people trying to use this. So if you want to use ELMS-Connector on your campus, just contact me through email at <a href="mailto:tigraine@tigraine.at">tigraine@tigraine.at</a> and I’ll be glad to walk you through the setup process. Docs will follow, but at the moment I don’t feel like writing documentation for something only I am using.</p>  <p><strong>Changes since the Beta:</strong></p>  <p>1: <a href="http://www.tigraine.at/2009/10/16/elmsconnector-configurable-file-extension/">Configurable file extensions</a></p>  <p>2: Session Authentication </p>  <p><strong>Session Authentication</strong></p>  <p>The main annoyance with ELMS-Connector so far has been that whenever a User hits the MSDN-AA he has to re-authenticate himself even if he is authenticated to the source system. </p>  <p>I found a way to elegantly prevent that without breaking anything: <tt>IExtendedAuthenticationService</tt></p>  <p>While <tt>IAuthenticationService</tt> only requires you to implement one method:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 bool AuthenticateUser(string username, string password);
 
 {% endhighlight %}
@@ -18,7 +18,7 @@ bool AuthenticateUser(string username, string password);
 <p><tt>IExtendedAuthenticationService</tt> comes with another two:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public interface IExtendedAuthenticationService : IAuthenticationService
 {  
     bool IsAlreadyAuthenticated();
@@ -30,7 +30,7 @@ public interface IExtendedAuthenticationService : IAuthenticationService
 <p><tt>IsAlreadyAuthenticated</tt> should return true if the current user already has a open session, and Username should then return his current username. If you use <tt>IPrincipal</tt> in your web app this would look like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public bool IsAlreadyAuthenticated()
 {
     return HttpContext.Current.User != null && HttpContext.Current.User.Identity.IsAuthenticated;

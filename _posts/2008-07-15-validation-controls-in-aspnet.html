@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>So, yesterday I noticed something funny while doing some data-driven ASP.NET programming.</p>  <p>There are those really great Validation controls that really reduce the amount of code you need to write on average input forms.</p>  <p>So, imagine you have quite usual code like this:</p>  
-{% highlight html linenos %}
+{% highlight html %}
 <asp:TextBox runat="server" ID="MyTextbox"></asp:TextBox><br />
 <asp:RequiredFieldValidator ControlToValidate="MyTextbox" runat="server"><br />
     Textbox shouldn't be empty
@@ -19,7 +19,7 @@ categories:
 
 <p>This will result in a simple form with a textbox and a submit button. The handler code for the button looks like this:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Submit_Click(object sender, EventArgs e)
 {
     this.Title = "Hello World";
@@ -34,7 +34,7 @@ public void Submit_Click(object sender, EventArgs e)
 
 <p>So, here is the revised handler code:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Submit_Click(object sender, EventArgs e)
 {
     if (this.IsValid)

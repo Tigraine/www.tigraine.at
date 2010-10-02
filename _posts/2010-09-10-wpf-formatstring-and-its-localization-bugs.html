@@ -7,7 +7,7 @@ categories:
 - uncategorized
 ---
 <p>As some of you may know, I am from Austria. That means that I get to pay my bills in Euro and we format our decimals with a comma instead of a period (yes I know I’m weird). </p>  <p>So naturally my culture setting is de-AT and I really expect to see my decimals formatted this way: &euro; 19,99   <br />Turns out, WPF doesn’t give a damn and if you use FormatString in a binding it will just go ahead and return en-US formats!</p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <TextBox Text="{Binding Path=Model.Price, StringFormat=\{0:c\}}"/>
 
 {% endhighlight %}
@@ -17,7 +17,7 @@ categories:
 <p>For the sake of completeness here is the code you have to put in your App startup code (I’ve thrown it in my App constructor):</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 FrameworkElement.LanguageProperty.OverrideMetadata(
     typeof(FrameworkElement), 
     new FrameworkPropertyMetadata(
@@ -29,7 +29,7 @@ FrameworkElement.LanguageProperty.OverrideMetadata(
   <br />My naïve approach was to just create 4 elements and bind 2 of them to the appropriate values. As <a href="http://elegantcode.com/author/blagunas/">Brian</a> points out in his post on <a href="http://elegantcode.com/2009/04/07/wpf-stringformat-in-xaml-with-the-stringformat-attribute/">WPF StringFormat</a> you can just do stuff like this:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <TextBlock VerticalAlignment="Center" Margin="0, 0, 0, 10">
     <TextBlock.Text>
         <MultiBinding StringFormat="Showing Page {0} of {1}">

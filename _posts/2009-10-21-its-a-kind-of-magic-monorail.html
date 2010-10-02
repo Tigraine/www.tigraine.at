@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>I never cease to be amazed about <a href="http://www.castleproject.org/monorail/index.html">Castle MonoRail</a>, but this time I was really puzzled.     <br />While working on a simple CRUD page I wrote code like this:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Unlock([ARFetch("id")] Member member)
 {
     PropertyBag["member"] = member;
@@ -24,7 +24,7 @@ public void Unlock([ARFetch("id")] Member member, DateTime expiration)
 <p>My view was then just a standard form, a textfield and a submit button. </p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <form action="" method="POST">
     <ul>
         <li>

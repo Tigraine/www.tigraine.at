@@ -33,7 +33,7 @@ categories:
 <p>Add the following to your <httHandlers> section in the web.config:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 <add verb="*" path="*.elms" type="ElmsConnector.ElmsHandler, ElmsConnector"/>
 
 {% endhighlight %}
@@ -62,7 +62,7 @@ categories:
 <p>You now need to paste the ELMS CGI Connector url into the <cgiConnector> tag:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <component
   id="ElmsSessionRequestService">
   <parameters>
@@ -75,7 +75,7 @@ categories:
 <p>And you’ll have to tell ElmsConnector where to find a type servicing IAuthenticationService. This is done by modifying the type attribute on the AuthenticationService component:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <component
   id="AuthenticationService"
   service="ElmsConnector.IAuthenticatonService, ElmsConnector"

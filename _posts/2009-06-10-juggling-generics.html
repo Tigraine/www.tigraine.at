@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>I’ve spent the last two days working on true generic registrations inside <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> to enable scenarios like this:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact]
 public void CanResolveRealGenericAsSubdependency()
 {
@@ -47,7 +47,7 @@ public void CanResolveRealGenericAsSubdependency()
 <p></p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var type = typeof (string);
 Type genericType = typeof (GenericClass<>).MakeGenericType(type);
 
@@ -60,7 +60,7 @@ Type genericType = typeof (GenericClass<>).MakeGenericType(type);
 <p></p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact]
 public void ExtractGenericArgumentType()
 {

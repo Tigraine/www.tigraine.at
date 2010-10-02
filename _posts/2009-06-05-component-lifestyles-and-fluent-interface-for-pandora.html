@@ -10,7 +10,7 @@ categories:
 - projects
 ---
 <p>I just finished refactoring <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> to have a much cleaner configuration and also to enable lifestyles for certain components.</p>  <p>Until now, Pandora was not able to save one service after it’s initial activation. Every call to container.Resolve() would instantiate a new service with new dependencies etc. It may be of interest to some of you that this is the exact opposite of the default lifestyle Windsor sets for it’s components. So I obviously wanted to change that. </p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact]
 public void ActivationHappensOnlyOnceForSingletonComponents()
 {
@@ -39,7 +39,7 @@ public void ActivationHappensOnlyOnceForSingletonComponents()
   <br />So that the fluent interface would generate a value type, instead of trying to be one with all it’s faults. Doing so opened up a whole lot of new possibilities in terms of API for me, and so I ended up with a quite pleasant interface like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 store.Register(p => p.Service<IService>("db.service")
                         .Implementor<ClassWithNoDependencies>()
                         .Parameters("hello").Set("world")

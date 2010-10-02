@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>I was pretty done with the world after spending almost 2 days with xhtml/css coding for the new iC-Website. Turns out the programming gods want to teach me a lesson. Look at my Google Search log:</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2009/07/image7.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/07/image-thumb4.png" width="519" height="293" /></a> </p>  <p>What you see here is me spending almost 45 minutes on formatting a date!</p>  <p>I need to take the date and split it into 3 parts so I can stick it into the following markup:</p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <div class="date">
     <span class="day">$day</span><span class="month">$month</span>
     <hr />
@@ -21,7 +21,7 @@ categories:
 <p>I thought, hey that should be really simple, just call DateTime.ToString() and all will be well. And because it was so obvious I tried to create a macro to keep my viewcode clean. The result was:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 #macro ( dateBox $currentDate )
 #set ($day = $currentDate.Day.ToString("00") )
 #set ($month = $currentDate.Month.ToString("00") )
@@ -42,7 +42,7 @@ categories:
 <p>Perfect example:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 $DateTime.Now.Format("dd MM yyyy")
 
 {% endhighlight %}
@@ -52,7 +52,7 @@ $DateTime.Now.Format("dd MM yyyy")
 <p>Finally I ended up with this:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 #set ($day = $currentDate.ToString("dd") )
 #set ($month = $currentDate.ToString("MM") )
 #set ($year = $currentDate.ToString("yy") )

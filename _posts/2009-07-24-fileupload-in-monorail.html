@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>After a stressful week of non-computer related stuff eating up my time today I finally got around to continue some work on the imagineClub website.    <br />I approached the section of file uploads and just wanted to quickly point out an excellent post by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a> about how to properly handle file uploads with MonoRail. </p>  <blockquote>   <p><a href="http://www.kenegozi.com/blog/2008/06/28/filebinderattribute-to-ease-fileupload-in-monorail.aspx">FileBinderAttribute to ease FileUpload in MonoRail</a> – by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a></p> </blockquote>  <p>It’s really nice to see that MonoRail has File upload baked directly into the framework. It’s as easy as that:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Upload([DataBind("Document")] Document document, HttpPostedFile uploadedFile)
 {
 	if (uploadedFile != null)

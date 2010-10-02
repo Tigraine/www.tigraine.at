@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>Many people have said nasty things about the Castle MonoRail framework since ASP.NET MVC has come out. Both serve the same purpose but both frameworks are pretty different. I did/do projects in both these days, and usually all features of A are also present in B, just slightly different. </p>  <p>One thing where this isn’t true is the layout of ActionMethods in MVC:</p>  <p>In short, MonoRail can have unlimited method overloads for ActionMethods while MVC can only overload twice (once for each HttpVerb). </p>  <p>What do I mean?</p>  <p>MVC:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class HomeController : Controller
 {
     public ActionResult Index()
@@ -29,7 +29,7 @@ public class HomeController : Controller
 <p>MonoRail:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ContactController : SmartDispatcherController
 {
     public void Index()

@@ -10,7 +10,7 @@ categories:
 - testing
 ---
 <p>I brought this example up a lot on this blog, but while looking at the code of <a href="http://www.cre8ivethought.com/blog/index">Mark Nijhof</a> yesterday I noticed a rather nice solution to my ongoing problem of abstracting away System.DateTime.Now calls for testing purposes. </p>  <p>As stated before: <a href="http://www.tigraine.at/2009/03/25/tests-should-last-forever/">Don’t make your tests depend on external factors</a> like the current time or Date, and I even <a href="http://www.tigraine.at/2009/10/14/beggars-cant-be-choosers-dependency-injection-through-global-factories/">had a solution</a> until now that solved the problem rather nicely through a static factory that returns an instance to your DateProvider.     <br />Why a global factory? Simple: having your IDateProvider be a mandatory dependency on all your objects and services will quite simply clutter up your design. IDateProvider is by no means a really important dependency, and modeling it the same way as say IImportantBusinessRule would not only require you to think about that DateTimeProvider in every test that you run against your object, but also reduce the readability of your constructors dramatically. </p>  <p>What I didn’t think about when writing my IDateProvider abstraction almost a year ago was that with C# 3.5 and lambdas, passing around a function is essentially the same as using a strategy class, but with a lot less ceremony. And obviously so thought <a href="http://www.cre8ivethought.com/">Mark Nijhof</a> when he wrote <a href="http://github.com/MarkNijhof/Fohjin">Fohjin</a> (a very nice CQRS example you really should check out on GitHub). </p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public static class SystemDateTime
 {
     public static Func<DateTime> Now = () => DateTime.Now;
@@ -25,7 +25,7 @@ public static class SystemDateTime
 <p>So simple yet so elegant. In your tests you hardly have to think about this stuff, but if there is a test that depends on the date you can just go ahead and set it like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Fact]
 public void ctor_SetsDateAddedTo_CurrentDate()
 {

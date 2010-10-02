@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>Yesterday a friend asked me if I know how to make ELMAH write exceptions to a Log4Net appender.    <br />My first idea was to write a custom ErrorLog that would do that, but that’s not really possible since ELMAH must be able to retrieve errors after the fact so they can be displayed in ELMAH’s web interface. </p>  <p>Well, turns out it’s even simpler and more obvious by simply subclassing an existing ErrorLog and hook into the Log method:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/11/image.png" width="462" height="243" /> </p>  <p>Assuming you use the <tt>XmlFileErrorLog</tt> (you can use this method with all of them) you simply subclass it and put your call to Log4Net before the base.Log call:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class Log4NetErrorLog : XmlFileErrorLog
 {
     public Log4NetErrorLog(IDictionary config) : base(config)
@@ -33,7 +33,7 @@ public class Log4NetErrorLog : XmlFileErrorLog
 <p>Now the only thing you have to do is change the errorLog line in your ELMAH configuration (found in web.config) to reference your new ErrorLog subclass:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 <elmah>  
     <errorLog type="MyAssembly.Log4NetErrorLog, MyAssembly" logPath="~/App_Data" />  
 </elmah>

@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>When generics where introduced with .NET 2.0 there was a ton of 1.1 code lying around that was still built without generics. So the obvious answer by Microsoft was that most generic specialization classes can be cast to their non-generic counterparts to avoid problems for users.</p>  <p>Now, years later we have the opposite phenomenon. Few people are actually using untyped collections, so a new problem has come: What if you are looking at legacy code that has to call into new API that has no non-generic support.</p>  <p>Well, it’s simple: IEnumerator becomes IEnumerator<object> and all is well. But there is no conversion from IEnumerator to IEnumerator<object>, so you have to write your own little facades when trying to put square blocks into round holes:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class CastEnumerator<T> : IEnumerator<T>
 {
     private readonly IEnumerator enumerator;
@@ -48,7 +48,7 @@ public class CastEnumerator<T> : IEnumerator<T>
 <p>The call then looks like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public IEnumerator<T> GetEnumerator()
 {
     return new CastEnumerator<T>(untypedEnumerator);
@@ -59,7 +59,7 @@ public IEnumerator<T> GetEnumerator()
 <p>As <a href="http://www.colourcoding.net/blog/">Julian Birch</a> explained in the comments, if you are using .NET 3.5 it’s even simpler to get from an untyped IEnumerable to a IEnumerable<T> (while not technically a IEnumerator, the typed one will then return a IEnumerator<T>):</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 IEnumerable untypedEnumerable = ...;
 IEnumerable<string> typedEnumerable = untypedEnumerable.Cast<T>();
 

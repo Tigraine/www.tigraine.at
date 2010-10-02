@@ -8,7 +8,7 @@ categories:
 - testing
 ---
 <p>ASP.NET MVC was designed to be a very “clean” and testable framework for creating web applications from Microsoft. And they failed really badly in one place: HttpContext!</p>  <p>The fact that the ASP.NET MVC Contrib project has a whole project dedicated to mocking out the whole HttpContext for testing simply illustrates one point: It’s broken, period.   <br />There is this one gigantic god hash table that has 5 other hash tables hanging from it that knows everything about the incoming request. And although it’s possible to fake the whole thing with RhinoMocks (as the MVC Contrib guys do it), it’s still a pretty stupid idea to have all those concerns in one class called “context” (and accessible to the controller code).     <br />So, although the HttpContextBase is already an abstraction of the real context, I wanted to extract those things into specialized service classes that I have full control over (and that could then be used for even more specialized classes that handle data retrieval, thus making “magic strings” go away when dealing with requests and sessions).</p>  <p>I set out to create a request service class that follows a very simple Interface:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public interface IRequestService
 {
     string GetRequestField(string fieldName);
@@ -24,7 +24,7 @@ public interface IRequestService
   <br />So I simply pass the object creation off to Windsor in the CreateController method:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class ControllerFactory : IControllerFactory
 {
     private WindsorContainer container = new WindsorContainer(
@@ -51,7 +51,7 @@ public class ControllerFactory : IControllerFactory
 <p>What then took ages for me to figure out was how to instruct Windsor to use current HttpContext.Request object. Turns out, I was searching in the wrong place: That functionality is in MicroKernel and not in the Windsor container.</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public IController CreateController(RequestContext requestContext, string controllerName)
 {
     container.Kernel.AddComponentInstance<HttpRequestBase>(typeof (HttpRequestBase),

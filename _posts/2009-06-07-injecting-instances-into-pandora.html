@@ -10,7 +10,7 @@ categories:
 - projects
 ---
 <p>There are times when your services depend on an object you can’t construct yourself. One obvious example being the HttpContext in most ASP.NET applications.</p>  <p>So all DI containers have some way to inject an instance into the container to cover that. <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> has joined them yesterday. It’s baked into the fluent interface and the ComponentStore:</p>  <p>Fluent:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var store = new ComponentStore();
             var instance = new ClassWithNoDependencies();
             store.Register(p => p.Service<IService>("test")
@@ -21,7 +21,7 @@ var store = new ComponentStore();
 <p>Conventional:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var store = new ComponentStore();
             var instance = new ClassWithNoDependencies();
             store.AddInstance<IService>(instance);

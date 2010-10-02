@@ -10,7 +10,7 @@ categories:
 - elmsconnector
 ---
 <p>Seriously, nothing makes you more aware of problems with your stuff than <a href="http://en.wikipedia.org/wiki/Dogfooding">dogfooding</a>! I’ve been busy all day trying to get the new <a href="http://www.imagineclub.at/">imagineClub website</a> out of the door (yes we finally launched!) and just when I thought I had everything nailed one thing about ElmsConnector made me panic:</p>  <p>IIS6 is not passing *.elms requests on to the ASP.NET pipeline, so ElmsConnector was <u>never</u> called.</p>  <p>To fix this you need to have access to the server configuration and change that through IIS Manager. Since we (and I guess many other people) are on a shared host we could not do that, and so I had to change all paths to *.axd on short notice. </p>  <p>But, I felt like *.axd may also not work for everyone, so I decided to just make that an optional setting through the <tt>elms.xml:</tt></p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <component id="FileExtensionProvider">
   <parameters>
     <extension>ashx</extension>
@@ -26,7 +26,7 @@ categories:
   <br />Make sure that you include the $EXTENSION$ placeholder into your form action:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <form method="post" action="VerifyUser.$EXTENSION$">
 
 {% endhighlight %}

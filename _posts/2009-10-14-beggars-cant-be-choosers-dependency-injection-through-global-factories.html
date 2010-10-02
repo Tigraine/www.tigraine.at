@@ -9,7 +9,7 @@ categories:
 - testing
 ---
 <p>Whenever you listen to testability talks you usually take away one universal truth:</p>  <blockquote>   <p><strong>Global state is bad, singletons are essentially global state. </strong></p> </blockquote>  <p>So, if you want to have it done right, use dependency injection and don’t let your code depend on global state.</p>  <p>But: Sometimes it’s just not possible. My current project for example does not use dependency injection. Why? I didn’t know better and used ActiveRecord with all it’s static design. And besides, I’m just lazy and have no intention of diving into the Castle documentation to find out how to teach ActiveRecord to use an IoC container when creating entity objects. </p>  <p>And if you have no control over your constructor, your options for dependency injection are limited to two things:</p>  <p>Public fields (aka optional dependencies) and Global factories.</p>  <p><strong>Public fields</strong></p>  <p>While in theory a pretty decent method that allows you to swap out parts it falls very short once you have multiple classes that need the same service:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class Entity
 {
     public IDateProvider DateProvider { get; set; }
@@ -29,7 +29,7 @@ public class Entity
 <p>Now the words global and testability don’t go well together, but in this case it’s ok. You try to battle the DRY violation while still making your service optionally interchangeable when testing.</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class Entity
 {
     public Entity()
@@ -64,7 +64,7 @@ public class DateProviderFactory
 <p>But as long as you don’t mess that up, you can write tests like this one:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public class TestFixture
 {
     [Fact]

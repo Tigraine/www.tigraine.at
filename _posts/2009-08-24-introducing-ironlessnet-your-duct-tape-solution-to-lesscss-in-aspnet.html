@@ -9,7 +9,7 @@ categories:
 - projects
 ---
 <p>Some time ago while writing the CSS for the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/" target="_blank">ImagineClub website</a> I found out the hard way that there are two ways of developing XHTML sites: Clean presentation/markup separation or mixing of the both to achieve CSS reusability. </p>  <p>What I mean by mixing is markup code like the following:</p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <div class="floated thick-border highlight">
 	<p>Stuff</p>
 </div>
@@ -54,7 +54,7 @@ categories:
 <p>web.config</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <add verb="*" path="*.less" type="IronLess.Wrapper.IronLessHandler, IronLess.Wrapper" validate="false"/>
 
 {% endhighlight %}
@@ -62,7 +62,7 @@ categories:
 <p>Global.asax:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 protected void Application_Start()
 {
     IronLess.Wrapper.RubyEngine.Initialize(Context);

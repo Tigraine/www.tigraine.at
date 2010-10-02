@@ -9,7 +9,7 @@ categories:
 - programmierung
 ---
 <p>MonoRail and ASP.NET MVC while being very different both almost mirror their features. Few things are impossible in one of both and the only really major difference between those two is that MonoRail comes packed with a suggested data access strategy: ActiveRecord. </p>  <p>This pre-packing is completely optional, it’s very easy to implement whatever data access logic you like, but if you choose ActiveRecord you’ll benefit from some nice things like the <tt>ARFetch </tt>attribute.</p>  <p>See this action method and judge for yourself:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void Detail([ARFetch("Id")] NewsPost post)
 {
     PropertyBag["post"] = post;

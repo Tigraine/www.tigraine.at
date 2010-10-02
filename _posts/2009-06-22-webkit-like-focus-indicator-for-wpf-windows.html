@@ -9,7 +9,7 @@ categories:
 - wpf
 ---
 <p>If you like Chrome/Safari or not, one thing that both have and all others lack is a good focus indicator that graphically shows me where my focus currently is. Jeff Atwood wrote something interesting on the topic of <a href="http://www.codinghorror.com/blog/archives/001055.html">Where the Heck is My Focus</a>:</p>  <blockquote>   <p>But even if developers do remember to test for basic keyboard behavior, there's a deeper problem here. <b>Keyboard navigation relies heavily on the focus.</b> In order to move from one area to the next, you have to be able to reliably know where you are. Unfortunately, <b>web browsers make it needlessly difficult to tell where the focus is</b>.</p> </blockquote>  <p>I believe he not only has a valid point here, but also that his criticism this should not be limited to web browsers. Most if not all Windows applications do this thing badly, and it’s up to us developers to fix it.</p>  <p>So, I decided to try to put my recent WPF research to good use and tried to implement a small class that applies/removes a WebKit like focus caret:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image4.png" width="300" height="145" /> </p>  <p>The whole implementation is completely encapsulated inside a class named <a href="http://bitbucket.org/Tigraine/tigraine-samples/src/tip/WebkitInputs/WebkitFocusEffect.cs">WebkitFocusEffect</a> that only needs to be initialized during your window construction:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public Window1()
 {
     InitializeComponent();
@@ -28,7 +28,7 @@ public Window1()
 <p>WPF introduced a cool concept called RoutedEvents, meaning that an Event like GotFocus/LostFocus will travel through the object model to the point where it gets handled and stops there. This technique is important because, unlike Windows Forms, WPF controls can contain other UIElements. This gives you far more control over the look and feel of your application, allowing for crazy things like a button with a image instead of text:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <Button Width="100">
     <Image Source="http://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Smiley.svg/100px-Smiley.svg.png"></Image>
 </Button>
@@ -50,7 +50,7 @@ public Window1()
 <p>The handler then just unwraps the event’s source object (the source of the RoutedEvent gets passed along through the RoutedEventArgs parameter) and modifies it’s Effect property:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 protected virtual void WindowGotFocus(object sender, RoutedEventArgs e)
 {
     try
@@ -76,7 +76,7 @@ protected virtual void WindowGotFocus(object sender, RoutedEventArgs e)
 <p>One problem still remained: RoutedEvents can stop bubbling if they get handled at a lower level. This is how the button stops the image’s click event from spreading to it’s parent element, therefore containing it. So if you set an RoutedEventArgs.Handled property to true, it will stop bubbling up the tree:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 private void LoginButton_GotFocus(object sender, RoutedEventArgs e)
 {
     //This Event was handled and will not call Window's GotHandled eventhandler
@@ -89,7 +89,7 @@ private void LoginButton_GotFocus(object sender, RoutedEventArgs e)
 <p>Cool though is that RoutedEvents can’t really be stopped from bubbling, they do so anyway. Handled events just don’t invoke any event handlers up the tree any more, and that can be overridden explicitly when subscribing to the event:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 window.AddHandler(UIElement.GotFocusEvent, new RoutedEventHandler(WindowGotFocus), true);
 
 {% endhighlight %}

@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>Object initializers got introduced into C# as part of .NET 3.5 and allow you to define properties through a nice concise syntax that makes code easier to read. Here’s an example:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var daniel = new User()
                     {
                         Username = "Tigraine",
@@ -21,7 +21,7 @@ var daniel = new User()
 <p>In a .NET 2.0 environment the above code would have looked like this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var daniel = new User();
 daniel.Username = "Tigraine";
 daniel.Age = 25;
@@ -32,7 +32,7 @@ daniel.Email = "tigraine@tigraine.at";
 <p>The funny thing here is that the .NET 2 code is not thread safe. If daniel is a public field or static field anywhere, the scheduler could interrupt the Thread right after setting the age, leaving you with an empty email field. This is also the reason why I’d call object initializers expressions: Expressions do by definition yield a value. And if we look at the code the compiler generates for an object initializer you will see this:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 User <>g__initLocal0 = new User();
 <>g__initLocal0.Username = "Tigraine";
 <>g__initLocal0.Age = 0x19;
@@ -48,7 +48,7 @@ User daniel = <>g__initLocal0;
 <p>Well, rewrite it a bit and you get a expression:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 Func<User> expr = () =>
                     {
                         var user = new User();

@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>In an ongoing effort to get into NVelocity while programming the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/">iC-Website</a> I wanted to concatenate a filename with the current loop count variable:</p>  
-{% highlight xml linenos %}
+{% highlight xml %}
 <img src="/Content/images/dummy$velocityCount.png" alt="post-image" />
 
 {% endhighlight %}
@@ -18,7 +18,7 @@ categories:
   <br />I suspected it could be solved somehow by using our beloved angle bracket to tell NV to explicitly evaluate my text:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <img src="/Content/images/dummy{$velocityCount}.png" alt="post-image" />
 
 {% endhighlight %}
@@ -26,7 +26,7 @@ categories:
 <p>This will result is <em>dummy{1}.png</em>, why is beyond me but NV will parse it. Still this doesn’t really work so I found the solution on how to explicitly invoke NV evaluation in the NV users guide:</p>
 
 
-{% highlight xml linenos %}
+{% highlight xml %}
 <img src="/Content/images/dummy${velocityCount}.png" alt="post-image" />
 
 {% endhighlight %}

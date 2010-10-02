@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p>Since the dotless 1.1 release we are finally able to present you with good error messages, telling you what line/column the problem was encountered etc. This has led to some tests like this one:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public void DivisionByZero()
 {
     AssertExpressionError("Attempted to divide by zero.", 5, "20px / 0");
@@ -27,7 +27,7 @@ public void DivisionByZero()
 <p>The obvious solution then was to not hard-code the exception message but retrieve it from the DivideByZeroException:</p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Test]
 public void DivisionByZero()
 {

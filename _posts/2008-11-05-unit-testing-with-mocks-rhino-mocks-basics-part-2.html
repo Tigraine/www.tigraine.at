@@ -18,7 +18,7 @@ categories:
 ---
 <p><em>In </em><a href="http://www.tigraine.at/2008/11/04/unit-testing-with-mocks-part-1/"><em>Part1</em></a><em> of this series I have showed you how to create a very simple mock object by hand. In this post I will show you how to use <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> to create the mock and how to verify this. This post is intended as basic advice, and won’t cover any advanced <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> topics, just the basic setup/replay/verify steps.</em></p>  <p>When working with almost any mock framework there are 3 things: Setup, expectation recording and verifying that the expectations where met.    <br />That means, first you tell the mock object what calls to expect. Then you let the method under test do it’s magic and afterwards you let the mock verify that all expected calls where made.     <br />You can get very precise on what to expect and how to expect it, but that will be covered in the next part of this series.</p>  <p>The <a href="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk/RhinoMockBasics/NotifierMock.cs">hand-made mock from Part1</a> would translate to a test like this when using RhinoMocks:</p>  
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 [Test]
 public void ServiceWatcherNotifiesUser()
 {
@@ -39,7 +39,7 @@ public void ServiceWatcherNotifiesUser()
 <p>The main things here: 
   <br />We start the repository and then request a IErrorNotifier object from it.</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var repository = new MockRepository();
 var notifier = repository.StrictMock<IErrorNotifier>();
 {% endhighlight %}
@@ -49,7 +49,7 @@ var notifier = repository.StrictMock<IErrorNotifier>();
 
 <p></p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 notifier.NotifyOfServiceDown()
 {% endhighlight %}
 
@@ -57,7 +57,7 @@ notifier.NotifyOfServiceDown()
 
 <p>After having set up all expectations in record mode, we tell the Mockrepository to go to replay mode:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 repository.ReplayAll();
 {% endhighlight %}
 
@@ -67,7 +67,7 @@ repository.ReplayAll();
 
 <p>Now we construct the object under test:</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 var watcher = new HttpServiceWatcher(notifier);
 {% endhighlight %}
 
@@ -76,7 +76,7 @@ var watcher = new HttpServiceWatcher(notifier);
 
 <p></p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 watcher.ObserveService();
 {% endhighlight %}
 
@@ -84,7 +84,7 @@ watcher.ObserveService();
 
 <p>That leaves us with only one step left, we tell the repository to verify all mocks that where created and it will throw Exceptions if mocks didn’t get called or did get called too often.</p>
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 repository.VerifyAll();
 {% endhighlight %}
 

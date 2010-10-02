@@ -8,7 +8,7 @@ categories:
 - programmierung
 ---
 <p><a href="http://bradwilson.typepad.com/">Brad Wilson</a> left me an inspiring comment on my <a href="http://www.tigraine.at/2009/06/06/good-ideas-worth-spreading-guards/">post about his Guard class</a> that I immediately tried out:</p>  <blockquote>   <p>If you target 3.5, you could write a guard which used expressions, and then you could evaluate the expression in order to fill things out. Unfortunately, the syntax ends up a little wonky, but at least you’re not repeating yourself:</p>    <p>Guard.ArgumentNotNull(() => username);</p>    <p>You could also do the same thing with complex expressions:</p>    <p>Guard.Precondition(() => username.Length > 10);</p>    <p>and when you throw the exception, it can even contain the actual condition code, extracted from the expression.</p> </blockquote>  <p>I went off to implement this using an Expression and ended up with the following ArgumentNotNull method:</p>  
-{% highlight csharp linenos %}
+{% highlight csharp %}
 public static void ArgumentNotNull(Expression<Func<object>> action)
 {
     var result = action.Compile()();
@@ -28,7 +28,7 @@ public static void ArgumentNotNull(Expression<Func<object>> action)
 <p></p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -102,7 +102,7 @@ public class Program
 <p></p>
 
 
-{% highlight csharp linenos %}
+{% highlight csharp %}
 Guard.ArgumentNotNull("$parametername$", $parametername$);
 $END$
 
