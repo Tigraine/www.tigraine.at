@@ -1,4 +1,4 @@
-.highlight  { background: #ffffff; border: 1px solid #E7E5DC; font-family: Consolas, 'Courier New', Courier, mono, serif; }
+.highlight  { background: #ffffff; border: 1px solid #E7E5DC; font-family: Consolas, 'Courier New', Courier, mono, serif; font-size: 12px }
 .highlight pre { margin: 0px; }
 .highlight .lineno { 
 	background: #E7E5DC; 
