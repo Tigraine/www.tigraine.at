@@ -8,16 +8,14 @@ categories:
 - castle
 - programmierung
 ---
-<p>This is part 2 of a 3 part tutorial on writing a databound contact form with Castle Monorail that gets sent off by email. We already touched FormHelpers and DataBinding in <a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Part1: Views and Databinding</a>, now we’ll see how easy it is to send a email template with MonoRail.</p>  <p>The other parts of this tutorial:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a> </li>    <li>Validation </li> </ul>  <h1>Sending Emails</h1>  <p>We left off with a <tt>Thanks</tt> controller method that gets a ContactRequest parameter and now should send off the data by email. </p>  <h3>1 – Configuring our Servers</h3>  <p>Anything involving emails usually requires a SMTP server. The same thing goes for MonoRail, yet MR will default the SMTPServer setting to <tt>127.0.0.1</tt> if you don’t explicitly configure it through your <tt>web.config</tt>. Unfortunately for me I don’t have a SMTP server sitting on my box, so I had to change that setting through the monorail configuration node inside our web.config:</p>  <p></p>  
-{% highlight csharp %}
-<monorail smtpHost="smtp.server.com">
-  <controllers>
-	  <assembly>MonoRail.ContactForm</assembly>
-  </controllers>
-  .
-  .
-
-{% endhighlight %}
+<p>This is part 2 of a 3 part tutorial on writing a databound contact form with Castle Monorail that gets sent off by email. We already touched FormHelpers and DataBinding in <a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Part1: Views and Databinding</a>, now we’ll see how easy it is to send a email template with MonoRail.</p>  <p>The other parts of this tutorial:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a> </li>    <li>Validation </li> </ul>  <h1>Sending Emails</h1>  <p>We left off with a <tt>Thanks</tt> controller method that gets a ContactRequest parameter and now should send off the data by email. </p>  <h3>1 – Configuring our Servers</h3>  <p>Anything involving emails usually requires a SMTP server. The same thing goes for MonoRail, yet MR will default the SMTPServer setting to <tt>127.0.0.1</tt> if you don’t explicitly configure it through your <tt>web.config</tt>. Unfortunately for me I don’t have a SMTP server sitting on my box, so I had to change that setting through the monorail configuration node inside our web.config:</p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:98a93a66-1f10-4d5b-bfcf-38cfaa484ce9" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+&lt;monorail smtpHost="smtp.server.com"&gt;
+&#160;&#160;&lt;controllers&gt;
+	&#160;&#160;&lt;assembly&gt;MonoRail.ContactForm&lt;/assembly&gt;
+&#160;&#160;&lt;/controllers&gt;
+&#160;&#160;.
+&#160;&#160;.
+</pre></div>
 
 <p>You can optionally also optionally configure <tt>smtpPort</tt>, <tt>smtpUsername</tt> and <tt>smtpPassword</tt>.</p>
 
@@ -25,21 +23,19 @@ categories:
 
 <p>We’ll jump ahead a bit and send a email message right away to verify that our settings so far have been working. Sending emails is as simple as calling the <tt>DeliverEmail</tt> method from within our <tt>Thanks</tt> controller action:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6df74c77-b1a9-431b-8289-d5037d6fe718" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public void Thanks([DataBind("FormData")] ContactRequest request)
 {
-    var message = new Message
-                      {
-                          To = "tigraine@tigraine.at",
-                          From = "tigraine@tigraine.at",
-                          Subject = "Hello World",
-                          Body = "My first message"
-                      };
-    DeliverEmail(message);
+&#160;&#160;&#160;&#160;var message = new Message
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;To = "tigraine@tigraine.at",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;From = "tigraine@tigraine.at",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Subject = "Hello World",
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Body = "My first message"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
+&#160;&#160;&#160;&#160;DeliverEmail(message);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>It’s really that easy.</p>
 
@@ -51,16 +47,14 @@ public void Thanks([DataBind("FormData")] ContactRequest request)
 
   <br />For this simple tutorial I chose not to use a layout, so I pass in null. Also make sure you cast your Dictionary to the non-generic IDictionary since there is a <a href="http://groups.google.com/group/castle-project-devel/browse_thread/thread/8f2c7af8cee46c5f?hl=en">little bug with the generic IDictionary</a> overload.</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:1476f64f-9619-433e-baf7-845be996e583" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public void Thanks([DataBind("FormData")] ContactRequest request)
 {
-    var parameters = new Dictionary<string, object>{{"request", request}};
-    var message = RenderMailMessage("contact", null, (IDictionary)parameters);
-    DeliverEmail(message);
+&#160;&#160;&#160;&#160;var parameters = new Dictionary&lt;string, object&gt;{{"request", request}};
+&#160;&#160;&#160;&#160;var message = RenderMailMessage("contact", null, (IDictionary)parameters);
+&#160;&#160;&#160;&#160;DeliverEmail(message);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p></p>
 
@@ -70,8 +64,7 @@ public void Thanks([DataBind("FormData")] ContactRequest request)
 
 <p>To do so we need our view to look like this: </p>
 
-
-{% highlight xml %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6e8e35c3-23cf-4425-93c6-8f207a4bd703" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
 to: tigraine@tigraine.at
 from: $request.Email
 subject: $request.Subject
@@ -80,8 +73,7 @@ This is where the body starts
 Message from $request.Name
 
 $request.Text
-
-{% endhighlight %}
+</pre></div>
 
 <p>MonoRail will extract the information from the to: from: fields and use them to send the message. The above also uses the parameters we passed in to render. <tt>$request</tt> here refers to the object passed into our dictionary with name <tt>request</tt>.</p>
 
@@ -101,72 +93,64 @@ $request.Text
 
 <p>We’ll begin by making our testclass derive from <tt>BaseControllerTest</tt>, a class inside the <tt>Castle.MonoRail.TestSupport</tt> assembly that is used to facilitate testing.</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:88c0d712-04e7-4678-a9ce-64cdd86b2740" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class ContactBehaviorTest : BaseControllerTest
 {
-    
+&#160;&#160;&#160;&#160;
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>This provides us with a neat little function that allows us to sandbox our controller called <tt>PrepareController</tt>.</p>
 
 <p>Testing that a message has been rendered through the template engine would therefore look like this:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:84f165e5-f3ca-4d00-bb8f-efc4765256c5" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [Fact]
 public void Thanks_RendersTemplatedEmail()
 {
-    var controller = new ContactController();
-    PrepareController(controller);
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
 
-    controller.Thanks(null);
+&#160;&#160;&#160;&#160;controller.Thanks(null);
 
-    Assert.True(HasRenderedEmailTemplateNamed("contact"));
+&#160;&#160;&#160;&#160;Assert.True(HasRenderedEmailTemplateNamed("contact"));
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>This test merely verifies that a template was rendered, but we probably want to verify that the view gets passed the correct arguments:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3770f67f-ac1d-4e0a-826b-9a53be9b044e" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [Fact]
 public void Thanks_MailRendering_ParametersGetPassed()
 {
-    var controller = new ContactController();
-    PrepareController(controller);
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
 
-    var request = new ContactRequest();
-    controller.Thanks(request);
+&#160;&#160;&#160;&#160;var request = new ContactRequest();
+&#160;&#160;&#160;&#160;controller.Thanks(request);
 
-    var parameters = RenderedEmailTemplates[0].Parameters["request"];
-    Assert.Same(request, parameters);
+&#160;&#160;&#160;&#160;var parameters = RenderedEmailTemplates[0].Parameters["request"];
+&#160;&#160;&#160;&#160;Assert.Same(request, parameters);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>We now have verified that the “request” parameter object is indeed the one passed into the action method. This is not perfect since we’d just want to verify that the correct values get passed around, not references. But for this tutorial this will suffice. </p>
 
 <p>Next on our checklist should be the fact that the created message is indeed sent off. We do so by using the <tt>StubEngineContext</tt> our <tt>BaseControllerTest</tt> provides us with:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b6b9e5da-bd4f-4119-a0f8-2316828e576f" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [Fact]
 public void Thanks_EmailSending_SendsOutOneEmail()
 {
-    var controller = new ContactController();
-    PrepareController(controller);
-    var context = (StubEngineContext)Context;
+&#160;&#160;&#160;&#160;var controller = new ContactController();
+&#160;&#160;&#160;&#160;PrepareController(controller);
+&#160;&#160;&#160;&#160;var context = (StubEngineContext)Context;
 
-    controller.Thanks(new ContactRequest());
+&#160;&#160;&#160;&#160;controller.Thanks(new ContactRequest());
 
-    Assert.Equal(1, context.MessagesSent.Count);
+&#160;&#160;&#160;&#160;Assert.Equal(1, context.MessagesSent.Count);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>This now simply verifies that we did indeed send a mail message.</p>
 

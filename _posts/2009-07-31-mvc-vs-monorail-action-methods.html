@@ -8,49 +8,45 @@ categories:
 - castle
 - programmierung
 ---
-<p>Many people have said nasty things about the Castle MonoRail framework since ASP.NET MVC has come out. Both serve the same purpose but both frameworks are pretty different. I did/do projects in both these days, and usually all features of A are also present in B, just slightly different. </p>  <p>One thing where this isn’t true is the layout of ActionMethods in MVC:</p>  <p>In short, MonoRail can have unlimited method overloads for ActionMethods while MVC can only overload twice (once for each HttpVerb). </p>  <p>What do I mean?</p>  <p>MVC:</p>  
-{% highlight csharp %}
+<p>Many people have said nasty things about the Castle MonoRail framework since ASP.NET MVC has come out. Both serve the same purpose but both frameworks are pretty different. I did/do projects in both these days, and usually all features of A are also present in B, just slightly different. </p>  <p>One thing where this isn’t true is the layout of ActionMethods in MVC:</p>  <p>In short, MonoRail can have unlimited method overloads for ActionMethods while MVC can only overload twice (once for each HttpVerb). </p>  <p>What do I mean?</p>  <p>MVC:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c76a91dc-46e8-4fde-bd10-3d0879fe7f46" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class HomeController : Controller
 {
-    public ActionResult Index()
-    {
-        return View();
-    }
+&#160;&#160;&#160;&#160;public ActionResult Index()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return View();
+&#160;&#160;&#160;&#160;}
 
-    [AcceptVerbs(HttpVerbs.Post)]
-    public ActionResult Index(int id)
-    {
-        return View();
-    }
+&#160;&#160;&#160;&#160;[AcceptVerbs(HttpVerbs.Post)]
+&#160;&#160;&#160;&#160;public ActionResult Index(int id)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return View();
+&#160;&#160;&#160;&#160;}
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>MonoRail:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3392e32c-3548-4c97-bfb0-e1d9902dc228" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public class ContactController : SmartDispatcherController
 {
-    public void Index()
-    {
-        
-    }
+&#160;&#160;&#160;&#160;public void Index()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+&#160;&#160;&#160;&#160;}
 
-    public void Index(int id)
-    {
-        
-    }
+&#160;&#160;&#160;&#160;public void Index(int id)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+&#160;&#160;&#160;&#160;}
 
-    public void Index(int id, string name)
-    {
-        
-    }
+&#160;&#160;&#160;&#160;public void Index(int id, string name)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+&#160;&#160;&#160;&#160;}
 }
+</pre></div>
 
-{% endhighlight %}
-
-<p>You can see clearly, MonoRail as a framework is much smarter about what action method it will invoke. Based on what parameters you supply it will pick the best match.  <br />MVC will simply use reflection to invoke any method with that name that matches the <tt>HttpVerb</tt>, so once you remove the <tt>AcceptVerbs </tt>attribute MVC will break with a <tt>AmbiguousMatchException</tt>.</p>
+<p>You can see clearly, MonoRail as a framework is much smarter about what action method it will invoke. Based on what parameters you supply it will pick the best match.&#160; <br />MVC will simply use reflection to invoke any method with that name that matches the <tt>HttpVerb</tt>, so once you remove the <tt>AcceptVerbs </tt>attribute MVC will break with a <tt>AmbiguousMatchException</tt>.</p>
 
 <h4>MVC vs MonoRail</h4>
 

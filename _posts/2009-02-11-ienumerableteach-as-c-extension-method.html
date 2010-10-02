@@ -1,77 +1,67 @@
 ---
 layout: post
-title: "IEnumerable<T>.Each as C# Extension Method"
+title: "IEnumerable&lt;T&gt;.Each as C# Extension Method"
 guid: http://www.tigraine.at/2009/02/11/ienumerableteach-as-c-extension-method/
 postid: 472
 categories:
 - net
 - programmierung
 ---
-<p>A very long time ago I went through the Ruby in 20 minutes tutorial when I saw this: </p>  
-{% highlight ruby %}
+<p>A very long time ago I went through the Ruby in 20 minutes tutorial when I saw this: </p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08b141a0-8a16-41cf-8459-554d8588a0a7" class="wlWriterEditableSmartContent"><pre name="code" class="ruby">
 @names.each do |name|
-  puts "Hallo, #{name}!"
+&#160;&#160;puts "Hallo, #{name}!"
 end
+</pre></div>
 
-{% endhighlight %}
-
-<p>When C# came out later I always wondered why there is no functional equivalent on the IEnumerable<T> interface, since it would be a perfect place for quick inline method calls without having to write a full foreach statement.</p>
+<p>When C# came out later I always wondered why there is no functional equivalent on the IEnumerable&lt;T&gt; interface, since it would be a perfect place for quick inline method calls without having to write a full foreach statement.</p>
 
 <p>At that time my knowledge of extension methods and delegates was too limited to do this myself, but that doesn’t mean it has to stay that way. 
   <br />I finally remembered that I never got to it last time and implemented it today.</p>
 
 <p>Oh and it’s so damn easy too:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:622542ae-761b-46c0-9a85-6671f60f9f04" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public static class EachExtension
 {
-    public static void Each<T>(this IEnumerable<T> enumberable, Action<T> action)
-    {
-        foreach (var item in enumberable)
-        {
-            action(item);
-        }
-    }
+&#160;&#160;&#160;&#160;public static void Each&lt;T&gt;(this IEnumerable&lt;T&gt; enumberable, Action&lt;T&gt; action)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;foreach (var item in enumberable)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;action(item);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>To use this .Each method now you simply need to be using the Namespace where the EachExtension is in and you can write code like this:</p>
 
 <p>
-  
-{% highlight csharp %}
-IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
+  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:16ab6778-ade7-4328-9e1f-c72d2c3a8735" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+IEnumerable&lt;string&gt; x = new[] {"hello", "world", "how", "are", "you"};
 x.Each(Console.WriteLine);
-
-{% endhighlight %}
+</pre></div>
 </p>
 
 <p>Or with multiple parameters:</p>
 
 <p>
-  
-{% highlight csharp %}
-IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
-x.Each(p => Console.WriteLine("{0}", p));
-
-{% endhighlight %}
+  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e6a4de4a-b729-41c0-b6d5-4759484a9c79" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+IEnumerable&lt;string&gt; x = new[] {"hello", "world", "how", "are", "you"};
+x.Each(p =&gt; Console.WriteLine("{0}", p));
+</pre></div>
 </p>
 
 <p>Or, even whole inline method bodies:</p>
 
 <p>
-  
-{% highlight csharp %}
-IEnumerable<string> x = new[] {"hello", "world", "how", "are", "you"};
-x.Each(p =>
-           {
-               Console.Write("Word:");
-               Console.WriteLine(p);
-           });
-
-{% endhighlight %}
+  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:be6ac2dc-55eb-41f4-bf02-287da6394ad9" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+IEnumerable&lt;string&gt; x = new[] {"hello", "world", "how", "are", "you"};
+x.Each(p =&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Console.Write("Word:");
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Console.WriteLine(p);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; });
+</pre></div>
 </p>
 
 <p>So, Lambdas are fun after all :)</p>

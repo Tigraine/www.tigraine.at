@@ -8,15 +8,13 @@ categories:
 - castle
 - programmierung
 ---
-<blockquote>   <p><strong><u>Important</u></strong>: Most of the information in this post about outdated MonoRail docs is now also outdated since I submitted a patch to the castle documentation project to fix the issues raised in this post. </p> </blockquote>  <p>Yesterday I decided to build a website with Castle.Monorail to learn another take on the MVC (besides the Microsoft one). Since the last official release of Monorail is quite outdated I just compiled the trunk version to start from the current release. </p>  <p>Doing so is very simple, just do a:</p>  <blockquote>   <p>svn checkout <a title="http://svn.castleproject.org:8080/svn/castle/trunk" href="http://svn.castleproject.org:8080/svn/castle/trunk">http://svn.castleproject.org:8080/svn/castle/trunk</a></p> </blockquote>  <p>Some time ago Roelof Blom made an effort to make the build more user-friendly, so you don’t need any tools installed besides .NET to compile all castle assemblies. Just run ClickToBuild.cmd and it will invoke nant (also in SVN) etc, run a complete compile of all projects and place the output in </p>  <blockquote>   <p><font style="background-color: #ffffff">build\net-3.5\release</font></p> </blockquote>  <p>(Did I mention this is awesome? Building the trunk before was a nightmare!)</p>  <p>I then followed the Monorail <a href="http://www.castleproject.org/monorail/gettingstarted/index.html">getting-started samples</a> from the website and was quite frustrated with how outdated that documentation really is.</p>  <p>Please read through the original documentation as it usually still applies, I’ll just list the things that I had to adapt for the trunk version to work:</p>  <p><a href="http://www.castleproject.org/monorail/gettingstarted/creatingproject.html"><strong>Creating the Project Sceleton:</strong></a></p>  <p><strong>Registering Assemblies:</strong></p>  <p>The list of assemblies to register is pretty outdated, I failed because <a href="http://groups.google.com/group/castle-project-users/browse_thread/thread/8d314658f923049?hl=en">I didn’t reference the DictionaryAdapter</a>.     <br />Instead you need to reference:</p>  <ol>   <li>Castle.Components.Binder.dll </li>    <li>Castle.Components.Common.EmailSender.dll </li>    <li>Castle.Components.DictionaryAdapter.dll </li>    <li>Castle.Components.Validator.dll </li>    <li>Castle.Core.dll </li>    <li>Castle.MonoRail.Framework.dll </li>    <li>Castle.MonoRail.Framework.Views.NVelocity.dll </li>    <li>NVelocity.dll </li> </ol>  <p><strong>HttpModule registration</strong></p>  <p>Register the HttpModule is no longer needed. If you try to add </p>  
-{% highlight xml %}
-<httpModules>
-  <add
-      name="monorail"
-      type="Castle.MonoRail.Framework.EngineContextModule, Castle.MonoRail.Framework" />
-</httpModules>
-
-{% endhighlight %}
+<blockquote>   <p><strong><u>Important</u></strong>: Most of the information in this post about outdated MonoRail docs is now also outdated since I submitted a patch to the castle documentation project to fix the issues raised in this post. </p> </blockquote>  <p>Yesterday I decided to build a website with Castle.Monorail to learn another take on the MVC (besides the Microsoft one). Since the last official release of Monorail is quite outdated I just compiled the trunk version to start from the current release. </p>  <p>Doing so is very simple, just do a:</p>  <blockquote>   <p>svn checkout <a title="http://svn.castleproject.org:8080/svn/castle/trunk" href="http://svn.castleproject.org:8080/svn/castle/trunk">http://svn.castleproject.org:8080/svn/castle/trunk</a></p> </blockquote>  <p>Some time ago Roelof Blom made an effort to make the build more user-friendly, so you don’t need any tools installed besides .NET to compile all castle assemblies. Just run ClickToBuild.cmd and it will invoke nant (also in SVN) etc, run a complete compile of all projects and place the output in </p>  <blockquote>   <p><font style="background-color: #ffffff">build\net-3.5\release</font></p> </blockquote>  <p>(Did I mention this is awesome? Building the trunk before was a nightmare!)</p>  <p>I then followed the Monorail <a href="http://www.castleproject.org/monorail/gettingstarted/index.html">getting-started samples</a> from the website and was quite frustrated with how outdated that documentation really is.</p>  <p>Please read through the original documentation as it usually still applies, I’ll just list the things that I had to adapt for the trunk version to work:</p>  <p><a href="http://www.castleproject.org/monorail/gettingstarted/creatingproject.html"><strong>Creating the Project Sceleton:</strong></a></p>  <p><strong>Registering Assemblies:</strong></p>  <p>The list of assemblies to register is pretty outdated, I failed because <a href="http://groups.google.com/group/castle-project-users/browse_thread/thread/8d314658f923049?hl=en">I didn’t reference the DictionaryAdapter</a>.     <br />Instead you need to reference:</p>  <ol>   <li>Castle.Components.Binder.dll </li>    <li>Castle.Components.Common.EmailSender.dll </li>    <li>Castle.Components.DictionaryAdapter.dll </li>    <li>Castle.Components.Validator.dll </li>    <li>Castle.Core.dll </li>    <li>Castle.MonoRail.Framework.dll </li>    <li>Castle.MonoRail.Framework.Views.NVelocity.dll </li>    <li>NVelocity.dll </li> </ol>  <p><strong>HttpModule registration</strong></p>  <p>Register the HttpModule is no longer needed. If you try to add </p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:d53861c2-2a1e-4516-9bfa-e35ddecd6669" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;httpModules&gt;
+&#160;&#160;&lt;add
+&#160;&#160;&#160;&#160;&#160;&#160;name="monorail"
+&#160;&#160;&#160;&#160;&#160;&#160;type="Castle.MonoRail.Framework.EngineContextModule, Castle.MonoRail.Framework" /&gt;
+&lt;/httpModules&gt;
+</pre></div>
 
 <p>to your config things will break. The EngineContextModule has disappeared from the source and is no longer needed.</p>
 
@@ -32,26 +30,24 @@ categories:
 
 <p>That’s all as for now, I decided to not go with a “real” database like MsSql during development but to go against a SqlLite database. To do so I changed the AR configuration to this:</p>
 
-
-{% highlight csharp %}
-<activerecord isWeb="true">
-  <config>
-    <add
-        key="connection.driver_class"
-        value="NHibernate.Driver.SQLite20Driver" />
-    <add
-        key="dialect"
-        value="NHibernate.Dialect.SQLiteDialect" />
-    <add
-        key="connection.provider"
-        value="NHibernate.Connection.DriverConnectionProvider" />
-    <add
-        key="connection.connection_string"
-        value="Data Source=nhibernate.db3;Version=3" />
-  </config>
-</activerecord>
-
-{% endhighlight %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:44624243-7251-43ed-95ac-52a5255174d8" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+&lt;activerecord isWeb="true"&gt;
+&#160;&#160;&lt;config&gt;
+&#160;&#160;&#160;&#160;&lt;add
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;key="connection.driver_class"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;value="NHibernate.Driver.SQLite20Driver" /&gt;
+&#160;&#160;&#160;&#160;&lt;add
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;key="dialect"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;value="NHibernate.Dialect.SQLiteDialect" /&gt;
+&#160;&#160;&#160;&#160;&lt;add
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;key="connection.provider"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;value="NHibernate.Connection.DriverConnectionProvider" /&gt;
+&#160;&#160;&#160;&#160;&lt;add
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;key="connection.connection_string"
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;value="Data Source=nhibernate.db3;Version=3" /&gt;
+&#160;&#160;&lt;/config&gt;
+&lt;/activerecord&gt;
+</pre></div>
 
 <p>You then need to reference the System.Data.SQLite.dll and you’re set (grab the <a href="http://sourceforge.net/projects/sqlite-dotnet2">release from SourceForge</a>). </p>
 

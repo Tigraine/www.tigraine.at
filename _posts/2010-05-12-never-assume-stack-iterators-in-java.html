@@ -8,9 +8,8 @@ categories:
 - programmierung
 - java
 ---
-<p>I spent almost 2 hours of debugging Java code yesterday due to one assumption that proved fatally wrong: I assumed a Stack, by definition a <a href="http://en.wikipedia.org/wiki/LIFO">LIFO</a> data structure would iterate over it’s elements from the top of the stack to the bottom. </p>  <p>So inserting 1, 2, 3 the resulting order when iterating through the stack should be 3, 2, 1.</p>  <p>Well, at least that’s what .NET does. Java is different. Look at the following Java code:</p>  
-{% highlight java %}
-Stack<Integer> stack = new Stack<Integer>();
+<p>I spent almost 2 hours of debugging Java code yesterday due to one assumption that proved fatally wrong: I assumed a Stack, by definition a <a href="http://en.wikipedia.org/wiki/LIFO">LIFO</a> data structure would iterate over it’s elements from the top of the stack to the bottom. </p>  <p>So inserting 1, 2, 3 the resulting order when iterating through the stack should be 3, 2, 1.</p>  <p>Well, at least that’s what .NET does. Java is different. Look at the following Java code:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ce41b27c-d44a-4660-a061-e7dbd1266df2" class="wlWriterEditableSmartContent"><pre name="code" class="java">
+Stack&lt;Integer&gt; stack = new Stack&lt;Integer&gt;();
 stack.push(1);
 stack.push(2);
 stack.push(3);
@@ -18,24 +17,21 @@ stack.push(3);
 for(Integer i : stack) {
 	System.out.println(i);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>And this C#:</p>
 
-
-{% highlight csharp %}
-var stack = new Stack<int>();
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e36e607a-e4c1-4b13-adeb-c0b33588b3ab" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+var stack = new Stack&lt;int&gt;();
 stack.Push(1);
 stack.Push(2);
 stack.Push(3);
 
 foreach (var i in stack)
 {
-    Console.WriteLine(i);
+&#160;&#160;&#160;&#160;Console.WriteLine(i);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>Well, they look exactly the same, but Java will return 1,2,3 while C# will honor the Stack’s special semantics and return 3,2,1. Great stuff isn’t it?</p>
 

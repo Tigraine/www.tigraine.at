@@ -9,24 +9,22 @@ categories:
 - pandora
 - projects
 ---
-<p>I just finished refactoring <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> to have a much cleaner configuration and also to enable lifestyles for certain components.</p>  <p>Until now, Pandora was not able to save one service after it’s initial activation. Every call to container.Resolve() would instantiate a new service with new dependencies etc. It may be of interest to some of you that this is the exact opposite of the default lifestyle Windsor sets for it’s components. So I obviously wanted to change that. </p>  
-{% highlight csharp %}
+<p>I just finished refactoring <a href="http://www.tigraine.at/category/programmierung/projects/pandora/">Pandora</a> to have a much cleaner configuration and also to enable lifestyles for certain components.</p>  <p>Until now, Pandora was not able to save one service after it’s initial activation. Every call to container.Resolve() would instantiate a new service with new dependencies etc. It may be of interest to some of you that this is the exact opposite of the default lifestyle Windsor sets for it’s components. So I obviously wanted to change that. </p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e8d0f4ac-9b64-4e49-914e-95c403f9538d" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 [Fact]
 public void ActivationHappensOnlyOnceForSingletonComponents()
 {
-    var store = new ComponentStore();
-    var registration = store.Add<IService, ClassWithNoDependencies>("test");
-    registration.Lifestyle = ComponentLifestyles.Singleton;
+&#160;&#160;&#160;&#160;var store = new ComponentStore();
+&#160;&#160;&#160;&#160;var registration = store.Add&lt;IService, ClassWithNoDependencies&gt;("test");
+&#160;&#160;&#160;&#160;registration.Lifestyle = ComponentLifestyles.Singleton;
 
-    var container = new PandoraContainer(store);
+&#160;&#160;&#160;&#160;var container = new PandoraContainer(store);
 
-    var service = container.Resolve<IService>("test");
-    var service2 = container.Resolve<IService>("test");
+&#160;&#160;&#160;&#160;var service = container.Resolve&lt;IService&gt;("test");
+&#160;&#160;&#160;&#160;var service2 = container.Resolve&lt;IService&gt;("test");
 
-    Assert.Same(service, service2);
+&#160;&#160;&#160;&#160;Assert.Same(service, service2);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>All “logic” concerning a lifestyle is completely enclosed in the Lifestyle classes so creating a new lifestyle for Pandora should be rather simple in the future.</p>
 
@@ -38,15 +36,13 @@ public void ActivationHappensOnlyOnceForSingletonComponents()
 <p>I then decided to rip everything out and revert the registration to a dumb value type that only holds information that can be easily serialized/deserialized if needed. 
   <br />So that the fluent interface would generate a value type, instead of trying to be one with all it’s faults. Doing so opened up a whole lot of new possibilities in terms of API for me, and so I ended up with a quite pleasant interface like this:</p>
 
-
-{% highlight csharp %}
-store.Register(p => p.Service<IService>("db.service")
-                        .Implementor<ClassWithNoDependencies>()
-                        .Parameters("hello").Set("world")
-                        .Lifestyle.Transient()
-                        .Parameters("foo").Set("bar"));
-
-{% endhighlight %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c5837ab0-cc5d-41a0-beb8-0157f6bb4f19" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+store.Register(p =&gt; p.Service&lt;IService&gt;("db.service")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;ClassWithNoDependencies&gt;()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Parameters("hello").Set("world")
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Lifestyle.Transient()
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Parameters("foo").Set("bar"));
+</pre></div>
 
 <p>As before, this looks intentionally familiar to Windsor users, since I believe Windsor’s interface is really good and makes a lot of sense when reading. 
   <br />What I improved upon (at least, I believe so) was to get away from the static Component class Windsor uses to bootstrap the Fluent registration, but to use a closure that provides Intellisense right from the beginning.</p>

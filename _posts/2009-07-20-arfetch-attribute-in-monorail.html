@@ -8,14 +8,12 @@ categories:
 - castle
 - programmierung
 ---
-<p>MonoRail and ASP.NET MVC while being very different both almost mirror their features. Few things are impossible in one of both and the only really major difference between those two is that MonoRail comes packed with a suggested data access strategy: ActiveRecord. </p>  <p>This pre-packing is completely optional, it’s very easy to implement whatever data access logic you like, but if you choose ActiveRecord you’ll benefit from some nice things like the <tt>ARFetch </tt>attribute.</p>  <p>See this action method and judge for yourself:</p>  
-{% highlight csharp %}
+<p>MonoRail and ASP.NET MVC while being very different both almost mirror their features. Few things are impossible in one of both and the only really major difference between those two is that MonoRail comes packed with a suggested data access strategy: ActiveRecord. </p>  <p>This pre-packing is completely optional, it’s very easy to implement whatever data access logic you like, but if you choose ActiveRecord you’ll benefit from some nice things like the <tt>ARFetch </tt>attribute.</p>  <p>See this action method and judge for yourself:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2d3646ac-f75b-495a-8743-645083bb02ad" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public void Detail([ARFetch("Id")] NewsPost post)
 {
-    PropertyBag["post"] = post;
+&#160;&#160;&#160;&#160;PropertyBag["post"] = post;
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>You just tell MonoRail through <tt>ARFetch </tt>what request-parameter is the object’s Id and it will fetch that entity from your DB and pass it into your method. It’s so simple that it’s almost tragic, yet it’s a huge time saver in most CRUD cases (edit, update and delete usually involve fetching the entity first). </p>
 

@@ -8,16 +8,14 @@ categories:
 - programmierung
 - wpf
 ---
-<p>If you like Chrome/Safari or not, one thing that both have and all others lack is a good focus indicator that graphically shows me where my focus currently is. Jeff Atwood wrote something interesting on the topic of <a href="http://www.codinghorror.com/blog/archives/001055.html">Where the Heck is My Focus</a>:</p>  <blockquote>   <p>But even if developers do remember to test for basic keyboard behavior, there's a deeper problem here. <b>Keyboard navigation relies heavily on the focus.</b> In order to move from one area to the next, you have to be able to reliably know where you are. Unfortunately, <b>web browsers make it needlessly difficult to tell where the focus is</b>.</p> </blockquote>  <p>I believe he not only has a valid point here, but also that his criticism this should not be limited to web browsers. Most if not all Windows applications do this thing badly, and it’s up to us developers to fix it.</p>  <p>So, I decided to try to put my recent WPF research to good use and tried to implement a small class that applies/removes a WebKit like focus caret:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image4.png" width="300" height="145" /> </p>  <p>The whole implementation is completely encapsulated inside a class named <a href="http://bitbucket.org/Tigraine/tigraine-samples/src/tip/WebkitInputs/WebkitFocusEffect.cs">WebkitFocusEffect</a> that only needs to be initialized during your window construction:</p>  
-{% highlight csharp %}
+<p>If you like Chrome/Safari or not, one thing that both have and all others lack is a good focus indicator that graphically shows me where my focus currently is. Jeff Atwood wrote something interesting on the topic of <a href="http://www.codinghorror.com/blog/archives/001055.html">Where the Heck is My Focus</a>:</p>  <blockquote>   <p>But even if developers do remember to test for basic keyboard behavior, there's a deeper problem here. <b>Keyboard navigation relies heavily on the focus.</b> In order to move from one area to the next, you have to be able to reliably know where you are. Unfortunately, <b>web browsers make it needlessly difficult to tell where the focus is</b>.</p> </blockquote>  <p>I believe he not only has a valid point here, but also that his criticism this should not be limited to web browsers. Most if not all Windows applications do this thing badly, and it’s up to us developers to fix it.</p>  <p>So, I decided to try to put my recent WPF research to good use and tried to implement a small class that applies/removes a WebKit like focus caret:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image4.png" width="300" height="145" /> </p>  <p>The whole implementation is completely encapsulated inside a class named <a href="http://bitbucket.org/Tigraine/tigraine-samples/src/tip/WebkitInputs/WebkitFocusEffect.cs">WebkitFocusEffect</a> that only needs to be initialized during your window construction:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:7d6cb718-92e9-4338-86a2-ae7276ea0b11" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 public Window1()
 {
-    InitializeComponent();
+&#160;&#160;&#160;&#160;InitializeComponent();
 
-    WebkitFocusEffect.Initialize(this);
+&#160;&#160;&#160;&#160;WebkitFocusEffect.Initialize(this);
 }
-
-{% endhighlight %}
+</pre></div>
 
 <h4>How does it work?</h4>
 
@@ -27,13 +25,11 @@ public Window1()
 
 <p>WPF introduced a cool concept called RoutedEvents, meaning that an Event like GotFocus/LostFocus will travel through the object model to the point where it gets handled and stops there. This technique is important because, unlike Windows Forms, WPF controls can contain other UIElements. This gives you far more control over the look and feel of your application, allowing for crazy things like a button with a image instead of text:</p>
 
-
-{% highlight xml %}
-<Button Width="100">
-    <Image Source="http://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Smiley.svg/100px-Smiley.svg.png"></Image>
-</Button>
-
-{% endhighlight %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3bd97067-1206-4c74-9d66-c09fc94c1346" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;Button Width="100"&gt;
+&#160;&#160;&#160;&#160;&lt;Image Source="http://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Smiley.svg/100px-Smiley.svg.png"&gt;&lt;/Image&gt;
+&lt;/Button&gt;
+</pre></div>
 
 <p>Resulting in this:</p>
 
@@ -41,7 +37,7 @@ public Window1()
 
 <p>And that leads to the point of RoutedEvents: How do you know that the button was clicked? The event that was fired was the image’s click event, not the button. So, WPF introduced the concept of RoutedEvents that can traverse the object tree upwards and downwards. What means that the image’s ClickEvent gets passed on to it’s direct parent (our friend the button) to get handled there.</p>
 
-<p> <img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image6.png" width="400" height="235" /> </p>
+<p>&#160;<img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/06/image6.png" width="400" height="235" /> </p>
 
 <p>If not handled at some level the event would travel up through the whole tree until reaching the root.</p>
 
@@ -49,50 +45,44 @@ public Window1()
 
 <p>The handler then just unwraps the event’s source object (the source of the RoutedEvent gets passed along through the RoutedEventArgs parameter) and modifies it’s Effect property:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:53353ad9-5043-497d-ac84-588d9db99247" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 protected virtual void WindowGotFocus(object sender, RoutedEventArgs e)
 {
-    try
-    {
-        if (!(e.Source is UIElement)) return;
+&#160;&#160;&#160;&#160;try
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (!(e.Source is UIElement)) return;
 
-        var element = (UIElement) e.Source;
-        if (element.Effect == null)
-        {
-            var effect = new DropShadowEffect {Color = Colors.Gold, ShadowDepth = 0, BlurRadius = 8};
-            element.Effect = effect;
-            removeEffect = true;
-        }
-    }
-    catch (Exception ex)
-    {
-        Log(ex);
-    }
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var element = (UIElement) e.Source;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (element.Effect == null)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var effect = new DropShadowEffect {Color = Colors.Gold, ShadowDepth = 0, BlurRadius = 8};
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;element.Effect = effect;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;removeEffect = true;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;catch (Exception ex)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Log(ex);
+&#160;&#160;&#160;&#160;}
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>One problem still remained: RoutedEvents can stop bubbling if they get handled at a lower level. This is how the button stops the image’s click event from spreading to it’s parent element, therefore containing it. So if you set an RoutedEventArgs.Handled property to true, it will stop bubbling up the tree:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:63d90cb1-6644-4e6f-8b6a-e3a523361c63" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 private void LoginButton_GotFocus(object sender, RoutedEventArgs e)
 {
-    //This Event was handled and will not call Window's GotHandled eventhandler
-    e.Handled = true;
+&#160;&#160;&#160;&#160;//This Event was handled and will not call Window's GotHandled eventhandler
+&#160;&#160;&#160;&#160;e.Handled = true;
 }
 
-
-{% endhighlight %}
+</pre></div>
 
 <p>Cool though is that RoutedEvents can’t really be stopped from bubbling, they do so anyway. Handled events just don’t invoke any event handlers up the tree any more, and that can be overridden explicitly when subscribing to the event:</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a647969b-f8d9-404d-af20-0b63b8797ed8" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 window.AddHandler(UIElement.GotFocusEvent, new RoutedEventHandler(WindowGotFocus), true);
-
-{% endhighlight %}
+</pre></div>
 
 <p>The last parameter is “handledEventsToo” and if set to true the event handler will be fired even if the event was already handled at a lower level. Allowing us to still do our thing while not getting in your way when subscribing to GotFocus / LostFocus events.</p>
 

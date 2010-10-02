@@ -7,19 +7,17 @@ categories:
 - net
 - programmierung
 ---
-<p><a href="http://bradwilson.typepad.com/">Brad Wilson</a> left me an inspiring comment on my <a href="http://www.tigraine.at/2009/06/06/good-ideas-worth-spreading-guards/">post about his Guard class</a> that I immediately tried out:</p>  <blockquote>   <p>If you target 3.5, you could write a guard which used expressions, and then you could evaluate the expression in order to fill things out. Unfortunately, the syntax ends up a little wonky, but at least you’re not repeating yourself:</p>    <p>Guard.ArgumentNotNull(() => username);</p>    <p>You could also do the same thing with complex expressions:</p>    <p>Guard.Precondition(() => username.Length > 10);</p>    <p>and when you throw the exception, it can even contain the actual condition code, extracted from the expression.</p> </blockquote>  <p>I went off to implement this using an Expression and ended up with the following ArgumentNotNull method:</p>  
-{% highlight csharp %}
-public static void ArgumentNotNull(Expression<Func<object>> action)
+<p><a href="http://bradwilson.typepad.com/">Brad Wilson</a> left me an inspiring comment on my <a href="http://www.tigraine.at/2009/06/06/good-ideas-worth-spreading-guards/">post about his Guard class</a> that I immediately tried out:</p>  <blockquote>   <p>If you target 3.5, you could write a guard which used expressions, and then you could evaluate the expression in order to fill things out. Unfortunately, the syntax ends up a little wonky, but at least you’re not repeating yourself:</p>    <p>Guard.ArgumentNotNull(() =&gt; username);</p>    <p>You could also do the same thing with complex expressions:</p>    <p>Guard.Precondition(() =&gt; username.Length &gt; 10);</p>    <p>and when you throw the exception, it can even contain the actual condition code, extracted from the expression.</p> </blockquote>  <p>I went off to implement this using an Expression and ended up with the following ArgumentNotNull method:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:15c7cecb-4953-4609-850a-3d699ab98d1e" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+public static void ArgumentNotNull(Expression&lt;Func&lt;object&gt;&gt; action)
 {
-    var result = action.Compile()();
-    if (result == null)
-    {
-        //TODO: Extract memberinfo name from expression
-        throw new ArgumentException();
-    }
+&#160;&#160;&#160;&#160;var result = action.Compile()();
+&#160;&#160;&#160;&#160;if (result == null)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;//TODO: Extract memberinfo name from expression
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new ArgumentException();
+&#160;&#160;&#160;&#160;}
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>One thing to keep in mind is that guard clauses usually end up being in production code, and not in test code. So performance isn’t neglect able. Since action.Compile() clearly indicates that some compiling overhead happens to retrieve the value, I thought it might be interesting to benchmark it. Just in case it might still be neglect able.</p>
 
@@ -27,65 +25,63 @@ public static void ArgumentNotNull(Expression<Func<object>> action)
 
 <p></p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:69f5101c-dfc4-4e0f-86ff-5002073d03ad" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 using System;
 using System.Diagnostics;
 using System.Linq;
 
 public class Program
 {
-    private static int passes = 10000;
+&#160;&#160;&#160;&#160;private static int passes = 10000;
 
-    private static void Main(string[] args)
-    {
-        var runs = 5;
-        Console.WriteLine("{0} ms to run normal", AverageExecutionTime(RunSimple, runs));
-        Console.WriteLine("{0} ms to run with expression", AverageExecutionTime(RunExpressions, runs));
-        Console.ReadLine();
-    }
+&#160;&#160;&#160;&#160;private static void Main(string[] args)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var runs = 5;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Console.WriteLine("{0} ms to run normal", AverageExecutionTime(RunSimple, runs));
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Console.WriteLine("{0} ms to run with expression", AverageExecutionTime(RunExpressions, runs));
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Console.ReadLine();
+&#160;&#160;&#160;&#160;}
 
-    private static long AverageExecutionTime(Action delegateToWatch, int runs)
-    {
-        var lapTimes = new long[runs];
-        for (var i = 0; i < runs; i++)
-        {
-            lapTimes[i] = GetExecutiontime(delegateToWatch);
-        }
-        return lapTimes.Sum(p => p)/runs;
-    }
+&#160;&#160;&#160;&#160;private static long AverageExecutionTime(Action delegateToWatch, int runs)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var lapTimes = new long[runs];
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;for (var i = 0; i &lt; runs; i++)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;lapTimes[i] = GetExecutiontime(delegateToWatch);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return lapTimes.Sum(p =&gt; p)/runs;
+&#160;&#160;&#160;&#160;}
 
-    private static long GetExecutiontime(Action delegateToWatch)
-    {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
-        delegateToWatch();
-        stopwatch.Stop();
-        return stopwatch.ElapsedMilliseconds;
-    }
+&#160;&#160;&#160;&#160;private static long GetExecutiontime(Action delegateToWatch)
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var stopwatch = new Stopwatch();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;stopwatch.Start();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;delegateToWatch();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;stopwatch.Stop();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return stopwatch.ElapsedMilliseconds;
+&#160;&#160;&#160;&#160;}
 
-    private static void RunSimple()
-    {
-        for (int i = 0; i < passes; i++)
-        {
-            string user = "test";
-            Guard.ArgumentNotNull("user", user);
-            GC.Collect();
-        }
-    }
+&#160;&#160;&#160;&#160;private static void RunSimple()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;for (int i = 0; i &lt; passes; i++)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;string user = "test";
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Guard.ArgumentNotNull("user", user);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;GC.Collect();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
 
-    private static void RunExpressions()
-    {
-        for (int i = 0; i < passes; i++)
-        {
-            string user = "test";
-            Guard.ArgumentNotNull(() => user);
-            GC.Collect();
-        }
-    }
+&#160;&#160;&#160;&#160;private static void RunExpressions()
+&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;for (int i = 0; i &lt; passes; i++)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;string user = "test";
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Guard.ArgumentNotNull(() =&gt; user);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;GC.Collect();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
+&#160;&#160;&#160;&#160;}
 }
-
-{% endhighlight %}
+</pre></div>
 
 <p>As you can see, I rerun the test 4 times doing the NotNull test only 10000 times (always running the non-exceptional path), always forcing garbage collection between passes. </p>
 
@@ -101,9 +97,7 @@ public class Program
 
 <p></p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0dedebc9-34c5-4f07-bdad-4e27d39b1cf3" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 Guard.ArgumentNotNull("$parametername$", $parametername$);
 $END$
-
-{% endhighlight %}
+</pre></div>

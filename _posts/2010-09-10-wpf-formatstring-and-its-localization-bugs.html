@@ -6,41 +6,35 @@ postid: 907
 categories:
 - uncategorized
 ---
-<p>As some of you may know, I am from Austria. That means that I get to pay my bills in Euro and we format our decimals with a comma instead of a period (yes I know I’m weird). </p>  <p>So naturally my culture setting is de-AT and I really expect to see my decimals formatted this way: &euro; 19,99   <br />Turns out, WPF doesn’t give a damn and if you use FormatString in a binding it will just go ahead and return en-US formats!</p>  
-{% highlight xml %}
-<TextBox Text="{Binding Path=Model.Price, StringFormat=\{0:c\}}"/>
-
-{% endhighlight %}
+<p>As some of you may know, I am from Austria. That means that I get to pay my bills in Euro and we format our decimals with a comma instead of a period (yes I know I’m weird). </p>  <p>So naturally my culture setting is de-AT and I really expect to see my decimals formatted this way: &euro; 19,99   <br />Turns out, WPF doesn’t give a damn and if you use FormatString in a binding it will just go ahead and return en-US formats!</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:16a98245-b48d-4b23-9025-9e1fe611e766" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;TextBox Text="{Binding Path=Model.Price, StringFormat=\{0:c\}}"/&gt;
+</pre></div>
 
 <p>This is a bug in WPF and has been there for more than 2 years now from what I can gather. There is a <a href="http://www.nbdtech.com/Blog/archive/2009/02/22/wpf-data-binding-cheat-sheet-update-the-internationalization-fix.aspx">fix to it</a> as suggested by <a href="http://twitter.com/nirdobovizki">Nir Dobovizki</a>, who coincidentally also has a pretty cool <a href="http://go.nbdtech.com?94E138EA">CheatSheet on WPF Databinding</a> that I now have taped to the wall.</p>
 
 <p>For the sake of completeness here is the code you have to put in your App startup code (I’ve thrown it in my App constructor):</p>
 
-
-{% highlight csharp %}
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:543174bf-e84f-4f00-ba38-76b53eae9512" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
 FrameworkElement.LanguageProperty.OverrideMetadata(
-    typeof(FrameworkElement), 
-    new FrameworkPropertyMetadata(
-        XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
-
-{% endhighlight %}
+&#160;&#160;&#160;&#160;typeof(FrameworkElement), 
+&#160;&#160;&#160;&#160;new FrameworkPropertyMetadata(
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
+</pre></div>
 
 <p>While at it I also found out another pretty cool thing that managed to save me a lot of markup in XAML: MultiBinding! You can apply StringFormat to single elements through the {Binding} blocks, but sometimes you want to show stuff like “Showing Page x of y” somewhere. 
   <br />My naïve approach was to just create 4 elements and bind 2 of them to the appropriate values. As <a href="http://elegantcode.com/author/blagunas/">Brian</a> points out in his post on <a href="http://elegantcode.com/2009/04/07/wpf-stringformat-in-xaml-with-the-stringformat-attribute/">WPF StringFormat</a> you can just do stuff like this:</p>
 
+<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0523d3f4-907f-4a8e-845b-5e0ad668dd81" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
+&lt;TextBlock VerticalAlignment="Center" Margin="0, 0, 0, 10"&gt;
+&#160;&#160;&#160;&#160;&lt;TextBlock.Text&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;MultiBinding StringFormat="Showing Page {0} of {1}"&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;Binding Path="CurrentPage" /&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;Binding Path="NumberOfPages" /&gt;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;/MultiBinding&gt;
+&#160;&#160;&#160;&#160;&lt;/TextBlock.Text&gt;
+&lt;/TextBlock&gt;
+</pre></div>
 
-{% highlight xml %}
-<TextBlock VerticalAlignment="Center" Margin="0, 0, 0, 10">
-    <TextBlock.Text>
-        <MultiBinding StringFormat="Showing Page {0} of {1}">
-            <Binding Path="CurrentPage" />
-            <Binding Path="NumberOfPages" />
-        </MultiBinding>
-    </TextBlock.Text>
-</TextBlock>
-
-{% endhighlight %}
-
-<p>The StringFormat attribute works exactly like the String.Format method whereas the <Binding> children are the parameters passed into it. Pretty cool to say the least. </p>
+<p>The StringFormat attribute works exactly like the String.Format method whereas the &lt;Binding&gt; children are the parameters passed into it. Pretty cool to say the least. </p>
 
 <p>Now if only someone explained to me why WPF Grids have this hideous way of cluttering up my markup with Grid.Row=”0” Grid.Column=”1” I may finally make my peace with WPF (aka the display technology I stayed away until now because learning it seemed like an impossible task)</p>
