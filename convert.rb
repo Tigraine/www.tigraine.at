@@ -13,7 +13,7 @@ files.each() do |file|
 	openFile.close
 
 	if (content =~ /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*).*<.div>/) then
-		content = content.gsub /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*?).*?<.div>/, '{% highlight \1 %}
+		content = content.gsub /\<div.*wlWriterEditableSmartContent"\>.*class="(\S*)">\n((.*\n)*?).*?<.div>/, '{% highlight \1 linenos %}
 \2
 {% endhighlight %}'
 	
