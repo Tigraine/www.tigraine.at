@@ -7,12 +7,14 @@ categories:
 - net
 - testing
 ---
-<p>ASP.NET MVC was designed to be a very “clean” and testable framework for creating web applications from Microsoft. And they failed really badly in one place: HttpContext!</p>  <p>The fact that the ASP.NET MVC Contrib project has a whole project dedicated to mocking out the whole HttpContext for testing simply illustrates one point: It’s broken, period.   <br />There is this one gigantic god hash table that has 5 other hash tables hanging from it that knows everything about the incoming request. And although it’s possible to fake the whole thing with RhinoMocks (as the MVC Contrib guys do it), it’s still a pretty stupid idea to have all those concerns in one class called “context” (and accessible to the controller code).     <br />So, although the HttpContextBase is already an abstraction of the real context, I wanted to extract those things into specialized service classes that I have full control over (and that could then be used for even more specialized classes that handle data retrieval, thus making “magic strings” go away when dealing with requests and sessions).</p>  <p>I set out to create a request service class that follows a very simple Interface:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:efdd4eb3-db3b-4a75-8afb-35effa607d26" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>ASP.NET MVC was designed to be a very “clean” and testable framework for creating web applications from Microsoft. And they failed really badly in one place: HttpContext!</p>  <p>The fact that the ASP.NET MVC Contrib project has a whole project dedicated to mocking out the whole HttpContext for testing simply illustrates one point: It’s broken, period.   <br />There is this one gigantic god hash table that has 5 other hash tables hanging from it that knows everything about the incoming request. And although it’s possible to fake the whole thing with RhinoMocks (as the MVC Contrib guys do it), it’s still a pretty stupid idea to have all those concerns in one class called “context” (and accessible to the controller code).     <br />So, although the HttpContextBase is already an abstraction of the real context, I wanted to extract those things into specialized service classes that I have full control over (and that could then be used for even more specialized classes that handle data retrieval, thus making “magic strings” go away when dealing with requests and sessions).</p>  <p>I set out to create a request service class that follows a very simple Interface:</p>  
+{% highlight csharp linenos %}
 public interface IRequestService
 {
-&#160;&#160;&#160;&#160;string GetRequestField(string fieldName);
+    string GetRequestField(string fieldName);
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>The actual class is just a Facade for the HttpRequestBase class that gets injected into the constructor.</p>
 
@@ -21,39 +23,43 @@ public interface IRequestService
 <p>The IControllerFactory interface is rather simple, and it’s the perfect place to leverage the power of a IoC framework to construct the controller objects. 
   <br />So I simply pass the object creation off to Windsor in the CreateController method:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:73f1304e-daa3-4730-953f-dcfc26708d87" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public class ControllerFactory : IControllerFactory
 {
-&#160;&#160;&#160;&#160;private WindsorContainer container = new WindsorContainer(
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;new XmlInterpreter(new ConfigResource("castle")));
+    private WindsorContainer container = new WindsorContainer(
+                                        new XmlInterpreter(new ConfigResource("castle")));
 
-&#160;&#160;&#160;&#160;public IController CreateController(RequestContext requestContext, string controllerName)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return (IController)container.Resolve(controllerName);
-&#160;&#160;&#160;&#160;}
+    public IController CreateController(RequestContext requestContext, string controllerName)
+    {
+        
+        return (IController)container.Resolve(controllerName);
+    }
 
-&#160;&#160;&#160;&#160;public void ReleaseController(IController controller)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var disposeable = controller as IDisposable;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (disposeable != null)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;disposeable.Dispose();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;container.Release(controller);
-&#160;&#160;&#160;&#160;}
+    public void ReleaseController(IController controller)
+    {
+        var disposeable = controller as IDisposable;
+        if (disposeable != null)
+            disposeable.Dispose();
+        container.Release(controller);
+    }
 }
 
-</pre></div>
+
+{% endhighlight %}
 
 <p>What then took ages for me to figure out was how to instruct Windsor to use current HttpContext.Request object. Turns out, I was searching in the wrong place: That functionality is in MicroKernel and not in the Windsor container.</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c0ad2173-2d99-4c4a-b5bb-f95cb46609fc" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public IController CreateController(RequestContext requestContext, string controllerName)
 {
-&#160;&#160;&#160;&#160;container.Kernel.AddComponentInstance&lt;HttpRequestBase&gt;(typeof (HttpRequestBase),
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; requestContext.HttpContext.Request);
-&#160;&#160;&#160;&#160;return (IController) container.Resolve(controllerName);
+    container.Kernel.AddComponentInstance<HttpRequestBase>(typeof (HttpRequestBase),
+                                                           requestContext.HttpContext.Request);
+    return (IController) container.Resolve(controllerName);
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>The AddComponentInstance method allows you to pass in a concrete instance that should be used when searching for a service. This way when Windsor constructs the RequestServiceFacade class that takes a HttpRequestBase as dependency it will simply inject the one specified instead of trying to construct the HttpRequestBase itself (that doesn’t work ;)).</p>
 

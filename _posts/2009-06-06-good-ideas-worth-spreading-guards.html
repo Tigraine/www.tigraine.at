@@ -7,37 +7,43 @@ categories:
 - net
 - programmierung
 ---
-<p>It’s amazing how much smarter you can become by simply looking at other people’s code. So, today I spent almost half the morning looking at different test frameworks from the TDD/BDD world looking for cool tricks I haven’t thought of (I examined <a href="http://github.com/machine/machine.specifications/tree/master">MSpec</a>, <a href="http://www.codeplex.com/NBehave">NBehave</a>, <a href="http://nspec.tigris.org/">NSpec</a> and <a href="http://www.codeplex.com/xunit">xUnit</a>). One of those interesting little tricks (trivial at best, but valuable) is the following <a href="http://xunit.codeplex.com/SourceControl/changeset/view/32566#231174">I found in xUnit’s Guard.cs</a>: </p>  <blockquote>   <p>Guard class, used for guard clauses and argument validation</p> </blockquote>  <p>Imagine the following method:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:5eeb0264-1790-4cb8-bffd-138dda8c8cd4" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>It’s amazing how much smarter you can become by simply looking at other people’s code. So, today I spent almost half the morning looking at different test frameworks from the TDD/BDD world looking for cool tricks I haven’t thought of (I examined <a href="http://github.com/machine/machine.specifications/tree/master">MSpec</a>, <a href="http://www.codeplex.com/NBehave">NBehave</a>, <a href="http://nspec.tigris.org/">NSpec</a> and <a href="http://www.codeplex.com/xunit">xUnit</a>). One of those interesting little tricks (trivial at best, but valuable) is the following <a href="http://xunit.codeplex.com/SourceControl/changeset/view/32566#231174">I found in xUnit’s Guard.cs</a>: </p>  <blockquote>   <p>Guard class, used for guard clauses and argument validation</p> </blockquote>  <p>Imagine the following method:</p>  
+{% highlight csharp linenos %}
 public bool Authenticate(string username, string password)
 {
-&#160;&#160;&#160;&#160;return username == "daniel" && password == "tigraine";
+    return username == "daniel" && password == "tigraine";
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Let’s say my specification for this method says: “input username and password can’t be null and should return a ArgumentNullException”. Reasonable, since we never trust input. So, usually I’d create guard clauses at the top of my method to protect me from said bad input:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:21b79198-241e-4539-915e-ab3eb03c6681" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public bool Authenticate(string username, string password)
 {
-&#160;&#160;&#160;&#160;if (username == null)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new ArgumentNullException(username);
-&#160;&#160;&#160;&#160;if (password == null)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new ArgumentNullException(password);
+    if (username == null)
+        throw new ArgumentNullException(username);
+    if (password == null)
+        throw new ArgumentNullException(password);
 
-&#160;&#160;&#160;&#160;return username == "daniel" && password == "tigraine";
+    return username == "daniel" && password == "tigraine";
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>I always thought about this as rather readable and nice to work with, until I saw what xUnit did in <a href="http://xunit.codeplex.com/SourceControl/changeset/view/32566#231174">Guard</a>.cs, allowing me to shorten the above to a simple:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f64f1c87-99ed-46c9-aa93-fc68c9a8fab2" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public bool Authenticate(string username, string password)
 {
-&#160;&#160;&#160;&#160;Guard.ArgumentNotNull("username", username);
-&#160;&#160;&#160;&#160;Guard.ArgumentNotNull("password", password);
+    Guard.ArgumentNotNull("username", username);
+    Guard.ArgumentNotNull("password", password);
 
-&#160;&#160;&#160;&#160;return username == "daniel" && password == "tigraine";
+    return username == "daniel" && password == "tigraine";
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>I still believe this can be improved upon, maybe making it only one argument instead of two, but for now this is way better than what I used to write before.</p>

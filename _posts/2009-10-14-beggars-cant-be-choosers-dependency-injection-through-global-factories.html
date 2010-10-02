@@ -8,17 +8,19 @@ categories:
 - programmierung
 - testing
 ---
-<p>Whenever you listen to testability talks you usually take away one universal truth:</p>  <blockquote>   <p><strong>Global state is bad, singletons are essentially global state. </strong></p> </blockquote>  <p>So, if you want to have it done right, use dependency injection and don’t let your code depend on global state.</p>  <p>But: Sometimes it’s just not possible. My current project for example does not use dependency injection. Why? I didn’t know better and used ActiveRecord with all it’s static design. And besides, I’m just lazy and have no intention of diving into the Castle documentation to find out how to teach ActiveRecord to use an IoC container when creating entity objects. </p>  <p>And if you have no control over your constructor, your options for dependency injection are limited to two things:</p>  <p>Public fields (aka optional dependencies) and Global factories.</p>  <p><strong>Public fields</strong></p>  <p>While in theory a pretty decent method that allows you to swap out parts it falls very short once you have multiple classes that need the same service:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6a71c5ba-d22f-415d-9a73-254897333427" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Whenever you listen to testability talks you usually take away one universal truth:</p>  <blockquote>   <p><strong>Global state is bad, singletons are essentially global state. </strong></p> </blockquote>  <p>So, if you want to have it done right, use dependency injection and don’t let your code depend on global state.</p>  <p>But: Sometimes it’s just not possible. My current project for example does not use dependency injection. Why? I didn’t know better and used ActiveRecord with all it’s static design. And besides, I’m just lazy and have no intention of diving into the Castle documentation to find out how to teach ActiveRecord to use an IoC container when creating entity objects. </p>  <p>And if you have no control over your constructor, your options for dependency injection are limited to two things:</p>  <p>Public fields (aka optional dependencies) and Global factories.</p>  <p><strong>Public fields</strong></p>  <p>While in theory a pretty decent method that allows you to swap out parts it falls very short once you have multiple classes that need the same service:</p>  
+{% highlight csharp linenos %}
 public class Entity
 {
-&#160;&#160;&#160;&#160;public IDateProvider DateProvider { get; set; }
+    public IDateProvider DateProvider { get; set; }
 
-&#160;&#160;&#160;&#160;public Entity()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;DateProvider = new DateProviderImpl();
-&#160;&#160;&#160;&#160;}
+    public Entity()
+    {
+        DateProvider = new DateProviderImpl();
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Since the default implementation is hardcoded into every consumer, you end up with a big pile of DRY violations that will one day bite you when you try to refactor DateProviderImpl’s constructor. </p>
 
@@ -26,52 +28,56 @@ public class Entity
 
 <p>Now the words global and testability don’t go well together, but in this case it’s ok. You try to battle the DRY violation while still making your service optionally interchangeable when testing.</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:fc4143bb-d1fb-4361-8523-d8d5466d46f0" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public class Entity
 {
-&#160;&#160;&#160;&#160;public Entity()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var now = DateProviderFactory.Provider.Now;
-&#160;&#160;&#160;&#160;}
+    public Entity()
+    {
+        var now = DateProviderFactory.Provider.Now;
+    }
 }
 
 public class DateProviderFactory
 {
-&#160;&#160;&#160;&#160;private static IDateProvider _provider;
+    private static IDateProvider _provider;
 
-&#160;&#160;&#160;&#160;public static void SetProvider(IDateProvider provider)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;_provider = provider;
-&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;public static IDateProvider Provider
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (_provider == null)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;_provider = new DateProviderImpl();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return Provider;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;}
+    public static void SetProvider(IDateProvider provider)
+    {
+        _provider = provider;
+    }
+    public static IDateProvider Provider
+    {
+        get
+        {
+            if (_provider == null)
+                _provider = new DateProviderImpl();
+            return Provider;
+        }
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Now obviously you should NEVER call SetProvider inside your production code. It’s a pure testability helper so if you start messing with it expect to see some really hard to debug errors pop up.</p>
 
 <p>But as long as you don’t mess that up, you can write tests like this one:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:72ff7422-5355-46d8-a4aa-8dd95eb6173d" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public class TestFixture
 {
-&#160;&#160;&#160;&#160;[Fact]
-&#160;&#160;&#160;&#160;public void DoesSomethingWhenGivenDate()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var mock = new MockedDateProvider();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;DateProviderFactory.SetProvider(mock);
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var entity = new Entity();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;//.....
-&#160;&#160;&#160;&#160;}
+    [Fact]
+    public void DoesSomethingWhenGivenDate()
+    {
+        var mock = new MockedDateProvider();
+        DateProviderFactory.SetProvider(mock);
+        var entity = new Entity();
+        //.....
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>I know it’s not perfect, but nobody expected it to be that way. The best solution to the problem obviously is a very clean separation of object construction and business logic, and the proven way to achieve that is dependency injection through a container like Windsor or StructureMap. Yet, often you have to look at old codebases where you just need to get the job done, and then it’s nice to know your way around the limitations sometimes.</p>
 

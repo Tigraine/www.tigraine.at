@@ -7,22 +7,28 @@ categories:
 - net
 - programmierung
 ---
-<p>In an ongoing effort to get into NVelocity while programming the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/">iC-Website</a> I wanted to concatenate a filename with the current loop count variable:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:50a177a7-23f8-427b-ab54-ce7e5cbfe938" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;img src="/Content/images/dummy$velocityCount.png" alt="post-image" /&gt;
-</pre></div>
+<p>In an ongoing effort to get into NVelocity while programming the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/">iC-Website</a> I wanted to concatenate a filename with the current loop count variable:</p>  
+{% highlight xml linenos %}
+<img src="/Content/images/dummy$velocityCount.png" alt="post-image" />
+
+{% endhighlight %}
 
 <p>This isn’t working. You’ll end up with <em>dummy$velocityCount.png</em>. While I’d like it to result in <em>dummy1.png</em>.
 
   <br />I suspected it could be solved somehow by using our beloved angle bracket to tell NV to explicitly evaluate my text:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ef7f1b08-ee5a-4f5b-bc04-614681059761" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;img src="/Content/images/dummy{$velocityCount}.png" alt="post-image" /&gt;
-</pre></div>
+
+{% highlight xml linenos %}
+<img src="/Content/images/dummy{$velocityCount}.png" alt="post-image" />
+
+{% endhighlight %}
 
 <p>This will result is <em>dummy{1}.png</em>, why is beyond me but NV will parse it. Still this doesn’t really work so I found the solution on how to explicitly invoke NV evaluation in the NV users guide:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e1a499a8-6ae7-4b3a-ba1d-09751a6a3304" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;img src="/Content/images/dummy${velocityCount}.png" alt="post-image" /&gt;
-</pre></div>
+
+{% highlight xml linenos %}
+<img src="/Content/images/dummy${velocityCount}.png" alt="post-image" />
+
+{% endhighlight %}
 
 <p>This is nothing really new, it’s all laid out in the <a href="http://velocity.apache.org/engine/releases/velocity-1.5/user-guide.html#string_concatenation">NV users-guide</a>, still especially the second case made me scratch my head for a moment. </p>

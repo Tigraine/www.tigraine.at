@@ -9,17 +9,19 @@ categories:
 - pandora
 - projects
 ---
-<p>While getting into WPF and the MVVM pattern (you should check out <a href="http://blog.lab49.com/archives/2650">this Webcast by Jason Dolinger</a> if you need a tutorial to get started on MVVM) I found myself somehow dealing more with concrete classes then I was used to. Usually I hide everything behind some interface and try to think really hard before violating that habit. Nonetheless, ViewModel classes are just that, ViewModel classes very special to their View and you really can’t hide them behind a meaningful Interface (without looking too silly).</p>  <p>So, after writing a fairly small application with only 3 ViewModel classes I found myself writing this utterly meaningless block of code:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0d7ee7cb-7331-4c96-b24e-354a3aed674d" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
-container.Register(p =&gt;
+<p>While getting into WPF and the MVVM pattern (you should check out <a href="http://blog.lab49.com/archives/2650">this Webcast by Jason Dolinger</a> if you need a tutorial to get started on MVVM) I found myself somehow dealing more with concrete classes then I was used to. Usually I hide everything behind some interface and try to think really hard before violating that habit. Nonetheless, ViewModel classes are just that, ViewModel classes very special to their View and you really can’t hide them behind a meaningful Interface (without looking too silly).</p>  <p>So, after writing a fairly small application with only 3 ViewModel classes I found myself writing this utterly meaningless block of code:</p>  
+{% highlight csharp linenos %}
+container.Register(p =>
 {
-&#160;&#160;&#160;&#160;p.Service&lt;PersonViewModel&gt;()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;PersonViewModel&gt;();
-&#160;&#160;&#160;&#160;p.Service&lt;AddressesViewModel&gt;()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;AddressesViewModel&gt;();
-&#160;&#160;&#160;&#160;p.Service&lt;ProductViewModel&gt;()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Implementor&lt;ProductViewModel&gt;();
+    p.Service<PersonViewModel>()
+        .Implementor<PersonViewModel>();
+    p.Service<AddressesViewModel>()
+        .Implementor<AddressesViewModel>();
+    p.Service<ProductViewModel>()
+        .Implementor<ProductViewModel>();
 });
-</pre></div>
+
+{% endhighlight %}
 
 <p>It’s not completely meaningless after all, everything that keeps me from writing <em>new PersonViewModel()</em> somewhere in my code is just awesome. Only, it’s a bit too much of ceremony for something that simple. By asking for a concrete type you already tell Pandora everything it needs to know. </p>
 

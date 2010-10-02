@@ -8,11 +8,13 @@ categories:
 - programmierung
 - projects
 ---
-<p>Some time ago while writing the CSS for the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/" target="_blank">ImagineClub website</a> I found out the hard way that there are two ways of developing XHTML sites: Clean presentation/markup separation or mixing of the both to achieve CSS reusability. </p>  <p>What I mean by mixing is markup code like the following:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a4fdffe0-bd5d-4dc0-9274-d8f6c9894e34" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;div class="floated thick-border highlight"&gt;
-	&lt;p&gt;Stuff&lt;/p&gt;
-&lt;/div&gt;
-</pre></div>
+<p>Some time ago while writing the CSS for the <a href="http://www.tigraine.at/category/programmierung/projects/imagineclub-website/" target="_blank">ImagineClub website</a> I found out the hard way that there are two ways of developing XHTML sites: Clean presentation/markup separation or mixing of the both to achieve CSS reusability. </p>  <p>What I mean by mixing is markup code like the following:</p>  
+{% highlight xml linenos %}
+<div class="floated thick-border highlight">
+	<p>Stuff</p>
+</div>
+
+{% endhighlight %}
 
 <p>I have problems with the above, since I am clearly mixing presentation with data. I want my XHTML to transport structured data that gets styled through CSS. Separation of concerns teaches us that we should rarely have to touch the markup if we want to change appearance, and we should not have to touch the markup if we change the data we are presenting. 
   <br />So the above code clearly blurs the line somewhat, and while still being somewhat semantic markup, it’s also intermingled with presentation concerns what I don’t like at all. </p>
@@ -51,18 +53,22 @@ categories:
 
 <p>web.config</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b82e3cbb-be8e-4d9a-9bea-3930aea081a6" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;add verb="*" path="*.less" type="IronLess.Wrapper.IronLessHandler, IronLess.Wrapper" validate="false"/&gt;
-</pre></div>
+
+{% highlight xml linenos %}
+<add verb="*" path="*.less" type="IronLess.Wrapper.IronLessHandler, IronLess.Wrapper" validate="false"/>
+
+{% endhighlight %}
 
 <p>Global.asax:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b1260150-b250-41b1-8581-7655a6fd8dfe" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 protected void Application_Start()
 {
-&#160;&#160;&#160;&#160;IronLess.Wrapper.RubyEngine.Initialize(Context);
+    IronLess.Wrapper.RubyEngine.Initialize(Context);
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>That should suffice to redirect all request for a <tt>.less</tt> file to the <tt>IronLessHandler </tt>that will compile <tt>.less</tt> to <tt>.css </tt>using LessCss.</p>
 
@@ -71,9 +77,9 @@ protected void Application_Start()
 <p>There are a thousand reasons to use this, but I’ve another thousand why you shouldn’t: </p>
 
 <ol>
-  <li>Startup is painfully slow: Initializing the LessCss ruby script takes &gt;20 seconds. So every application start takes 20 seconds now since we call the RubyEngine initializer in Application_Start (that will kick off the init of the LessCss script that itselfs makes IronRuby parse all the imported libraries resulting in a 20 second library load). That itself makes it completely unbearable since every debug run in Visual Studio now takes 20 seconds to load.</li>
+  <li>Startup is painfully slow: Initializing the LessCss ruby script takes >20 seconds. So every application start takes 20 seconds now since we call the RubyEngine initializer in Application_Start (that will kick off the init of the LessCss script that itselfs makes IronRuby parse all the imported libraries resulting in a 20 second library load). That itself makes it completely unbearable since every debug run in Visual Studio now takes 20 seconds to load.</li>
 
-  <li>LessCss through the DLR can’t read windows line-endings. You have to open up your<tt>.less </tt>file in a editor like <a href="http://notepad-plus.sourceforge.net/de/site.htm" target="_blank">Notepad++</a> and convert it to UNIX style endings (CR-LF -&gt; LF). Not pretty and even less practicable.</li>
+  <li>LessCss through the DLR can’t read windows line-endings. You have to open up your<tt>.less </tt>file in a editor like <a href="http://notepad-plus.sourceforge.net/de/site.htm" target="_blank">Notepad++</a> and convert it to UNIX style endings (CR-LF -> LF). Not pretty and even less practicable.</li>
 
   <li>Error handling / debugging is impossible. I didn’t dare to modify the LessCss.rb script so errors will be outputted to the command-line that you aren’t seeing. So if your .less file has errors you’ll see no useable results on why it failed to load. </li>
 

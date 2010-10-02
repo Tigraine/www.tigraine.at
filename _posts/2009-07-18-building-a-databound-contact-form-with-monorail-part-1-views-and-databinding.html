@@ -8,46 +8,50 @@ categories:
 - castle
 - programmierung
 ---
-<p>In this tutorial we will look the steps necessary to create a form with Castle MonoRail that then gets sent off by email. It will touch FormsHelpers, DataBinding and using the EmailTemplateService to style and EmailSender to send a message. </p>  <p>The tutorial will probably be split into three parts:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a></li>    <li>Validation </li> </ul>  <h1>Views and Databinding</h1>  <p>I assume you already have a (maybe blank) MonoRail site running, if not you could check out <a href="http://bitbucket.org/Tigraine/tigraine-samples/changeset/d881325e46f8/">this changeset</a> on my sample-repository where the MonoRail sample app is still pristine.</p>  <h3>1 – Creating the Controller</h3>  <p>There are two components to a contact form: The form and the thanks screen.    <br />In MVC speech that means we’ll have one Index action just serving up the view, and one Thanks action doing the email sending / heavy lifting.     <br />Anyway the controller for now looks fairly simple:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:221c6661-d580-4367-ae40-4e94cb7f8baf" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>In this tutorial we will look the steps necessary to create a form with Castle MonoRail that then gets sent off by email. It will touch FormsHelpers, DataBinding and using the EmailTemplateService to style and EmailSender to send a message. </p>  <p>The tutorial will probably be split into three parts:</p>  <ul>   <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-1-views-and-databinding/">Views and Databinding</a> </li>    <li><a href="http://www.tigraine.at/2009/07/18/building-a-databound-contact-form-with-monorail-part-2-sending-emails/">Sending Emails</a></li>    <li>Validation </li> </ul>  <h1>Views and Databinding</h1>  <p>I assume you already have a (maybe blank) MonoRail site running, if not you could check out <a href="http://bitbucket.org/Tigraine/tigraine-samples/changeset/d881325e46f8/">this changeset</a> on my sample-repository where the MonoRail sample app is still pristine.</p>  <h3>1 – Creating the Controller</h3>  <p>There are two components to a contact form: The form and the thanks screen.    <br />In MVC speech that means we’ll have one Index action just serving up the view, and one Thanks action doing the email sending / heavy lifting.     <br />Anyway the controller for now looks fairly simple:</p>  
+{% highlight csharp linenos %}
 public class ContactController : SmartDispatcherController
 {
-&#160;&#160;&#160;&#160;public void Index()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-&#160;&#160;&#160;&#160;}
+    public void Index()
+    {
+        
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <h3>2 – Creating the View</h3>
 
-<p><a href="http://www.tigraine.at/wp-content/uploads/2009/07/image8.png"><img style="border-right-width: 0px; display: inline; float: left; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/07/image-thumb5.png" width="221" height="185" /></a> The usual routine for creating MonoRail NVelocity views applies here. The <tt>\Views\&lt;controllername&gt;\&lt;actionname&gt;.vm</tt> convention dictates that our View is called “Index.vm” and placed inside the <tt>\Views\Contact\</tt> folder</p>
+<p><a href="http://www.tigraine.at/wp-content/uploads/2009/07/image8.png"><img style="border-right-width: 0px; display: inline; float: left; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2009/07/image-thumb5.png" width="221" height="185" /></a> The usual routine for creating MonoRail NVelocity views applies here. The <tt>\Views\<controllername>\<actionname>.vm</tt> convention dictates that our View is called “Index.vm” and placed inside the <tt>\Views\Contact\</tt> folder</p>
 
-<p>(Btw, you probably want to tell Visual Studio to open .vm files in HTML view with Rightclick .vm file –&gt; Open With –&gt; select HTML Editor –&gt; Hit Set as Default)</p>
+<p>(Btw, you probably want to tell Visual Studio to open .vm files in HTML view with Rightclick .vm file –> Open With –> select HTML Editor –> Hit Set as Default)</p>
 
 <p>Inside the View we need textfields for Name, Email and Subject. And of course one big textarea for the user’s text.</p>
 
-<p>We all know how HTML works: we could go ahead and build a nice <a href="http://www.alistapart.com/articles/prettyaccessibleforms">accessible form</a> by putting together &lt;input type… tags there and hand-coding everything ourselves. Or we’d just rely on the MonoRail <a href="http://www.castleproject.org/monorail/documentation/trunk/helpers/form/index.html">FormsHelper</a> to provide methods to generate the inputs for us:</p>
+<p>We all know how HTML works: we could go ahead and build a nice <a href="http://www.alistapart.com/articles/prettyaccessibleforms">accessible form</a> by putting together <input type… tags there and hand-coding everything ourselves. Or we’d just rely on the MonoRail <a href="http://www.castleproject.org/monorail/documentation/trunk/helpers/form/index.html">FormsHelper</a> to provide methods to generate the inputs for us:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a0f816bb-9cd1-4edd-8fcb-1f071ec71023" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;form method="post" action="$UrlHelper.For("%{action='Thanks'}")"&gt;
-&lt;fieldset&gt;
-&#160;&#160;&#160;&#160;&lt;legend&gt;Contact Form&lt;/legend&gt;
-&#160;&#160;&#160;&#160;&lt;ol&gt;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;$FormHelper.LabelFor("FormData.Name", "Name")
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.TextField("FormData.Name")&lt;/li&gt;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;$FormHelper.LabelFor("FormData.Email", "Email")
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.TextField("FormData.Email")&lt;/li&gt;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;$FormHelper.LabelFor("FormData.Subject", "Subject")
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.TextField("FormData.Subject")&lt;/li&gt;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;li&gt;$FormHelper.LabelFor("FormData.Text", "Message")
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;$FormHelper.TextArea("FormData.Text", "%{rows='14', cols='0'}")&lt;/li&gt;
-&#160;&#160;&#160;&#160;&lt;/ol&gt;
-&#160;&#160;&#160;&#160;&lt;input type="submit" id="submit" value="Send" /&gt;
-&lt;/fieldset&gt;
-&lt;/form&gt;
-</pre></div>
 
-<p>Note the <tt>$FormHelper.TextField(“FormData.Name”)</tt>call that results in a <tt>&lt;input type=&quot;text&quot; id=&quot;FormData_Name&quot; name=&quot;FormData.Name&quot; value=&quot;&quot; /&gt;</tt>. One nice side-effect of using this helper is that it will look at the current request parameters and if a FormData.Email value is set display it as the textfields value. </p>
+{% highlight xml linenos %}
+<form method="post" action="$UrlHelper.For("%{action='Thanks'}")">
+<fieldset>
+    <legend>Contact Form</legend>
+    <ol>
+        <li>$FormHelper.LabelFor("FormData.Name", "Name")
+        $FormHelper.TextField("FormData.Name")</li>
+        <li>$FormHelper.LabelFor("FormData.Email", "Email")
+        $FormHelper.TextField("FormData.Email")</li>
+        <li>$FormHelper.LabelFor("FormData.Subject", "Subject")
+        $FormHelper.TextField("FormData.Subject")</li>
+        <li>$FormHelper.LabelFor("FormData.Text", "Message")
+        $FormHelper.TextArea("FormData.Text", "%{rows='14', cols='0'}")</li>
+    </ol>
+    <input type="submit" id="submit" value="Send" />
+</fieldset>
+</form>
+
+{% endhighlight %}
+
+<p>Note the <tt>$FormHelper.TextField(“FormData.Name”)</tt>call that results in a <tt><input type=&quot;text&quot; id=&quot;FormData_Name&quot; name=&quot;FormData.Name&quot; value=&quot;&quot; /></tt>. One nice side-effect of using this helper is that it will look at the current request parameters and if a FormData.Email value is set display it as the textfields value. </p>
 
 <p>Also Interesting here is the syntax NVelocity uses to specify Dictionary data inside the view: <tt>“%{key=’value’}</tt>” specifies a IDictionary that gets passed off to our helpers. </p>
 
@@ -56,18 +60,20 @@ public class ContactController : SmartDispatcherController
 <p>A contact-request is a message, so I like to have a data-object to represent that message during processing. This also makes it easier for us to retrieve the inputs sent from the Form (more on that later). 
   <br />So we create a class called <tt>ContactRequest</tt> in the <tt>Models\</tt> folder that can easily hold our form data:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f9268e86-eb37-4fdf-8a93-7db255017f19" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 namespace MonoRail.ContactForm.Models
 {
-&#160;&#160;&#160;&#160;public class ContactRequest
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public string Name { get; set; }
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public string Email { get; set; }
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public string Subject { get; set; }
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;public string Text { get; set; }
-&#160;&#160;&#160;&#160;}
+    public class ContactRequest
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Subject { get; set; }
+        public string Text { get; set; }
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <h3>4 – Databinding the DTO to our Form</h3>
 
@@ -75,20 +81,22 @@ namespace MonoRail.ContactForm.Models
 
   <br />We just need to instruct MonoRail on our action method to bind to all Query parameters starting with FormData and stuff them into our ContactRequest object. Our controller now looks like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e1508cd9-9bf7-4ec4-8fc0-c910a4c9aad7" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public class ContactController : SmartDispatcherController
 {
-&#160;&#160;&#160;&#160;public void Index()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-&#160;&#160;&#160;&#160;}
+    public void Index()
+    {
+        
+    }
 
-&#160;&#160;&#160;&#160;public void Thanks([DataBind("FormData")] ContactRequest request)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-&#160;&#160;&#160;&#160;}
+    public void Thanks([DataBind("FormData")] ContactRequest request)
+    {
+        
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p></p>
 

@@ -7,33 +7,39 @@ categories:
 - net
 - programmierung
 ---
-<p>Object initializers got introduced into C# as part of .NET 3.5 and allow you to define properties through a nice concise syntax that makes code easier to read. Here’s an example:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:af75cd57-21e8-4c8c-8901-454161968bb6" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Object initializers got introduced into C# as part of .NET 3.5 and allow you to define properties through a nice concise syntax that makes code easier to read. Here’s an example:</p>  
+{% highlight csharp linenos %}
 var daniel = new User()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Username = "Tigraine",
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Age = 25,
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Email = "tigraine@tigraine.at"
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
-</pre></div>
+                    {
+                        Username = "Tigraine",
+                        Age = 25,
+                        Email = "tigraine@tigraine.at"
+                    };
+
+{% endhighlight %}
 
 <p>In a .NET 2.0 environment the above code would have looked like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:34c02d3b-6914-4685-9181-0ae4f8c0695b" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 var daniel = new User();
 daniel.Username = "Tigraine";
 daniel.Age = 25;
 daniel.Email = "tigraine@tigraine.at";
-</pre></div>
+
+{% endhighlight %}
 
 <p>The funny thing here is that the .NET 2 code is not thread safe. If daniel is a public field or static field anywhere, the scheduler could interrupt the Thread right after setting the age, leaving you with an empty email field. This is also the reason why I’d call object initializers expressions: Expressions do by definition yield a value. And if we look at the code the compiler generates for an object initializer you will see this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:af4f2650-90a8-41dc-bf60-4695cdb68991" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
-User &lt;&gt;g__initLocal0 = new User();
-&lt;&gt;g__initLocal0.Username = "Tigraine";
-&lt;&gt;g__initLocal0.Age = 0x19;
-&lt;&gt;g__initLocal0.Email = "tigraine@tigraine.at";
-User daniel = &lt;&gt;g__initLocal0;
-</pre></div>
+
+{% highlight csharp linenos %}
+User <>g__initLocal0 = new User();
+<>g__initLocal0.Username = "Tigraine";
+<>g__initLocal0.Age = 0x19;
+<>g__initLocal0.Email = "tigraine@tigraine.at";
+User daniel = <>g__initLocal0;
+
+{% endhighlight %}
 
 <br />
 
@@ -41,17 +47,19 @@ User daniel = &lt;&gt;g__initLocal0;
 
 <p>Well, rewrite it a bit and you get a expression:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:4fce257e-d23c-4c96-a627-ea3d15bbd334" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
-Func&lt;User&gt; expr = () =&gt;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;var user = new User();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;user.Username = "Tigraine";
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;user.Age = 25;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;user.Email = "tigraine@tigraine.at";
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return user;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;};
+
+{% highlight csharp linenos %}
+Func<User> expr = () =>
+                    {
+                        var user = new User();
+                        user.Username = "Tigraine";
+                        user.Age = 25;
+                        user.Email = "tigraine@tigraine.at";
+                        return user;
+                    };
 var daniel = expr();
-</pre></div>
+
+{% endhighlight %}
 
 <br />
 

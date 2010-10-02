@@ -8,7 +8,8 @@ categories:
 - castle
 - programmierung
 ---
-<p>After a stressful week of non-computer related stuff eating up my time today I finally got around to continue some work on the imagineClub website.    <br />I approached the section of file uploads and just wanted to quickly point out an excellent post by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a> about how to properly handle file uploads with MonoRail. </p>  <blockquote>   <p><a href="http://www.kenegozi.com/blog/2008/06/28/filebinderattribute-to-ease-fileupload-in-monorail.aspx">FileBinderAttribute to ease FileUpload in MonoRail</a> – by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a></p> </blockquote>  <p>It’s really nice to see that MonoRail has File upload baked directly into the framework. It’s as easy as that:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2e3a4dfb-861a-45df-99ae-814696ea1f63" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>After a stressful week of non-computer related stuff eating up my time today I finally got around to continue some work on the imagineClub website.    <br />I approached the section of file uploads and just wanted to quickly point out an excellent post by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a> about how to properly handle file uploads with MonoRail. </p>  <blockquote>   <p><a href="http://www.kenegozi.com/blog/2008/06/28/filebinderattribute-to-ease-fileupload-in-monorail.aspx">FileBinderAttribute to ease FileUpload in MonoRail</a> – by <a href="http://www.kenegozi.com/blog/">Ken Egozi</a></p> </blockquote>  <p>It’s really nice to see that MonoRail has File upload baked directly into the framework. It’s as easy as that:</p>  
+{% highlight csharp linenos %}
 public void Upload([DataBind("Document")] Document document, HttpPostedFile uploadedFile)
 {
 	if (uploadedFile != null)
@@ -16,7 +17,8 @@ public void Upload([DataBind("Document")] Document document, HttpPostedFile uplo
 		//TODO: Save File to Disk, Test this properly
 	}
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>But what Ken addresses is a neat way to keep this testable without obscuring the controller code.</p>
 

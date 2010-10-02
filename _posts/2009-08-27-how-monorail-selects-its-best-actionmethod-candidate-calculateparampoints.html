@@ -8,11 +8,13 @@ categories:
 - castle
 - programmierung
 ---
-<p><a href="http://honestillusion.com/Default.aspx" target="_blank">James Curran</a> <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/#comment-3250" target="_blank">pointed me at</a> one interesting flaw with my implementation of the <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/" target="_blank">DefaultValueAttribute for MonoRail</a> I blogged about some weeks ago. This tipped me off to actually read the MonoRail code to find out how exactly MonoRail selects what overload of a ActionMethod to call.</p>  <p>MonoRail’s approach is as simple as it is brilliant, and reading the code that does this is a very pleasant experience. It took about 5 minutes to figure out the following:</p>  <p><font style="background-color: #ffffff">If there are multiple public methods in a <tt>SmartDispatcherController </tt>that match the request’s action, MonoRail calculates a score of parameter points of each overload, picking the “heaviest” and executes it.       <br /></font>How that score is calculated is quite simple: Every matched parameter gets 10 points, unmatched 0.</p>  <p><font style="background-color: #ffffff">But there’s more detail to this:</font></p>  <p><font style="background-color: #ffffff">Every regular parameter (types not defining a attribute of IParameterBinder) where the parameter-name could be matched to the request parameter’s key, MR assumes assumes a weight of 10</font></p>  <p><font style="background-color: #ffffff">In detail this means: Given the following ActionMethod with two parameters:      <br /></font></p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:ba5280de-2599-41f5-a0fe-834f37099c81" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p><a href="http://honestillusion.com/Default.aspx" target="_blank">James Curran</a> <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/#comment-3250" target="_blank">pointed me at</a> one interesting flaw with my implementation of the <a href="http://www.tigraine.at/2009/08/04/defaultvalue-attribute-for-castle-monorail/" target="_blank">DefaultValueAttribute for MonoRail</a> I blogged about some weeks ago. This tipped me off to actually read the MonoRail code to find out how exactly MonoRail selects what overload of a ActionMethod to call.</p>  <p>MonoRail’s approach is as simple as it is brilliant, and reading the code that does this is a very pleasant experience. It took about 5 minutes to figure out the following:</p>  <p><font style="background-color: #ffffff">If there are multiple public methods in a <tt>SmartDispatcherController </tt>that match the request’s action, MonoRail calculates a score of parameter points of each overload, picking the “heaviest” and executes it.       <br /></font>How that score is calculated is quite simple: Every matched parameter gets 10 points, unmatched 0.</p>  <p><font style="background-color: #ffffff">But there’s more detail to this:</font></p>  <p><font style="background-color: #ffffff">Every regular parameter (types not defining a attribute of IParameterBinder) where the parameter-name could be matched to the request parameter’s key, MR assumes assumes a weight of 10</font></p>  <p><font style="background-color: #ffffff">In detail this means: Given the following ActionMethod with two parameters:      <br /></font></p>  <p></p>  
+{% highlight csharp linenos %}
 public void Test(string category, int page)
-{&#160;&#160;&#160;&#160;
+{    
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Monorail will assign 10 points if the key “category” could be found in the server’s request object (<tt>Request[&quot;category&quot;]</tt>) and another 10 if a parameter key called “page” is also present. 
 
@@ -22,14 +24,16 @@ public void Test(string category, int page)
 
 <p><a href="http://localhost/">/Test.rails?category=beer</a></p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3157342b-b5df-4aad-86d4-b9ac5cc078cd" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public void Test(string category, int page)
-{&#160;&#160;&#160;&#160;
+{    
 }
 public void Test(string category)
 {
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Category is present in both cases and page is unmatched, so both methods get 10 points and no useful distinction can be made. This is where MonoRail will award <u>a bonus of 5 points </u>to a method where all parameters could be matched. Thus giving <tt>Test(string)</tt> 15 points and <tt>Test(string, int)</tt> only 10, leading to the right match.</p>
 
@@ -37,14 +41,16 @@ public void Test(string category)
 
 <p>Let’s look at a sample implementation of <tt>CalculateParamPoints</tt> of the <tt>ARFetchAttribute</tt>:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:2532bfc5-a66c-437d-9e0a-01b6030c3bd0" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public virtual int CalculateParamPoints(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 {
 	String paramName = RequestParameterName ?? parameterInfo.Name;
 
 	return context.Request.Params.Get(paramName) != null ? 10 : 0;
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>As you can see, ARFetch follows the usual MonoRail behavior and will return 10 in case it’s parameter-name could be matched, or 0 otherwise. </p>
 

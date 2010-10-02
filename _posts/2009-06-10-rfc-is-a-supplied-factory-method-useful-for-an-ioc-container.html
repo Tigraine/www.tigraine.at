@@ -9,38 +9,42 @@ categories:
 - pandora
 - projects
 ---
-<p>I need your help.    <br />Does it make sense to have something like this in a DI container?</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:51c53fd2-2be2-44b8-a358-4cca9b8374ca" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>I need your help.    <br />Does it make sense to have something like this in a DI container?</p>  
+{% highlight csharp linenos %}
 [Fact]
 public void CanSupplyFactoryMethod()
 {
-&#160;&#160;&#160;&#160;store.Register(
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;p =&gt; p.Service&lt;IService&gt;()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; .Factory(s =&gt; 
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Console.WriteLine("Creating type..");
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (SOME_STATIC_VAR == true)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; {
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return new ClassWithNoDependencies();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; }
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return new OtherClass();
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; })
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;);
-&#160;&#160;&#160;&#160;var service = container.Resolve&lt;IService&gt;();
-&#160;&#160;&#160;&#160;Assert.IsType&lt;ClassWithNoDependencies&gt;(service);
+    store.Register(
+        p => p.Service<IService>()
+                 .Factory(s => 
+                     {
+                         Console.WriteLine("Creating type..");
+                         if (SOME_STATIC_VAR == true)
+                         {
+                             return new ClassWithNoDependencies();
+                         }
+                         return new OtherClass();
+                     })
+        );
+    var service = container.Resolve<IService>();
+    Assert.IsType<ClassWithNoDependencies>(service);
 }
-</pre></div>
 
-<p>The idea being, you can supply a function delegate (Func&lt;IPandoraContainer, T&gt;) to be executed when the service should be instantiated. This would make a rather interesting extensibility story, since I’d avoid having to build in all kinds of hard to find hooks to allow modification of the object creation. </p>
+{% endhighlight %}
+
+<p>The idea being, you can supply a function delegate (Func<IPandoraContainer, T>) to be executed when the service should be instantiated. This would make a rather interesting extensibility story, since I’d avoid having to build in all kinds of hard to find hooks to allow modification of the object creation. </p>
 
 <p>Also, I’d like this delegate to be evaluated during runtime. This could enable me to resolve to another object if for example a network link is down etc.</p>
 
 <p>Another obvious use for this would be to access classes that are present in the .NET BCL but can’t be instantiated and would otherwise be supplied to the container through .Instance like the HttpContext:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:6b1a0b25-8ca1-4710-9d2e-7cede2b48d57" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 store.Register(
-&#160;&#160;&#160;&#160;p =&gt; p.Service&lt;HttpContext&gt;()
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;.Factory(s =&gt; { return HttpContext.Current; }));
-</pre></div>
+    p => p.Service<HttpContext>()
+        .Factory(s => { return HttpContext.Current; }));
+
+{% endhighlight %}
 
 <p></p>
 

@@ -7,23 +7,25 @@ categories:
 - castle
 - programmierung
 ---
-<p>The following code is extensible and configurable:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:56579584-4fbe-4802-8fd2-c15afbc0bdc2" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>The following code is extensible and configurable:</p>  
+{% highlight csharp linenos %}
 public class Worker
 {
-&#160;&#160;&#160;&#160;private IValueCalculator valueCalculator = new DefaultValueCalculator();
+    private IValueCalculator valueCalculator = new DefaultValueCalculator();
 
-&#160;&#160;&#160;&#160;public IValueCalculator ValueCalculator
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get { return valueCalculator; }
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;set { valueCalculator = value; }
-&#160;&#160;&#160;&#160;}
+    public IValueCalculator ValueCalculator
+    {
+        get { return valueCalculator; }
+        set { valueCalculator = value; }
+    }
 
-&#160;&#160;&#160;&#160;public decimal Work(int number)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return valueCalculator.Calculate(number);
-&#160;&#160;&#160;&#160;}
+    public decimal Work(int number)
+    {
+        return valueCalculator.Calculate(number);
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>What happens here is that I am using the strategy pattern to implement different behaviors to keep my Worker class safe from changes to the calculator code. 
   <br />Basically I’m doing dependency injection here, but I don’t inject the class through the constructor but through setter injection. </p>
@@ -35,29 +37,33 @@ public class Worker
 <p>It’s extensible because it’s easy to implement the IValueCalculator interface and supply it to a worker instance, without changing any of the plumbing around it. 
   <br />If I want to change the behavior for just one call i can do that very easily:
 
-  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:cd0ea7b9-0689-44d7-8d37-fda471a62a68" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+  
+{% highlight csharp linenos %}
 var worker = new Worker();
 var oldCalculator = worker.ValueCalculator;
 worker.ValueCalculator = new AlternativeCalculator();
 worker.Work(1701);
 worker.ValueCalculator = oldCalculator;
-</pre></div>
+
+{% endhighlight %}
 </p>
 
 <p>But the real beauty of the whole thing is that an inversion of control container like <a href="http://www.castleproject.org/container/index.html">Castle Windsor</a> can also inject setters, so in absence of a configuration file, the default implementation from the code will be used.
 
   <br />But once a Windsor configuration is found you can swap the strategy classes through the configuration even without recompiling like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b7b39bf9-022f-41d8-84ec-d5dd94a59847" class="wlWriterEditableSmartContent"><pre name="code" class="xml">
-&lt;components&gt;
-&#160;&#160;&#160;&#160;&lt;component 
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;id="Worker"
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;type="Blog_Sample.Worker, Blog_Sample" /&gt;
-&#160;&#160;&#160;&#160;&lt;component
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;id="Alternative.Calculator"
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;service="Blog_Sample.IValueCalculator, Blog_Sample"
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;type="Blog_Sample.AlternativeCalculator, Blog_Sample" /&gt;
-&lt;/components&gt;
-</pre></div>
+
+{% highlight xml linenos %}
+<components>
+    <component 
+        id="Worker"
+        type="Blog_Sample.Worker, Blog_Sample" />
+    <component
+        id="Alternative.Calculator"
+        service="Blog_Sample.IValueCalculator, Blog_Sample"
+        type="Blog_Sample.AlternativeCalculator, Blog_Sample" />
+</components>
+
+{% endhighlight %}
 
 <p>If you want the default behavior just delete the Alternative.Calculator component and no setter injection will happen. If a service implementing IValueCalculator is present that one will be injected to the Worker.</p>

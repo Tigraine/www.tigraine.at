@@ -6,30 +6,34 @@ postid: 468
 categories:
 - uncategorized
 ---
-<p>Ok, this may be old news to many of you, but I believe what had the most impact (quality wise) on my work last year was my discovery of the dependency injection pattern. So, yes I guess I’ll have to blog about it :).    <br />Also I am going to deliver a talk at the <a href="http://www.barcamp.at/BarCamp_Klagenfurt_2009">Barcamp Klagenfurt 09</a> on the topic.</p>  <p>Ok, so what is the dependency injection pattern?    <br />Consider the following scenario: You have a class that will monitor traffic and notify authorities in case of an accident. Let’s say we are OO savy enough that we created a separate class that takes care of sending notification emails called EmailNotifier (it’s not that common you know, I’ve seen and done enough inline email sending to deserve a lifelong prison sentence if Bob Martin or Fowler would have a word in that).     <br />Now our TrafficWatcher class can simply instantiate the EmailNotifier class, supply some configuration (SMTP server etc) and call the Nofify() method.     <br />So our code for NotificationService would look like this:</p>  <p></p>  <p></p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:935132ca-40bb-448c-a907-060cc8d3a9e7" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+<p>Ok, this may be old news to many of you, but I believe what had the most impact (quality wise) on my work last year was my discovery of the dependency injection pattern. So, yes I guess I’ll have to blog about it :).    <br />Also I am going to deliver a talk at the <a href="http://www.barcamp.at/BarCamp_Klagenfurt_2009">Barcamp Klagenfurt 09</a> on the topic.</p>  <p>Ok, so what is the dependency injection pattern?    <br />Consider the following scenario: You have a class that will monitor traffic and notify authorities in case of an accident. Let’s say we are OO savy enough that we created a separate class that takes care of sending notification emails called EmailNotifier (it’s not that common you know, I’ve seen and done enough inline email sending to deserve a lifelong prison sentence if Bob Martin or Fowler would have a word in that).     <br />Now our TrafficWatcher class can simply instantiate the EmailNotifier class, supply some configuration (SMTP server etc) and call the Nofify() method.     <br />So our code for NotificationService would look like this:</p>  <p></p>  <p></p>  
+{% highlight csharp linenos %}
 public class NotificationService
 {
-&#160;&#160;&#160;&#160;public void NotifyUser()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;EmailNotifier notifier = new EmailNotifier("smtp.server.com");
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;notifier.Notify();
-&#160;&#160;&#160;&#160;}
+    public void NotifyUser()
+    {
+        EmailNotifier notifier = new EmailNotifier("smtp.server.com");
+        notifier.Notify();
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Ok, this is kind of neat, and the EmailNotifier class can be reused quite easily. But the LostPasswordService class is a mess. Not only has it’s responsibility changed (besides notifying the user it now also handles the object creation), but it also knows far too much about the EmailNotifier configuration by supplying the SMTP server. The LostPasswordService will have to change once we decide to not hardcode the SMTP server (placing another responsibility in there: Configuration handling). And any changes in the EmailNotifier construction (what about a SMTP port?) will affect LostPasswordService too.</p>
 
 <p>So, the usual approach here would have been to create a Factory that takes care of creating the EmailNotifier class and handles it’s configuration. That would now protect the LostPasswordService from changes in the object creation. To avoid us having to new up the factory in the NotificationService (creating the whole mess again) we’d use a static factory like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:751b872c-ba6e-46c0-b097-320f6bda2ee9" class="wlWriterEditableSmartContent"><pre name="code" class="csharp">
+
+{% highlight csharp linenos %}
 public static class NotifierFactory
 {
-&#160;&#160;&#160;&#160;public static EmailNotifier GetNotifierInstance()
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return new EmailNotifier("smtp.server.com");
-&#160;&#160;&#160;&#160;}
+    public static EmailNotifier GetNotifierInstance()
+    {
+        return new EmailNotifier("smtp.server.com");
+    }
 }
-</pre></div>
+
+{% endhighlight %}
 
 <p>Now the Service can get the object from the factory and we have decoupled the NotificationService from the EmailNotifier classes, making them both pretty reuseable. Right?</p>
 
