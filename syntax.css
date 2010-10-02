@@ -1,14 +1,5 @@
-.highlight  { background: #ffffff; border: 1px solid #E7E5DC; font-family: Consolas, 'Courier New', Courier, mono, serif; font-size: 12px }
-.highlight pre { margin: 0px; }
-.highlight .lineno { 
-	background: #E7E5DC; 
-	border-right: 2px solid #6ce26c; 
-	color: #5c5c5c; 
-	width: 25px; 
-	display: inline-block; 
-	text-align: right; 
-	padding-right: 10px; 
-}
+.highlight  { background: #E7E5DC; border: 1px solid #E7E5DC; font-family: Consolas, 'Courier New', Courier, mono, serif; font-size: 12px }
+.highlight pre { margin: 0px; margin-left: 16px; background: white; padding-left: 4px; }
 .highlight .c { color: #999988; font-style: italic } /* Comment */
 .highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
 .highlight .k { font-weight: bold; color: #0000ff; } /* Keyword */
