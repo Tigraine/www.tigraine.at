@@ -7,39 +7,40 @@ categories:
 - net
 - programmierung
 ---
-<p>So, after reading some stuff about HttpModules lately I thought it would be fun to create one myself. And, so I came up with something that might be useful in some scenarios.</p>  <p>A HttpModule that will cry foul when you try to put up a ASP.NET website with debug=&quot;true&quot; onto a production server.    <br />It is actually rather simple. Just a standard HttpModule that will check wether the request is local and wether debug is enabled. The local request check is done to make the module transparent to you while developing the app on cassini, while you'll see it instantly when you copy it over to your web server.</p>  <p>The code is rather simple:</p>  <div style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e91377a4-a7ee-4e6c-ac7e-85bbf9f217e7" class="wlWriterSmartContent"><pre name="code" class="csharp">
+<p>So, after reading some stuff about HttpModules lately I thought it would be fun to create one myself. And, so I came up with something that might be useful in some scenarios.</p>  <p>A HttpModule that will cry foul when you try to put up a ASP.NET website with debug=&quot;true&quot; onto a production server.    <br />It is actually rather simple. Just a standard HttpModule that will check wether the request is local and wether debug is enabled. The local request check is done to make the module transparent to you while developing the app on cassini, while you'll see it instantly when you copy it over to your web server.</p>  <p>The code is rather simple:</p>
+{% highlight csharp linenos %}
 public class DebugWarner : IHttpModule
 {
 
-&#160;&#160;&#160;&#160;public void Dispose()
-&#160;&#160;&#160;&#160;{&#160;&#160;&#160;&#160;}
+    public void Dispose()
+    {    }
 
-&#160;&#160;&#160;&#160;public void Init(HttpApplication context)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;context.BeginRequest += new EventHandler(context_BeginRequest);
-&#160;&#160;&#160;&#160;}
+    public void Init(HttpApplication context)
+    {
+        context.BeginRequest += new EventHandler(context_BeginRequest);
+    }
 
-&#160;&#160;&#160;&#160;void context_BeginRequest(object sender, EventArgs e)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (!HttpContext.Current.Request.IsLocal && 
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;HttpContext.Current.IsDebuggingEnabled)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;HttpContext.Current.Response.Write(
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"&lt;div style=\"background: #ea999d; border: 1px solid black; width: 500px; text-align: center;\"&gt;\n" +
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"&lt;h1&gt;Debug Mode is enabled!&lt;/h1&gt;&lt;p&gt;This severely impacts Webserver performance&lt;br /&gt;" +
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"Set &lt;compilation debug=&quot;false&quot;&gt; in your web.config&lt;/p&gt;" +
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"&lt;/div&gt;");
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;}
+    void context_BeginRequest(object sender, EventArgs e)
+    {
+        if (!HttpContext.Current.Request.IsLocal && 
+            HttpContext.Current.IsDebuggingEnabled)
+        {
+            HttpContext.Current.Response.Write(
+                "<div style=\"background: #ea999d; border: 1px solid black; width: 500px; text-align: center;\">\n" +
+                "<h1>Debug Mode is enabled!</h1><p>This severely impacts Webserver performance<br />" +
+                "Set <compilation debug="false"> in your web.config</p>" +
+                "</div>");
+        }
+    }
 }
-</pre></div>
+{% endhighlight %}
 
-<p>Making this work is quite easy too, simply put the above class in your App_Code directory and add this line to your &lt;httpModules&gt; (or &lt;modules&gt; on IIS7) section:</p>
+<p>Making this work is quite easy too, simply put the above class in your App_Code directory and add this line to your <httpModules> (or <modules> on IIS7) section:</p>
 
 <p>
-  <div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:cdc62c30-c834-4d09-905b-6d8c0f40f2bb" class="wlWriterSmartContent"><pre name="code" class="xml">
-&lt;add name="DebugWarner" type="DebugWarner"/&gt;
-</pre></div>
+{% highlight xml linenos %}
+<add name="DebugWarner" type="DebugWarner"/>
+{% endhighlight %}
 </p>
 
 <p>If you now try to access the page with debug=&quot;true&quot; you'll get:</p>

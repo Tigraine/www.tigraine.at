@@ -9,59 +9,110 @@ categories:
 - programmierung
 - nhibernate
 ---
-<p>If the title sounds familiar to you, it’s intentional. After having to <a href="http://www.tigraine.at/2009/05/29/fluent-nhibernate-gotchas-when-testing-with-an-in-memory-database/">deal with this in pure NHibernate</a> it came around to also bite me with ActiveRecord.</p>  <p>In short: in-memory SQLite will drop the schema whenever you close the NHibernate ISession object (since ActiveRecord uses NHibernate behind the scenes this poses a problem to us).</p>  <p>So, assuming you have setup ActiveRecord using an InPlaceConfiguratonSource similar to this:</p>  <div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c61b39db-8996-45c2-8958-ef421eb88593" class="wlWriterSmartContent">   <pre class="csharp" name="code">IDictionary&lt;string, string&gt; properties = new Dictionary&lt;string, string&gt;();
-properties.Add(&quot;connection.driver_class&quot;, &quot;NHibernate.Driver.SQLite20Driver&quot;);
-properties.Add(&quot;dialect&quot;, &quot;NHibernate.Dialect.SQLiteDialect&quot;);
-properties.Add(&quot;connection.provider&quot;,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &quot;NHibernate.Connection.DriverConnectionProvider&quot;);
-properties.Add(&quot;connection.connection_string&quot;, &quot;Data Source=:memory:;Version=3;New=True;&quot;);
-properties.Add(&quot;show_sql&quot;, &quot;true&quot;);
-properties.Add(&quot;proxyfactory.factory_class&quot;,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &quot;NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle&quot;);
+<p>If the title sounds familiar to you, it’s intentional. After having to <a href="http://www.tigraine.at/2009/05/29/fluent-nhibernate-gotchas-when-testing-with-an-in-memory-database/">deal with this in pure NHibernate</a> it came around to also bite me with ActiveRecord.</p>  <p>In short: in-memory SQLite will drop the schema whenever you close the NHibernate ISession object (since ActiveRecord uses NHibernate behind the scenes this poses a problem to us).</p>  <p>So, assuming you have setup ActiveRecord using an InPlaceConfiguratonSource similar to this:</p> 
+
+{% highlight csharp linenos %}
+IDictionary<string, string> properties = new Dictionary<string, string>();
+properties.Add("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
+properties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
+properties.Add("connection.provider", "NHibernate.Connection.DriverConnectionProvider");
+properties.Add("connection.connection_string", "Data Source=:memory:;Version=3;New=True;");
+properties.Add("show_sql", "true");
+properties.Add("proxyfactory.factory_class", "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle");
 
 var source = new InPlaceConfigurationSource();
 source.Add(typeof (ActiveRecordBase), properties);
 
 ActiveRecordStarter.Initialize(source, typeof (Member).Assembly.GetTypes());
-ActiveRecordStarter.CreateSchema();</pre>
-</div>
+ActiveRecordStarter.CreateSchema();
+{% endhighlight %}
 
 <p>You will not be able to run any queries against it because there is no schema present. In fact the code will consistently blow up with a <em>SQLiteException</em> stating “<em>no such table:</em> ….”. Unfortunately it’s not really possible to change the SessionFactory implementation here because that code is inside ActiveRecord.</p>
 
 <p>Thank god I found <a href="http://notepad2.wordpress.com/2008/05/19/unit-testing-castle-active-record-using-sqlite-in-memory-database/">this handy guide</a> that suggested subclassing the DriverConnectionProvider class to replace the CloseConnection call with a fake like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:3b7fd707-6d53-454d-9296-1c9e4849a512" class="wlWriterSmartContent">
-  <pre class="csharp" name="code">public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.DriverConnectionProvider
-{&#160;&#160;&#160;&#160; public static System.Data.IDbConnection Connection = null;&#160;&#160;&#160;&#160; public override System.Data.IDbConnection GetConnection()&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (Connection == null)&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Connection = base.GetConnection();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return Connection;&#160;&#160;&#160;&#160; }&#160;&#160;&#160;&#160; public override void CloseConnection(System.Data.IDbConnection conn)&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160; }
-}</pre>
-</div>
+{% highlight csharp linenos %}
+public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.DriverConnectionProvider
+{
+    public static System.Data.IDbConnection Connection = null;
+	public override System.Data.IDbConnection GetConnection()
+	{
+	    if (Connection == null)
+		    Connection = base.GetConnection();
+		return Connection;
+	}
+	public override void CloseConnection(System.Data.IDbConnection conn)
+	{
+	}
+}
+{% endhighlight %}
 
 <p>I then had to pass that new ConnectionProvider into NH through the configuration and all was well:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:f68e7a38-94b2-4afc-89e8-5384791e91c0" class="wlWriterSmartContent">
-  <pre class="csharp" name="code">properties.Add(&quot;connection.provider&quot;,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &quot;ImagineClub.Tests.SqLiteInMemoryTestingConnectionProvider, ImagineClub.Tests&quot;);</pre>
-</div>
+{% highlight csharp linenos %}
+properties.Add("connection.provider",
+    "ImagineClub.Tests.SqLiteInMemoryTestingConnectionProvider, ImagineClub.Tests");</pre>
+{% endhighlight %}
 
 <p>Only catch is, this doing the AR Initialization is painfully slow so I wrote a baseclass for my xUnit tests that makes sure AR Init is only run once and that the ActiveRecordStarter.CreateSchema() is run before every test (xUnit runs the testclass constructor before each test):</p>
 
 <p>The final implementation for all my tests looks like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:e28e2426-cd37-42a7-9e3f-6c93d1391460" class="wlWriterSmartContent">
-  <pre class="csharp" name="code">public class ActiveRecordInMemoryTestBase
-{&#160;&#160;&#160;&#160; public ActiveRecordInMemoryTestBase()&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (!ActiveRecordStarter.IsInitialized)&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Initialize();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; ActiveRecordStarter.CreateSchema();&#160;&#160;&#160;&#160; }&#160;&#160;&#160;&#160; private static void Initialize()&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; IDictionary&lt;string, string&gt; properties = new Dictionary&lt;string, string&gt;();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;connection.driver_class&quot;, &quot;NHibernate.Driver.SQLite20Driver&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;dialect&quot;, &quot;NHibernate.Dialect.SQLiteDialect&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;connection.provider&quot;,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &quot;ImagineClub.Tests.SqLiteInMemoryTestingConnectionProvider, ImagineClub.Tests&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;connection.connection_string&quot;, &quot;Data Source=:memory:;Version=3;New=True;&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;show_sql&quot;, &quot;true&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; properties.Add(&quot;proxyfactory.factory_class&quot;,&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; &quot;NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle&quot;);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; var source = new InPlaceConfigurationSource();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; source.Add(typeof (ActiveRecordBase), properties);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; ActiveRecordStarter.Initialize(source, typeof (Member).Assembly.GetTypes());&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; ActiveRecordStarter.CreateSchema();&#160;&#160;&#160;&#160; }
+{% highlight csharp linenos %}
+public class ActiveRecordInMemoryTestBase
+{
+    public ActiveRecordInMemoryTestBase()
+	{
+	    if (!ActiveRecordStarter.IsInitialized)
+		    Initialize()
+		ActiveRecordStarter.CreateSchema()
+	}
+	private static void Initialize()
+	{
+	    IDictionary<string, string> properties = new Dictionary<string, string>()
+		properties.Add("connection.driver_class", "NHibernate.Driver.SQLite20Driver");
+		properties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
+		properties.Add("connection.provider", 
+		    "ImagineClub.Tests.SqLiteInMemoryTestingConnectionProvider, ImagineClub.Tests")
+		properties.Add("connection.connection_string", "Data Source=:memory:;Version=3;New=True;");
+		properties.Add("show_sql", "true");
+		properties.Add("proxyfactory.factory_class",
+		    "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle");
+		var source = new InPlaceConfigurationSource();
+		source.Add(typeof (ActiveRecordBase), properties);
+		ActiveRecordStarter.Initialize(source, typeof (Member).Assembly.GetTypes());
+		ActiveRecordStarter.CreateSchema();
+	}
 }
 
 public class SqLiteInMemoryTestingConnectionProvider : NHibernate.Connection.DriverConnectionProvider
-{&#160;&#160;&#160;&#160; public static System.Data.IDbConnection Connection = null;&#160;&#160;&#160;&#160; public override System.Data.IDbConnection GetConnection()&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (Connection == null)&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Connection = base.GetConnection();&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return Connection;&#160;&#160;&#160;&#160; }&#160;&#160;&#160;&#160; public override void CloseConnection(System.Data.IDbConnection conn)&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160; }
-}</pre>
-</div>
+{
+    public static System.Data.IDbConnection Connection = null;
+	public override System.Data.IDbConnection GetConnection()
+	{
+	    if (Connection == null)
+		    Connection = base.GetConnection();
+		return Connection;
+	}
+	public override void CloseConnection(System.Data.IDbConnection conn)
+	{
+	}
+}
+{% endhighlight %}
 
 <p>Caution: If you copy/paste the above make sure to change the namespace and assemblyname for your SqLiteInMemoryTestingConnectionProvider to match yours.</p>
 
 <p>So a database dependant unit test would look like this:</p>
 
-<div style="padding-bottom: 0px; margin: 0px; padding-left: 0px; padding-right: 0px; display: inline; float: none; padding-top: 0px" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:636346ac-000b-4cf3-aa89-89764e97d5d7" class="wlWriterSmartContent">
-  <pre class="csharp" name="code">public class DatabaseTest : ActiveRecordInMemoryTestBase
-{&#160;&#160;&#160;&#160; [Fact]&#160;&#160;&#160;&#160; public void DatabaseIsEmpty()&#160;&#160;&#160;&#160; {&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Assert.Equal(0, Member.FindAll().Length);&#160;&#160;&#160;&#160; }
-}</pre>
-</div>
+{% highlight csharp linenos %}
+public class DatabaseTest : ActiveRecordInMemoryTestBase
+{
+	[Fact]
+	public void DatabaseIsEmpty()
+	{
+		Assert.Equal(0, Member.FindAll().Length)
+	}
+}
+{% endhighlight %}
 
 <p>Initial runs are quite slow due to the AR Init, but the whole test-suite should run quite fast since only the schema creation is run before each test.</p>

@@ -16,48 +16,50 @@ categories:
 - 
 - testing
 ---
-<p><em>In </em><a href="http://www.tigraine.at/2008/11/04/unit-testing-with-mocks-part-1/"><em>Part1</em></a><em> of this series I have showed you how to create a very simple mock object by hand. In this post I will show you how to use <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> to create the mock and how to verify this. This post is intended as basic advice, and won’t cover any advanced <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> topics, just the basic setup/replay/verify steps.</em></p>  <p>When working with almost any mock framework there are 3 things: Setup, expectation recording and verifying that the expectations where met.    <br />That means, first you tell the mock object what calls to expect. Then you let the method under test do it’s magic and afterwards you let the mock verify that all expected calls where made.     <br />You can get very precise on what to expect and how to expect it, but that will be covered in the next part of this series.</p>  <p>The <a href="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk/RhinoMockBasics/NotifierMock.cs">hand-made mock from Part1</a> would translate to a test like this when using RhinoMocks:</p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:bbd64305-ada4-4ebe-bf03-4aacc36a662b" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+<p><em>In </em><a href="http://www.tigraine.at/2008/11/04/unit-testing-with-mocks-part-1/"><em>Part1</em></a><em> of this series I have showed you how to create a very simple mock object by hand. In this post I will show you how to use <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> to create the mock and how to verify this. This post is intended as basic advice, and won’t cover any advanced <a href="http://ayende.com/projects/rhino-mocks.aspx">RhinoMocks</a> topics, just the basic setup/replay/verify steps.</em></p>  <p>When working with almost any mock framework there are 3 things: Setup, expectation recording and verifying that the expectations where met.    <br />That means, first you tell the mock object what calls to expect. Then you let the method under test do it’s magic and afterwards you let the mock verify that all expected calls where made.     <br />You can get very precise on what to expect and how to expect it, but that will be covered in the next part of this series.</p>  <p>The <a href="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk/RhinoMockBasics/NotifierMock.cs">hand-made mock from Part1</a> would translate to a test like this when using RhinoMocks:</p>  
+
+{% highlight csharp linenos %}
 [Test]
 public void ServiceWatcherNotifiesUser()
 {
-&#160;&#160;&#160;&#160;var repository = new MockRepository();
-&#160;&#160;&#160;&#160;var notifier = repository.StrictMock&lt;IErrorNotifier&gt;();
+    var repository = new MockRepository();
+    var notifier = repository.StrictMock<IErrorNotifier>();
 
-&#160;&#160;&#160;&#160;notifier.NotifyOfServiceDown();
+    notifier.NotifyOfServiceDown();
 
-&#160;&#160;&#160;&#160;repository.ReplayAll();
+    repository.ReplayAll();
 
-&#160;&#160;&#160;&#160;var watcher = new HttpServiceWatcher(notifier);
-&#160;&#160;&#160;&#160;watcher.ObserveService();
+    var watcher = new HttpServiceWatcher(notifier);
+    watcher.ObserveService();
 
-&#160;&#160;&#160;&#160;repository.VerifyAll();
+    repository.VerifyAll();
 }
-</pre></div>
+{% endhighlight %}
 
 <p>The main things here: 
   <br />We start the repository and then request a IErrorNotifier object from it.</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:dac7032c-fb88-4b3e-950b-a30e0bcfe4a2" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">var repository = new MockRepository();
-var notifier = repository.StrictMock&lt;IErrorNotifier&gt;();</pre>
-</div>
+{% highlight csharp linenos %}
+var repository = new MockRepository();
+var notifier = repository.StrictMock<IErrorNotifier>();
+{% endhighlight %}
 
 <p>The mock object (notifier) is in record mode now, all calls we do to the object aren’t actually executed but will be expected afterwards. 
   <br />So if we want NotifyOfServiceDown to be called once we simply call it while in record mode:</p>
 
 <p></p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:b9a24ba8-be84-4668-b6a2-80cef1cf8639" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">notifier.NotifyOfServiceDown();</pre>
-</div>
+{% highlight csharp linenos %}
+notifier.NotifyOfServiceDown()
+{% endhighlight %}
 
 <p></p>
 
 <p>After having set up all expectations in record mode, we tell the Mockrepository to go to replay mode:</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:0a263421-9c4b-45f9-a958-7be468b2ac56" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">repository.ReplayAll();</pre>
-</div>
+{% highlight csharp linenos %}
+repository.ReplayAll();
+{% endhighlight %}
 
 <p></p>
 
@@ -65,26 +67,26 @@ var notifier = repository.StrictMock&lt;IErrorNotifier&gt;();</pre>
 
 <p>Now we construct the object under test:</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:08721290-8d50-4960-94e5-d0cfde13d582" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">var watcher = new HttpServiceWatcher(notifier);</pre>
-</div>
+{% highlight csharp linenos %}
+var watcher = new HttpServiceWatcher(notifier);
+{% endhighlight %}
 
 <p>And note that we pass the mock object instead of an actual implementation of IErrorNotifier. 
   <br />Now we call the method under test just as we would normally:</p>
 
 <p></p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:84a0712a-57fd-42cc-bffd-7a9f35fb9968" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">watcher.ObserveService();</pre>
-</div>
+{% highlight csharp linenos %}
+watcher.ObserveService();
+{% endhighlight %}
 
 <p></p>
 
 <p>That leaves us with only one step left, we tell the repository to verify all mocks that where created and it will throw Exceptions if mocks didn’t get called or did get called too often.</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:c6352938-1f13-45bc-ba96-ee6863c6e4eb" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px">
-  <pre class="csharp" name="code">repository.VerifyAll();</pre>
-</div>
+{% highlight csharp linenos %}
+repository.VerifyAll();
+{% endhighlight %}
 
 <p>Although this is just a very basic example of how to use RhinoMocks, you are able to see the benefits from this. You could write the HttpServiceWatcher class without having to write any concrete <a href="https://office.pixelpoint.at:8443/svn/tigraine/UnitTesting/trunk/RhinoMockBasics/IErrorNotifier.cs">IErrorNotifier</a> implementations. You can just concentrate on the HttpServiceWatcher instead of worrying how the underlying Service is going to work.</p>
 

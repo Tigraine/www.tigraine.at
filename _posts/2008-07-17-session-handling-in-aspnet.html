@@ -27,14 +27,14 @@ Session["userid"] = userid;
 
 <p>I suggest starting off with the session data object that we will use to store our data in:</p>
 
-<div style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:4f1e44e4-5cd8-4a7d-b43c-358ae45ee51c" class="wlWriterSmartContent"><pre name="code" class="csharp">
+{% highlight csharp linenos %}
 [Serializable()]
 public class UserSessionData
 {
-&#160;&#160;&#160;&#160;public int UserId
-&#160;&#160;&#160;&#160;{ get; set; }
+    public int UserId
+    { get; set; }
 }
-</pre></div>
+{% endhighlight %}
 
 <p>Notice that I've put the Serializable() attribute onto the class so if you want to store the session in a state server or in sql server the CLR knows how to serialize the object and store it.
   <br />The whole object is solely responsible for keeping our UserId, nothing more nothing less.</p>
@@ -42,39 +42,39 @@ public class UserSessionData
 <p>And now we need to store this object in the session, for that purpose we could just incorporate static methods into the class that would retrieve and set the object to the current session.
   <br />Because we're working with ASP.NET here we want this UserSessionData to be accessible from within our ASP.NET Webform so it's pretty cool to just subclass Web.UI.Page and use it afterwards as the base class for our Webforms:</p>
 
-<div style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:212c3ca8-17a0-49de-b856-f2f7e99af664" class="wlWriterSmartContent"><pre name="code" class="csharp">
+{% highlight csharp linenos %}
 public class SessionHandler : System.Web.UI.Page
 {
-&#160;&#160;&#160;&#160;private const string SESSION_NAME = "UserSession";
-&#160;&#160;&#160;&#160;public UserSessionData SessionData
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;get
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;UserSessionData sessionData = (UserSessionData)Session[SESSION_NAME];
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if (sessionData != null)
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;return sessionData;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;else
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;throw new Exception("Could not retrieve session state");
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;set
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Session[SESSION_NAME] = value;
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}
-&#160;&#160;&#160;&#160;}
+    private const string SESSION_NAME = "UserSession";
+    public UserSessionData SessionData
+    {
+        get
+        {
+            UserSessionData sessionData = (UserSessionData)Session[SESSION_NAME];
+            if (sessionData != null)
+                return sessionData;
+            else
+                throw new Exception("Could not retrieve session state");
+        }
+        set
+        {
+            Session[SESSION_NAME] = value;
+        }
+    }
 }
-</pre></div>
+{% endhighlight %}
 
 <p>Now we only need to open our code-behind file and change it's superclass from Page to our SessionHandler (that just wraps Page):</p>
 
-<div style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:be6aa766-1006-4706-ac4b-6b0cdeb5a21f" class="wlWriterSmartContent"><pre name="code" class="csharp">
+{% highlight csharp linenos %}
 public partial class _Default : SessionHandler
 {
-&#160;&#160;&#160;&#160;protected void Page_Load(object sender, EventArgs e)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.Title = this.SessionData.UserId.ToString();
-&#160;&#160;&#160;&#160;}&#160;&#160; 
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        this.Title = this.SessionData.UserId.ToString();
+    }   
 }
-</pre></div>
+{% endhighlight %}
 
 <p>Now whenever you need to read the UserId there is this neat property called SessionData that knows all about your user, while you don't need to do any is-null checks any more in your code, that's all handled by the SessionHandler class when accessing the session object :).</p>
 

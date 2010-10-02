@@ -7,23 +7,24 @@ categories:
 - net
 - programmierung
 ---
-<p>So, yesterday I noticed something funny while doing some data-driven ASP.NET programming.</p>  <p>There are those really great Validation controls that really reduce the amount of code you need to write on average input forms.</p>  <p>So, imagine you have quite usual code like this:</p>  <div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:890ede4d-3b1a-4e0e-8487-da100c692dff" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
-&lt;asp:TextBox runat="server" ID="MyTextbox"&gt;&lt;/asp:TextBox&gt;&lt;br /&gt;
-&lt;asp:RequiredFieldValidator ControlToValidate="MyTextbox" runat="server"&gt;&lt;br /&gt;
-&#160;&#160;&#160;&#160;Textbox shouldn't be empty
-&lt;/asp:RequiredFieldValidator&gt;
+<p>So, yesterday I noticed something funny while doing some data-driven ASP.NET programming.</p>  <p>There are those really great Validation controls that really reduce the amount of code you need to write on average input forms.</p>  <p>So, imagine you have quite usual code like this:</p>  
+{% highlight html linenos %}
+<asp:TextBox runat="server" ID="MyTextbox"></asp:TextBox><br />
+<asp:RequiredFieldValidator ControlToValidate="MyTextbox" runat="server"><br />
+    Textbox shouldn't be empty
+</asp:RequiredFieldValidator>
 
-&lt;asp:Button runat="server" Text="Submit" OnClick="Submit_Click" /&gt;
-</pre></div>
+<asp:Button runat="server" Text="Submit" OnClick="Submit_Click" />
+{% endhighlight %}
 
 <p>This will result in a simple form with a textbox and a submit button. The handler code for the button looks like this:</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:94cf234c-c42b-4386-80bc-27d10f718463" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+{% highlight csharp linenos %}
 public void Submit_Click(object sender, EventArgs e)
 {
-&#160;&#160;&#160;&#160;this.Title = "Hello World";
+    this.Title = "Hello World";
 }
-</pre></div>
+{% endhighlight %}
 
 <p>Now, if you click on the button while leaving the textbox blank, you'll see the red message that the field needs to be filled.</p>
 
@@ -33,15 +34,15 @@ public void Submit_Click(object sender, EventArgs e)
 
 <p>So, here is the revised handler code:</p>
 
-<div class="wlWriterSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:9b394bb9-7ed0-4bc6-8937-d6302720bea4" style="padding-right: 0px; display: inline; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="csharp">
+{% highlight csharp linenos %}
 public void Submit_Click(object sender, EventArgs e)
 {
-&#160;&#160;&#160;&#160;if (this.IsValid)
-&#160;&#160;&#160;&#160;{
-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;this.Title = "Hello World";
-&#160;&#160;&#160;&#160;}
+    if (this.IsValid)
+    {
+        this.Title = "Hello World";
+    }
 }
-</pre></div>
+{% endhighlight %}
 
 <p>This isn't something unknown, MSDN points it out on some occasions. But yet, something you might overlook too easily.</p>
 

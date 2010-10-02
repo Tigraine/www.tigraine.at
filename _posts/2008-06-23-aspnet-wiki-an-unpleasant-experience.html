@@ -6,17 +6,18 @@ postid: 310
 categories:
 - internet
 ---
-<p>Last time (just before I went mad at Windows Live Writer), I <a href="http://www.tigraine.at/2008/06/16/exporting-data-to-cvs-in-aspnet/">posted some modified code</a> from the ASP.NET Wiki that I thought isn't worth posting to the Wiki, while still being worth a post in this blog (it was out of scope for the Wiki article). </p>  <p>But what I also had to note that the Wiki System is far far away from perfect.   <br />So let's get to the nitty gritty details at the example of the good article on <a href="http://wiki.asp.net/page.aspx/285/reading-file-content-from-different-webserver-using-httpwebrequest/">HttpWebRequest</a>. </p>  <p>Click the edit button and get a standard (really nothing special) WYSYWIG editor that completely hides the markup from you.    <br />Maybe somebody sees this as a good thing (editing MediaWiki isn't that great after all due to WikiText), but I think WYSIWYG is absolutely lame!</p>  <p>Let's get to the source. To get this look</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2008/06/image.png"><img border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/06/image-thumb.png" width="592" height="126" /></a> </p>  <p>The HTML code looks like this:</p>  <div style="padding-right: 0px; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px; display: inline" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:997ea643-c3ef-4b2a-8c54-3380e4e5fd8d" class="wlWriterSmartContent"><pre name="code" class="xml">
-&lt;div style="border: 1px dotted rgb(204, 204, 204); padding: 5px; background: rgb(239, 239, 239) none repeat scroll 0% 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; color: black; font-family: Courier New;"&gt;
-&lt;p style="margin: 0px;"&gt;&lt;span style="color: blue;"&gt;If&lt;/span&gt; &lt;span style="color: blue;"&gt;Not&lt;/span&gt; (IsPostBack) &lt;span style="color: blue;"&gt;Then&lt;/span&gt;&lt;/p&gt;
+<p>Last time (just before I went mad at Windows Live Writer), I <a href="http://www.tigraine.at/2008/06/16/exporting-data-to-cvs-in-aspnet/">posted some modified code</a> from the ASP.NET Wiki that I thought isn't worth posting to the Wiki, while still being worth a post in this blog (it was out of scope for the Wiki article). </p>  <p>But what I also had to note that the Wiki System is far far away from perfect.   <br />So let's get to the nitty gritty details at the example of the good article on <a href="http://wiki.asp.net/page.aspx/285/reading-file-content-from-different-webserver-using-httpwebrequest/">HttpWebRequest</a>. </p>  <p>Click the edit button and get a standard (really nothing special) WYSYWIG editor that completely hides the markup from you.    <br />Maybe somebody sees this as a good thing (editing MediaWiki isn't that great after all due to WikiText), but I think WYSIWYG is absolutely lame!</p>  <p>Let's get to the source. To get this look</p>  <p><a href="http://www.tigraine.at/wp-content/uploads/2008/06/image.png"><img border="0" alt="image" src="http://www.tigraine.at/wp-content/uploads/2008/06/image-thumb.png" width="592" height="126" /></a> </p>  <p>The HTML code looks like this:</p> 
+{% highlight html linenos %}
+<div style="border: 1px dotted rgb(204, 204, 204); padding: 5px; background: rgb(239, 239, 239) none repeat scroll 0% 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; color: black; font-family: Courier New;">
+<p style="margin: 0px;"><span style="color: blue;">If</span> <span style="color: blue;">Not</span> (IsPostBack) <span style="color: blue;">Then</span></p>
 
-&lt;p style="margin: 0px;"&gt;&nbsp;&nbsp;&nbsp; &lt;span style="color: blue;"&gt;Try&lt;/span&gt;&lt;/p&gt;
+<p style="margin: 0px;">    <span style="color: blue;">Try</span></p>
 
-&lt;p style="margin: 0px;"&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;span style="color: blue;"&gt;Dim&lt;/span&gt; fr &lt;span style="color: blue;"&gt;As&lt;/span&gt; System.Net.HttpWebRequest&lt;/p&gt;
+<p style="margin: 0px;">        <span style="color: blue;">Dim</span> fr <span style="color: blue;">As</span> System.Net.HttpWebRequest</p>
 
-&lt;p style="margin: 0px;"&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;span style="color: blue;"&gt;Dim&lt;/span&gt; targetURI &lt;span style="color: blue;"&gt;As&lt;/span&gt; &lt;span style="color: blue;"&gt;New&lt;/span&gt; Uri(&lt;span style="color: rgb(163, 21, 21);"&gt;"http://weblogs.asp.net/farazshahkhan"&lt;/span&gt;)&lt;/p&gt;
-&lt;/div&gt;
-</pre></div>
+<p style="margin: 0px;">        <span style="color: blue;">Dim</span> targetURI <span style="color: blue;">As</span> <span style="color: blue;">New</span> Uri(<span style="color: rgb(163, 21, 21);">"http://weblogs.asp.net/farazshahkhan"</span>)</p>
+</div>
+{% endhighlight %}
 
 <p>I hope this has just raised some eyebrows, it sure did when I saw it first. Hell that's the way Microsoft wants us to post code??</p>
 
@@ -32,4 +33,4 @@ categories:
 
   <br />There is a &quot;Format option&quot; called &quot;Source code&quot; in the WYSYWIG, but it doesn't do a damn thing, so we see people posting their code from Word (like in the <a href="http://wiki.asp.net/page.aspx/401/export-to-csv-file/">CSVExport</a> article), do some other weird stuff (look above!).</p>
 
-<p>Get your act together Microsoft, create a &lt;code&gt; block that will get syntax-highlighted at the server or something like that. But don't depend on your users to put even more effort into their contributions!</p>
+<p>Get your act together Microsoft, create a <code> block that will get syntax-highlighted at the server or something like that. But don't depend on your users to put even more effort into their contributions!</p>

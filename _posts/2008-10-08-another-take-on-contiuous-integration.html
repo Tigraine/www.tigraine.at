@@ -18,30 +18,32 @@ categories:
 - 
 - svn
 ---
-<p>Ok, since my <a href="http://www.tigraine.at/2008/06/05/setting-up-cruise-control-net/">last post</a> where I tried out <a href="http://ccnet.thoughtworks.com">CruiseControl.NET</a> some time has passed.</p>  <p>Although I said last time setting up CCNet is easy and quick, this time I didn't listen to my own advice, and so when I needed a Continuous Integration system I went <a href="http://www.jetbrains.com/teamcity/">TeamCity</a>.</p>  <p>TeamCity is great, just click on some buttons and your CI is running.    <br />Log in to the website, configure everything through GUI and you're done.</p>  <p>Sadly, I wasn't done. Something with TeamCity's build runners wasn't working right and it wouldn't resolve my NUnit dependencies and fail to build at all.    <br />I then tried to troubleshoot TeamCity for almost a day before I finally gave up and just installed CruiseControl.NET again.</p>  <p>CCnet on the other hand just worked great, and I was up and running smoothly after an hour or so. And since my last post was lacking, after the break is a step-by-step guide to setting&#160; it up.</p> 
+<p>Ok, since my <a href="http://www.tigraine.at/2008/06/05/setting-up-cruise-control-net/">last post</a> where I tried out <a href="http://ccnet.thoughtworks.com">CruiseControl.NET</a> some time has passed.</p>  <p>Although I said last time setting up CCNet is easy and quick, this time I didn't listen to my own advice, and so when I needed a Continuous Integration system I went <a href="http://www.jetbrains.com/teamcity/">TeamCity</a>.</p>  <p>TeamCity is great, just click on some buttons and your CI is running.    <br />Log in to the website, configure everything through GUI and you're done.</p>  <p>Sadly, I wasn't done. Something with TeamCity's build runners wasn't working right and it wouldn't resolve my NUnit dependencies and fail to build at all.    <br />I then tried to troubleshoot TeamCity for almost a day before I finally gave up and just installed CruiseControl.NET again.</p>  <p>CCnet on the other hand just worked great, and I was up and running smoothly after an hour or so. And since my last post was lacking, after the break is a step-by-step guide to setting  it up.</p> 
 <!--more-->
-  <h2>Subversion</h2>  <p>I assume you have <a href="http://www.visualsvn.com/server/">Visual SVN Server</a> up and running already (or something else), so I'll skip this step.</p>  <h2>CruiseControl.NET</h2>  <p>Download and install the latest <a href="http://sourceforge.net/project/showfiles.php?group_id=71179&amp;package_id=83198">CruiseControl.NET from SourceForce</a></p>  <p>During installation CCnet installs two components, the webdashboard and the CCnet server. The webdashboard will automagically be installed into a IIS virtual directory so you can access it through <a href="http://localhost/ccnet">http://localhost/ccnet</a></p>  <p>Although you can already access the webdashboard, you will not find much to do there since the CCnet service isn't started by default and is also lacking configuration.</p>  <h2>Configuring the CruiseControl.NET server</h2>  <p>Now, this is when the fabulous <a href="http://confluence.public.thoughtworks.org/display/CCNET/Configuring+the+Server">CCnet documentation</a> comes in to play.     <br />In the <strong>C:\Program Files\CruiseControl.NET\server\</strong> directory you'll find a file called <strong>ccnet.config</strong>     <br />I won't cover all basic steps since they are already well documented, but just point out the important ones in my config.</p>  <p></p>  <div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:a0a6a66b-8751-4a38-9266-643ed5a8674c" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
-&lt;sourcecontrol type="svn"&gt;
-&#160;&#160;&lt;executable&gt;C:\Programme\VisualSVN Server\bin\svn.exe&lt;/executable&gt;
-&#160;&#160;&lt;trunkUrl&gt;https://localhost:8443/svn/myProject/trunk/&lt;/trunkUrl&gt;
-&#160;&#160;&lt;tagBaseUrl&gt;https://localhost:8443/svn/myProject/tags/ccnet-builds/&lt;/tagBaseUrl&gt;
-&#160;&#160;&lt;username&gt;username&lt;/username&gt;
-&#160;&#160;&lt;password&gt;password&lt;/password&gt;
-&#160;&#160;&lt;autoGetSource&gt;true&lt;/autoGetSource&gt;
-&#160;&#160;&lt;tagOnSuccess&gt;true&lt;/tagOnSuccess&gt;
-&lt;/sourcecontrol&gt;
-</pre></div>
+  <h2>Subversion</h2>  <p>I assume you have <a href="http://www.visualsvn.com/server/">Visual SVN Server</a> up and running already (or something else), so I'll skip this step.</p>  <h2>CruiseControl.NET</h2>  <p>Download and install the latest <a href="http://sourceforge.net/project/showfiles.php?group_id=71179&amp;package_id=83198">CruiseControl.NET from SourceForce</a></p>  <p>During installation CCnet installs two components, the webdashboard and the CCnet server. The webdashboard will automagically be installed into a IIS virtual directory so you can access it through <a href="http://localhost/ccnet">http://localhost/ccnet</a></p>  <p>Although you can already access the webdashboard, you will not find much to do there since the CCnet service isn't started by default and is also lacking configuration.</p>  <h2>Configuring the CruiseControl.NET server</h2>  <p>Now, this is when the fabulous <a href="http://confluence.public.thoughtworks.org/display/CCNET/Configuring+the+Server">CCnet documentation</a> comes in to play.     <br />In the <strong>C:\Program Files\CruiseControl.NET\server\</strong> directory you'll find a file called <strong>ccnet.config</strong>     <br />I won't cover all basic steps since they are already well documented, but just point out the important ones in my config.</p>  <p></p>  
+  
+{% highlight xml linenos %}
+<sourcecontrol type="svn">
+  <executable>C:\Programme\VisualSVN Server\bin\svn.exe</executable>
+  <trunkUrl>https://localhost:8443/svn/myProject/trunk/</trunkUrl>
+  <tagBaseUrl>https://localhost:8443/svn/myProject/tags/ccnet-builds/</tagBaseUrl>
+  <username>username</username>
+  <password>password</password>
+  <autoGetSource>true</autoGetSource>
+  <tagOnSuccess>true</tagOnSuccess>
+</sourcecontrol>
+{% endhighlight %}
 
 <p></p>
 
-<p>The <a href="http://confluence.public.thoughtworks.org/display/CCNET/Subversion+Source+Control+Block">&lt;sourcecontrol&gt; block</a> configures CCnet to access Subversion and retrieve the source. Notably: tagOnSuccess will automatically create a new tag in the tagBaseUrl directory depending on the later <a href="http://confluence.public.thoughtworks.org/display/CCNET/Labeller+Blocks">labeller block</a>.</p>
+<p>The <a href="http://confluence.public.thoughtworks.org/display/CCNET/Subversion+Source+Control+Block"><sourcecontrol> block</a> configures CCnet to access Subversion and retrieve the source. Notably: tagOnSuccess will automatically create a new tag in the tagBaseUrl directory depending on the later <a href="http://confluence.public.thoughtworks.org/display/CCNET/Labeller+Blocks">labeller block</a>.</p>
 
-<div class="wlWriterEditableSmartContent" id="scid:2e6d557b-b705-4c34-b5ad-8606cf99c7de:75f2d08d-e548-44b8-9e04-5c558e3c1043" style="padding-right: 0px; display: inline; padding-left: 0px; float: none; padding-bottom: 0px; margin: 0px; padding-top: 0px"><pre name="code" class="xml">
-&lt;labeller type="defaultlabeller"&gt;
-&#160;&#160;&lt;prefix&gt;myProject-alpha-0.1-build-&lt;/prefix&gt;
-&#160;&#160;&lt;incrementOnFailure&gt;false&lt;/incrementOnFailure&gt;
-&lt;/labeller&gt;
-</pre></div>
+{% highlight xml linenos %}
+<labeller type="defaultlabeller">
+  <prefix>myProject-alpha-0.1-build-</prefix>
+  <incrementOnFailure>false</incrementOnFailure>
+</labeller>
+{% endhighlight %}
 
 <p>This <a href="http://confluence.public.thoughtworks.org/display/CCNET/Labeller+Blocks">labeller block</a> has many many options for labeling your build, but I choose to just increment my build number on every successful build with the <a href="http://confluence.public.thoughtworks.org/display/CCNET/Default+Labeller">defaultlabeller</a>. It's a bit too early for my current project, but at a later stage I think I'll exchange that labeller with a <a href="http://confluence.public.thoughtworks.org/display/CCNET/Iteration+Labeller">iterationlabeller</a> that calculates an iteration number based on weeks since release in addition to the build number.</p>
 

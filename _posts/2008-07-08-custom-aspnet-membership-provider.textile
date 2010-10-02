@@ -1,0 +1,75 @@
+---
+layout: post
+title: "Custom ASP.NET Membership provider"
+guid: http://www.tigraine.at/2008/07/08/custom-aspnet-membership-provider/
+postid: 339
+categories:
+- net
+- programmierung
+---
+I've been "ranting":http://www.tigraine.at/2008/07/07/polluting-userspace/ "too":http://www.tigraine.at/2008/07/04/skype-security-and-multiple-logins/ "much":http://www.tigraine.at/2008/07/02/source-control-open-source-and-microsoft/ lately, so I guess it's time to get back into coding.
+
+This time around I've been challenged with a new project that involves a legacy database, while my task is to rewrite the ASP.NET application that runs ontop of that database without actually touching the database.
+
+_So first: What is ASP.NET Membership?_
+
+Simple answer: A great way to build authentication with little to zero coding effort with very cool draggy-droppy developer experience :).
+You simply drag a Login control to your ASP.NET page and your application just learned how to authenticate and keep the session of users.
+
+To achieve this on a already existing database you simply need to do one thing:
+
+Implement the abstract class "MembershipProvider":http://msdn.microsoft.com/en-us/library/system.web.security.membershipprovider.aspx and implement just one method: "ValidateUser":http://msdn.microsoft.com/en-us/library/system.web.security.membershipprovider.validateuser.aspx
+
+{% highlight csharp linenos %}
+public override bool ValidateUser(string username, string password)
+{
+	if (username == "tigraine" && password == "tigraine")
+		return true;
+	return false;
+}
+{% endhighlight %}
+
+You see where I'm going here, you basically just need to return true or false given a username and a password. How you do it is entirely up to you as long as you return either true or false.
+
+To make the magic actually work you need to add the new MembershipProvider (i've called it DBMembershipProvider) to your root web.config:
+
+{% highlight html linenos %}
+<authentication mode="Forms">
+	<forms loginUrl="Login.aspx"></forms>
+</authentication>
+<membership defaultProvider="DBMembershipProvider">
+	<providers>
+		<add name="DBMembershipProvider" type="DBMembershipProvider" />
+	</providers>
+</membership>
+{% endhighlight %}
+
+The _<authentication mode="Forms">_ is quite important because it tells asp.net to actually use forms driven authentication instead of windows authentication or microsoft passport. I also defined the _loginUrl_ attribute to tell the app where to redirect anonymous users, but that's optional.
+
+The membership stuff now is important, because here we glue the new provider into our system.
+
+We just add a new provider in the _<providers>_ section and name it conveniently, and most important: we tell .net what type to instantiate.
+
+The _defaultProvider_ property then tells .net what provider to use (if you've got multiple providers to log into your website, eg: Windows and Forms auth)
+
+And, that's it. As long as the ValidateUser method returns true/false, your users can now use a fancy Login form to authenticate and their login session will get stored in a cookie. You can now drag LoginStatus and LoginName controls to your form and watch the goodness work :).
+
+*Hey! How do you actually secure something with this?*
+
+Yeah, I was so happy with that login working so I almost forgot to do this part. Usually you want to protect some files or directories from unregistered users. This also happens at the web.config level and is quite easy.
+
+In case of a folder, just put a blank web.config in there and add the following directives:
+
+{% highlight xml linenos %}
+<system.web>
+	<authorization>
+		<deny users="?"/>
+	</authorization>
+</system.web>
+{% endhighlight %}
+
+Now only registered users have access to this directory and you're done.
+
+If you don't want to lock the whole directory but only some files in there you can do this through the <em>verb </em>attribute by either specifying a regex or a filename to be affected by your rule. (You could also use the _<allow>_ tag to add exceptions to your deny tag I think)
+
+Actually, if you look at the MembershipProvider, there's a ton more functionality I just skipped here. But this has been everything I needed to get login and user restriction for my current project, so I thought it's worth sharing how darn easy this actually is. If you want to delve deeper into the topic I'd suggest you either read "4GuyFromRolla":http://www.4guysfromrolla.com/webtech/110701-1.shtml or search through "MSDN":http://msdn.microsoft.com/en-us/library/tw292whz.aspx.
