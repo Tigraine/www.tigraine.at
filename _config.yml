@@ -3,5 +3,6 @@ exclude:
 - importer.rb
 - Rakefile
 - Thumbs.db
+- drafts
 permalink: /:year/:month/:day/:title
 pygments: true
