@@ -7,9 +7,22 @@ There was one question nagging at me ever since I discovered "Jekyll":http://www
 
 _Static content?_ Yes! In my book a blog is static content. It only changes when I publish something, and when I do the blog engine does little more than save a post in the database to present it to the public. And what this also means is that whenever someone visits my site I have to query a database server and do all sorts of unnecessary work to deliver little more than a fairly static HTML page.
 
-I do see the appeal a blog has to a non-technical audience. You can write posts from your browser and spare yourself from all the nastiness of HTML and details of the web. You just input your content into a nice textbox and hit a button and magic starts to happen. 
+I do see the appeal a blog system has to a non-technical audience. You can write posts from your browser and spare yourself from all the nastiness of HTML and details of the web. You just input your content into a nice textbox and hit a button and magic starts to happen. 
 
-For a programmer, this is a whole other story. We know what is going on, and I believe we are also smart enough to know that all this blogengine stuff is just a crutch to make the whole thing workable for mere humans. We don't need fancy textboxes that allow you to format text -> We know "markdown":http://daringfireball.net/projects/markdown/, "textile":http://textile.thresholdstate.com/ and HTML for that matter. We want our content to preserve semantic, not just dress it up in HTML tagsoup. 
+For a programmer, this is a whole other story. We know what is going on, and I believe we are also smart enough to know that all this blogengine stuff is just a crutch to make the whole thing workable for mere humans. We don't need fancy textboxes that allow you to format text -> We know "markdown":http://daringfireball.net/projects/markdown/, "textile":http://textile.thresholdstate.com/ and HTML for that matter. We want our content to preserve semantic, not just dress it up in HTML tagsoup that is a nightmare to parse in the end.
 
-And: Whatever blog engine out there I looked at so far, post versioning sucks. Nothing these blog engines use even comes close to the versioning programmers are used to: Git, Mercurial hell even Subversion. I host this blog on GitHub, and have the capabilities of a full fledged version control system at my disposal when playing around my site. If I screw up I simply revert. I can't nuke my database because there isn't one. If I screw up - git revert is my friend. **This is power!**
+And: Whatever blog engine out there I looked at so far, post versioning sucks. Nothing these blog engines use even comes close to the versioning programmers are used to: Git, Mercurial hell even Subversion. I host this blog on GitHub, and have the capabilities of a full fledged version control system at my disposal when playing around my site. I can't nuke my database because there isn't one. If I screw up - git revert is my friend. **This is power!**
 
+What about *Comments* and *Search*?
+Doing search is simple: Anything you have in your blog software will do a worse job than Google and Bing can do for you for free. If you need search, install a Google Custom Search or the Bing equivalent. Sad reality is the only search your users will use is Google to get to your site and CRTL+F to find stuff on your page there. Anything else is simply a waste of time.
+For comments I personally like to use "Disqus":http://www.disqus.com anyway. Disqus works through clientside JavaScript and allows your users to leave comments using a myriad of login mechanisms (Twitter, Facebook, OpenId, Disqus or email/name) without any work to be done on your end. You just get everything for free. 
+The system worked great for me so far, and I really don't see any value of going back to regular comments over the Disqus implementation. I used it before while I was still on Wordpress and it made me totally independent of the bad spam filtering mechanisms inside Wordpress. 
+
+Do you see the pattern here? *KISS* - Keep It Simple Stupid! 
+There is no point in making something as simple as writing a blogpost any more complicated than a simple file-copy. If you can get away with something simple do it and think about the complicated stuff once you actually need it.
+
+h3. Jekyll
+So, what is this Jekyll all about? 
+I hinted at it already: *Jekyll is a Ruby tool that generates static HTML sites from your posts* while allowing you to seperate layout and posts.
+Jekyll allows you to define layouts (Masterpages if you are a ASP.NET developer) that contain a _{{content}}_ placeholder that it will fill with the post you are rendering. 
+This allows you to have all your posts be just about the content, while all the HTML that has to come along with a website is inside the masterpage. DRY at it's best. 
