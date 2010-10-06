@@ -5,4 +5,4 @@ exclude:
 - Thumbs.db
 - drafts
 permalink: /:year/:month/:day/:title
-pygments: true
+pygments: false

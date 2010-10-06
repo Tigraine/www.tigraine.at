@@ -34,3 +34,7 @@ task :find do
 		end
 	end
 end
+
+task :default do
+	sh "Jekyll --pygments"
+end
