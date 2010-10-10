@@ -1,0 +1,29 @@
+---
+layout: post
+title: Why I moved to Git from Mercurial
+categories:
+- git
+---
+
+Believe it or not, my first encounter with distributed version control was through "Mercurial":http://mercurial.selenic.com/. At the time I was used to SVN and Mercurial (hg) opened my eyes to the painless ways of the DVCS. And while I was very content with the way Mercurial worked, I still had to make sacrifices to the way the tool worked. 
+
+After seeing some .NET OSS projects on GitHub, and following "GitHub":http://github.com and "BitBucket":http://bitbucket.org for some time it became clear that GitHub is much more active than BitBucket. So I decided to try out Git and see for myself why everyone is making a fuss about GitHub, and behold: I liked it!
+
+While hg pretty much feels like Subversion but more awesome, Git manages to loose that feeling. Especially the flexibility that git allows through it's "index":http://www.tigraine.at/2010/09/15/git-unstaging-all-changes-and-reset-the-working-tree/ made it immediately feel "right". Here is why:
+
+h3. Forgettable me
+
+Sadly, I forget things all the time. And this is especially true while working. Sometimes I commit something and forget to save my Visual Studio project, so my commit only contains loose files. In hg, like in SVN, you are screwed and have to commit a second time to make things right. It's embarrassing when others see your history littered with "Doh, forget to save XY" commits. 
+Git solved this with it's @git commit --amend@ that allows me to add stuff to the previous commit with no hassle. Hg treats all commits as immutable, and that's just not how I tend to work. I'm stupid, and my tools have to reflect that!
+Caveat: You should NEVER mess around with published history. If you amend a commit that is already in a public repository, everyone that pulled that commit will have a very hard time merging with any upstream changes you start to introduce. Just don't do it, once you push you are committed!
+
+h3. Staging
+
+Same story, different setting. Besides forgetting to commit something, I sometimes even forget to commit at all. You get into the flow of things, and once you look up you finished 3 things that better go into individual commits. With git you can simply add individiual files (or even individual lines inside the files) to the index, commit, repeat until no uncommitted files are left. 
+This feature is awesome, and it allows a great deal of flexibility without having to think about "damn am I doing too much for one commit?". It's like above: I don't have to think how the tool wants me to behave, I can make my tool behave like I need it do easily. 
+
+Mercurial can also do this, but you end up with @hg commit --include fileA fileB ...@ and that's just not as simple as the Git index.
+
+And that's just all about it. I went with hg first because people told me that it's better on Windows, but when I moved to Git afterwards I didn't notice any problems. Speed is pretty much the same, so you can just pick and choose what you like regardless of platform. 
+
+I simply chose Git because it does not interfere with the way I work, and because it makes it easy to fix my screwups afterwards. 
