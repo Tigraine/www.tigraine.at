@@ -4,5 +4,7 @@ exclude:
 - Rakefile
 - Thumbs.db
 - drafts
+- convert.rb
+- readme.textile
 permalink: /:year/:month/:day/:title
 pygments: false
