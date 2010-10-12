@@ -1,0 +1,34 @@
+---
+layout: post
+title: C# increment operator knows some tricks
+---
+
+Will this test pass?
+
+{% highlight csharp %}
+[Fact]
+public void IncrementTest()
+{
+    int i = 1;
+    Assert.Equal(2, i++);
+    Assert.Equal(2, i);
+}
+{% endhighlight %}
+
+It will fail because @i++@ first returns i and then increments it by 1.
+
+Did you know that you can put the @++@ before the i to make it first increment and then return? 
+
+So we can make this test pass by simply shifting the @++@ around:
+
+{% highlight csharp %}
+[Fact]
+public void IncrementTest()
+{
+    int i = 1;
+    Assert.Equal(2, ++i);
+    Assert.Equal(2, i);
+}
+{% endhighlight %}
+
+Highly likely that anyone who read the language specification knows this already, but I for one never bothered to read up on this so it was interesting to learn something new about the language even after years of working with it.
