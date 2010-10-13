@@ -1,0 +1,30 @@
+---
+layout: post
+title: Measure execution time in PowerShell
+---
+
+I have no idea why, but although having been a Windows user for most of my career, I know the unix commandline pretty well. In fact, one of the best things in Powershell was the @ls@ alias to the @Get-ChildItem@ command.
+
+Naturally, Microsoft could not include an alias for every unix command out there, so I spend a fair amount of time hunting down the Powershell equivalents to Unix commands whenever I need one.
+
+This time it's the @time@ command that allows you to measure how long the execution of a particular command took. The Powershell equivalent is called @Measure-Command@ and does exactly the same thing, returning a System.TimeSpan.
+
+For example, to measure the execution time of a @git checkout@:
+
+bq.. Measure-Command { git checkout gh-pages }
+Switched to branch 'gh-pages'
+
+
+Days              : 0
+Hours             : 0
+Minutes           : 0
+Seconds           : 0
+Milliseconds      : 344
+Ticks             : 3448544
+TotalDays         : 3,99137037037037E-06
+TotalHours        : 9,57928888888889E-05
+TotalMinutes      : 0,00574757333333333
+TotalSeconds      : 0,3448544
+TotalMilliseconds : 344,8544
+
+p. I considered creating an alias for @Mesaure-Command@ to just @time@, but the usages are so rare that it's not really necessary. 
