@@ -1,0 +1,46 @@
+---
+layout: post
+title: Getting System.BadImageFormatException and no clue what's wrong?
+---
+
+What's the default target platform on the .NET environment? Yep, it's @AnyCPU@, meaning that a flag is set in your assembly file that specifies "this IL code can be either compiled into x64 or x86", and the executing .NET framework will then decide what platform to choose based on the OS that's running. 
+
+If you are running on a Win7 x64 machine you'll execute a native x64 application, if you run on a 32 bit Windows you'll run a 32 bit application.
+
+When in doubt you'll want to default to AnyCPU and only switch to x86 or x64 explicitly if you are doing some native P/Invoke or other weird stuff. So for 90% of developers @AnyCPU@ is the perfect target platform and they don't even know what goes on behind the scenes. They just compile once and run on any Windows with a .NET framework.
+
+*Now they screwed it up!*
+
+Whenever you create a new Project in VS2008 it will default to AnyCPU, everyone is happy.
+
+Fast forward, VS2010 comes along and changes this default behavior:
+In Visual Studio all class libraries default to AnyCPU, *but all WPF Applications and Console Applications default to x86*
+
+Do you see the implications here? You start out with a clean AnyCPU solution like this one:
+
+!/uploads/2010-10-14-blank-project.jpg!
+
+Once you add a Console Application you end up with:
+
+!/uploads/2010-10-14-screwed-project.jpg!
+
+As you can see, for no good reason (it's only two blank projects after all) Visual Studio changes the platform to Mixed and sets the ConsoleApplication to x86!
+
+*Why is this so bad?*
+
+Well, if you are running on a x64 machine, and try to run unit tests inside your library project (as most of us do) you end up running a x64 process that is linked to a x86 assembly! 
+
+You don't need to be a genius to figure out that this is not going to work. You'll see a @System.BadImageFormatException@ pop up with no good explanation. (Apparently the Platform dropdown in the Toolbar was also removed in VS2010!)
+
+*The "reason" for this crap*
+
+This is the explanation DJ Park (C# IDE, Program Manager) gives on "Microsoft Connect about the change of the defaults":http://connect.microsoft.com/VisualStudio/feedback/details/455333/platform-target-is-defaulting-to-x86-rather-than-any-cpu:
+
+bq.. To provide some context, the motivation for the change is to alleviate the pain that customers are feeling when developing on a 64-bit OS - some examples being Edit and Continue (EnC) and P/Invoke scenarios. To elaborate on the EnC example, EnC is supported on a 64-bit OS provided that you're debugging a 32-bit process. However, by defaulting to AnyCPU, processes are automatically run as 64-bit, which means that EnC will not work unless you change the platform target to be x86
+
+p. Have you ever used "Edit and Continue":http://msdn.microsoft.com/en-us/library/bcew296c(VS.80).aspx? Hell I mostly run without a debugger attached and they are doing stupid things like that because they want to allow me to *change code while I debug a program*. Are you kidding me? 
+
+Not to mention the hilarious post quoted that tries to argue that "AnyCPU is usually not worth it":http://blogs.msdn.com/b/rmbyers/archive/2009/06/8/anycpu-exes-are-usually-more-trouble-then-they-re-worth.aspx. Listing reasons 99% of programmers don't care about _at all_.
+
+Just to round this up: If you compile something to x86, you can still run it on a x64 Windows. Windows features a x86 "emulation layer" called Windows on Windows (it's inside your C:\Windows\SysWOW64 folder) that allows you to run x86 applications on a 64 bit operating system. It works, but why would I want an abstraction layer if I could just as easily run a native 64 bit application on my 64 bit OS? 
+We are talking about a change of runtime characteristics for a tiny facilitation in development, and that's not good in my opinion.
