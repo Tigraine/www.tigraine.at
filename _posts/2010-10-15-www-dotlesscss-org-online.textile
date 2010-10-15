@@ -1,0 +1,24 @@
+---
+layout: post
+title: New website for dotless is up at www.dotlesscss.org
+---
+
+!/uploads/2010-10-15-its-alive.jpg!
+
+After some trouble with our previous hoster the old domain www.dotlesscss.com went offline.
+Chris tried to resolve this issue, but things didn't work out so the "website was offline":http://www.tigraine.at/2010/08/17/www-dotlesscss-com-is-down/ for almost 2 months now.
+
+We where not completely offline since, I migrated the website to "GitHub Pages":http://pages.github.com/ some time ago and all documentation was moved over to the new "GitHub Wiki":http://github.com/dotless/dotless/wiki. But we were still missing our shiny domain name we could point people to.
+
+So I finally decided to give up on waiting for our old domain to come back and registered a new one:
+
+*"http://www.dotlesscss.org":http://www.dotlesscss.org*
+
+The old site is now available at the new name and we are trying to update all references to the new .org domain. 
+(And .org is more fitting for an OSS project anyway).
+
+As for the project itself, I am planning a 1.2 release fairly shortly that should incorporate a ton of bug fixes and some improvements we made since version 1.1.
+
+Please spread the word about this domain change. Thanks!
+
+Ps: On a technical side, the new website is now powered by Jekyll on GitHub and the source is contained in the "gh-pages branch":http://github.com/dotless/dotless/tree/gh-pages on our GitHub repository.
