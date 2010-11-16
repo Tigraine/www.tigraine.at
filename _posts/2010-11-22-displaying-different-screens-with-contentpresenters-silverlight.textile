@@ -1,0 +1,47 @@
+---
+layout: post
+title: Displaying different screens with ContentPresenters in Silverlight
+---
+
+In WPF you can use a @ContentPresenter@ with @DataTemplate@ to display different Views for different ViewModels. And although writing those DataTemplates gets old pretty quickly (and you resort to frameworks or roll your own code to alleviate that problem), I do like to use them in small demo apps at times.
+
+Silverlight does not support DataTemplates with types on them, so you can't use ContentPresenters like you would in WPF.
+
+But in this case it helps to understand what a DataTemplate is doing in WPF to easily replicate that behavior in Silverlight. DataTemplates (in this case) are little more than Converters that take objects and supply a template that is then used to display that object to the screen.
+
+Once you know that, it gets rather simple: Simply implement @IValueConverter@ and return a Silverlight UserControl in the @Convert@ method.
+
+You can even write something as simple as this:
+
+{% highlight csharp %}
+public class ViewConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value.GetType() == typeof(NewCustomerViewModel))
+        {
+            return new NewCustomer();
+        }
+        if (value.GetType() == typeof(CustomerListViewModel))
+        {
+            return new MasterDetail();
+        }
+        return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+{% endhighlight %}
+
+Once your Converter can translate ViewModels (or any object) into Views you can then bind your ContentPresenter to use that Converter:
+
+{% highlight xml %}
+<ContentPresenter Content="{Binding ActiveScreen, Converter={StaticResource ViewConverter}}" />
+{% endhighlight %}
+
+You would obviously not want to use the code above, but rather hook your ViewConverter into your Inversion of Control container or something similar (or just use Caliburn.Micro).
+
+There are a number of UI frameworks out there that make writing complex MVVM applications a lot easier. Caliburn, Caliburn.Micro and Prism. I tried some of them and I really liked them, but I found that you should really learn how Silverlight/WPF works before you resort to these Frameworks, as most of their features only start making sense once you start understanding the problems those frameworks set out to solve.
