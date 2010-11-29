@@ -1,0 +1,26 @@
+Hi Guys.
+
+I use MVC3 RC and wanted to take advantage of Razer and the new unobstrusive validation while also using a custom IDependencyResolver.
+
+This is me now venting after spending 2 hours trying to fix this, but maybe someone has the same 
+
+This has led to rather interesting problems.
+
+I currently use the following implementations:
+
+DataAnnotationsModelMetadataProvider for ModelMetadataProvider 
+ClientDataTypeModelValidatorProvider for ModelValidatorProvider
+
+Now, if I try to use DataAnnotationsModelValidatorProvider for the ClientDataTypeModelValidatorProvider I can't create a single bloody textbox. 
+
+Any @Html.TextBoxFor() will fail with this exception:
+
+"Validation type names in unobtrusive client validation rules must be unique. The following validation type was seen more than once: required"
+
+This also happens if there is only one Field in the Model with one [Required] attribute. 
+
+I then (after a lot of digging tried the ClientDataTypeModelValidatorProvider and finally managed to get TextBoxFor to work with strings. All my Validation (Required, length etc) now work. But once I try to create a TextBox for a int field I get the following:
+
+"Validation type names in unobtrusive client validation rules must be unique. The following validation type was seen more than once: number"
+
+Back to Square one, but now I've run out of ModelValidatorProvider implementation I could try 
