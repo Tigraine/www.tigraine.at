@@ -1,0 +1,20 @@
+---
+layout: post
+title: "Make Google Maps zoom to the correct viewport so all your markers are visible"
+---
+
+As the title may hint at, I finally came around to do some Google Maps API stuff while at work and got quickly up to speed with the documentation and samples Google has provided on their "Maps API site":http://code.google.com/intl/de-DE/apis/maps/documentation/javascript/
+
+Finding out how to put markers on the map was rather simple, but I had to dig until I found out how to correctly bound the Map to fit all my set markers without having to do the math myself. 
+
+Turns out Maps API v3 supports this rather nicely through the notion of a boundary. The general idea is simple: You initialize a @google.maps.LatLngBounds@ object and feed it all @LatLng@ points that should be visible through the @extend@ method. Once you are done just tell the map object to fit that boundary.
+
+The code is rather simple:
+
+{% highlight js %}
+var bounds = new google.maps.LatLngBounds();
+bounds.extend(point1);
+bounds.extend(point2);
+
+map.fitBounds(bounds);
+{% endhighlight %}
