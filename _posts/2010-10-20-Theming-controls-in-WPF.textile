@@ -1,0 +1,154 @@
+---
+layout: post
+title: Theming controls in WPF
+---
+
+My biggest grief with WPF is the way how twisted XAML works. It takes a lot of time getting used to it, and it's by no means obvious how to do stuff.
+
+So this is the story of how to change the appearance of a control from some common resource for controls.
+
+h3. Styles and Setters
+
+Most of the things you'd consider styling (as known from CSS) can be done via Styles that contain setters.
+
+Inside a @ResourceDictionary@ you can define styles for all controls of a type, or have them be applicable by a key. This is pretty similar to CSS where you can apply settings either via class (by key in WPF) or by elementType (TargetType in WPF)
+
+Let's look at some code:
+
+{% highlight css %}
+.highlight {
+	color: Red;
+} 
+{% endhighlight %}
+
+translates into the following XAML:
+
+{% highlight xml %}
+<Style x:Key="highlight">
+<Setter Property="Foreground" Value="Red" />
+</Style>
+{% endhighlight %}
+
+Inside a @<Style>@ you can change any property on the target element, in our case the Foreground property that accepts a display brush. 
+Note that omitting the @TargetType@ property limits you to only properties on @FrameworkElement@ so you might want to define something more specific like @TargetType="TextBlock"@ etc.
+
+If you don't specify a @x:Key@ the style will be applied to all possible elements matching the @TargetType@. 
+
+Let's look at CSS and XAML side-by-side:
+
+{% highlight css %}
+span {
+color: Red;
+}
+{% endhighlight %}
+
+is roughly the same as:
+
+{% highlight xml %}
+<Style TargetType="TextBlock">
+<Setter Property="Foreground" Value="Red" />
+</Style>
+{% endhighlight %}
+
+
+h3. Templates
+
+Now we know how CSS (at least in a way) maps to XAML. Things are still pretty different and one of the things that you need to wrap your head around in XAML is templates. 
+
+Every control you drag to the surface is usually a collection of borders, shapes and other lower level framework stuff that makes up your control. 
+So if you want to modify the appearance of your control, you do that via the @ControlTemplate@. And this is where I am still not 100% sure what the common theme is, but I am getting better at it.
+
+ControlTemplates can be applied either directly to the element, or via a Style inside a Setter.
+
+{% highlight xml %}
+<Style TargetType="TextBox">
+<Setter Property="Template">
+	<Setter.Value>
+		<ControlTemplate TargetType="TextBox">
+			<!-- Your Template goes here -->
+		</ControlTemplate>
+	</Setter.Value>
+</Setter>
+</Style>
+{% endhighlight %}
+
+As you can see, all you do inside a @<Setter>@ is pretty much the same as you would apply to the element itself in markup. If you have non-trivial values to set you can use the <Setter.Value> as you can do with almost all things in XAML. 
+This is actually an interesting concept that took some getting used to. In XAML you can specify each and any attribute of the element by using the @<Element.AttributeName>@ syntax in case it's not expressable by a simple literal value.
+
+Now let's assume I want to change the appearance of a TextBox to have a flat border. If you come from WinForms like me you'll spend a fair amount of time hunting for a BorderStyle property that's simply not existant in WPF. 
+The way to go here is: You guessed it, Control Templates.
+
+The ControlTemplate allows you to replace the visual tree of your object and roll your own that suits your needs (makes it powerful, but rather hard to figure out). My naive approach to this was to simply define the border in WPF like this:
+
+{% highlight xml %}
+<ControlTemplate TargetType="{x:Type TextBoxBase}">
+<Border Name="Border"
+	BorderThickness="1"
+	Padding="4,2"
+	Height="Auto"
+	BorderBrush="#FFCCCCCC">
+</Border>
+</ControlTemplate>
+{% endhighlight %}
+
+What happened was that I turned my TextBox into a border. No text entering, nothing. I changed the visual tree of the object to only contain a border, and that's what I got. 
+
+It then took me a little while to figure out that you can't simply change the tree without putting back in an element to write the text to. Apparently for textboxes you have to put in a @ScrollViewer@ named @PART_ContentHost@.
+
+So the correct way here is:
+
+{% highlight xml %}
+<ControlTemplate TargetType="{x:Type TextBoxBase}">
+<Border Name="Border"
+		BorderThickness="1"
+		Padding="4,2"
+		Height="Auto"
+		BorderBrush="#FFCCCCCC">
+	<ScrollViewer x:Name="PART_ContentHost" />
+</Border>
+</ControlTemplate>
+{% endhighlight %}
+
+This then gives us a nice flat border with 1 pixel thickness and a nice shade of gray instead of the gradient brush WPF uses by default.
+
+h3. Triggers
+
+Another very important concept (at least to me) was triggers. Assuming we made our control look pretty, we may want to change it's appearance once you mouseover it or focus it. 
+If you try like me using the @VisualFocusStyle@ to do that you'll soon notice that VisualFocusStyles are not applied when a user clicks the element, only when he navigates to it by keyboard. It was meant to provide UI hints for keyboard navigation, not to indicate focusing in any way. 
+
+The correct way to do stuff like OnFocus and OnMouseOver is by using Triggers. With triggers you can do something whenever a property matches a certain value. So in our case we can create a trigger that changes the border color whenever the @IsFocused@ property contains the value @True@.
+
+I am applying the trigger to my ControlTemplate we defined earlier:
+
+{% highlight xml %}
+<ControlTemplate.Triggers>
+<Trigger Property="IsFocused" Value="True">
+	<Setter TargetName="Border" Property="BorderBrush" Value="#FF00A9DA" />
+</Trigger>
+</ControlTemplate.Triggers>
+{% endhighlight %}
+
+This trigger now only works with one Property/Value, IsFocused. But there is a way to verify that two conditions are met before the trigger fires using the @MultiTrigger@.
+
+The concept is the same:
+
+{% highlight xml %}
+<MultiTrigger>
+<MultiTrigger.Conditions>
+	<Condition Property="IsMouseOver" Value="True"></Condition>
+	<Condition Property="IsFocused" Value="False" />
+</MultiTrigger.Conditions>
+<Setter TargetName="Border" Property="BorderBrush" Value="Black" />
+</MultiTrigger>
+{% endhighlight %}
+
+This MultiTrigger will only apply the black BorderBrush if IsFocused is false and IsMouseOver is true. Thus making sure the IsFocus style is not overridden and flickering whenever the user waves the mouse around.
+
+h3. DataTriggers
+
+Triggers are only good for one thing: Firing if properties  on the Visual Tree change. If you want to do something when something in your DataContext changes you need DataTriggers. These work by defining a Binding and a Value, but in essence work pretty much like normal Triggers, only that they work on anything you can bind to. 
+DataTriggers also come along in @MultiDataTrigger@ and @DataTrigger@ flavors.
+
+DataTriggers are also the answer to most questions concerning MVVM asking "How can I show X from my ViewModel.". The answer here is usually: "Define some boolean property (with INotifyPropertyChanged) and set up a DataTrigger to it. (This works for starting animations etc.. Everything.. This is crazy powerful!)
+
+And that's about all the stuff I spent most of my morning figuring out. I hope you get any useful information out of it. Because I quickly became frustrated with the content that's out there.
