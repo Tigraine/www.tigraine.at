@@ -1,0 +1,51 @@
+---
+title: Eliminating SELECT N+1 in NHibernate without getting duplicate root entities
+layout: post
+categories:
+- net
+- nhibernate
+---
+
+NHibernate makes it easy to do a lot of things in a natural and OO way without having to constantly think about tables and rows. 
+It just falls short on some occasions when you do something in your domain model that is fine from a design and OO standpoint but kills you in terms of database performance. 
+
+I ran into this problem with a fairly common use-case: Iterating over a list of orders and calling a method on them that operates on their OrderLines collection. Everyone knows: you don't do that. Whenever you run that method, NHibernate knows you haven't fetched the OrderLines collection yet and will issue a single @SELECT@ query to get them for you so you can do your calculation. 
+
+In traditional systems this is the perfect place to use a stored procedure and push the calculation logic into the sproc. It's just not something I fancy doing. You end up with your code scattered around the system, and at times your calculations simply don't work inside the database. 
+
+Putting code in the database also makes it even harder to deploy the application because you have to think about deploying the database code too.
+
+Well, now back to topic. If you run the following query on a Order table that has many OrderLines NHProf will warn you that you are doing a SELECT N+1. 
+
+{% highlight csharp %}
+var orders = 
+  session.CreateCriteria(typeof (Order))
+    .List<Order>();
+foreach(var order in orders) {
+  order.DoSomethingWithOrderLines();
+}
+{% endhighlight %}
+
+!/uploads/resulttransform-nhprof.png!
+
+The way to prevent this is to tell NHibernate explicitly to fetch all OrderLines through a Join.
+
+{% highlight csharp %}
+session.CreateCriteria(typeof(Order))
+    .SetFetchMode("Lines", FetchMode.Eager)
+    .List<Order>();
+{% endhighlight %}
+
+This works, but you'll end up with duplicate orders being returned by NHibernate. This is due to the query you are running that will join each OrderLine with it's order, resulting in one Order per Orderline (with a lot of duplicates).
+
+But NHibernate is smart, and the information you are getting from the query is enough to construct the right objects, although some unnecessary data is coming over the wire. As with most things, you only need to tell NHibernate how to do it right. In our case that's to only return distinct orders instead of duplicates through a @result transformer@:
+
+{% highlight csharp %}
+var orders =
+session.CreateCriteria(typeof(Order))
+    .SetFetchMode("Lines", FetchMode.Eager)
+    .SetResultTransformer(new DistinctRootEntityResultTransformer())
+    .List<Order>();
+{% endhighlight %}
+
+The result-transformer will eliminiate all duplicate root elements (in our case Order) while populating the child-collection accordingly. Resulting in only one query being run.
