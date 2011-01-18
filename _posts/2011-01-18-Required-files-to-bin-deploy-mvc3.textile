@@ -1,0 +1,29 @@
+---
+title: Required files to bin-deploy ASP.NET MVC3
+layout: post
+categories:
+- net
+- mvc
+- asp.net
+---
+
+I've been awfully busy writing a MVC3 application for a customer over the last month. Suffice it to say that there is a great deal of goodness in MVC3 that I really like. Especially the addition of some dynamic sugar to the overly strict and rigid MVC stack is a welcome change. 
+
+Anyway, when it came to bin-deploying MVC3 I was scratching my head a bit until I found "Scott Hanselman's post":http://www.hanselman.com/blog/BINDeployingASPNETMVC3WithRazorToAWindowsServerWithoutMVCInstalled.aspx on what files are required. This has changed since beta so here is an updated list:
+
+# Microsoft.Web.Infrastructure.dll
+# System.Web.Helpers.dll
+# System.Web.Mvc.dll
+# System.Web.Razor.dll
+# System.Web.WebPages.Deployment.dll
+# System.Web.WebPages.dll
+# System.Web.WebPages.Razor.dll 
+
+All of these files can be found in the following locations and can simply be copied to the /bin folder of your deployment output.
+
+# C:\Program Files (x86)\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\Assemblies
+# C:\Program Files (x86)\Microsoft ASP.NET\ASP.NET MVC 3\Assemblies
+
+Although I really like what the guys did with MVC3, this sort of deployment is pretty sub-optimal. Having that many late-bound assemblies that you just need to deploy while not having any reference to it is a problem for me. That requires me to write custom deployment scripts that copy that stuff over, and I really don't like that.
+
+Let's hope they include something in Visual Studio SP1 that lets the deployment wizard copy these files for you to the output directory. 
