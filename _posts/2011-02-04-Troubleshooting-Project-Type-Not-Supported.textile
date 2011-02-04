@@ -1,0 +1,19 @@
+---
+layout: post
+title: Troubleshooting project type not supported in Visual Studio
+categories:
+- net
+---
+
+I was tasked with fixing an old legacy component that has been developed for Windows Mobile. Although the source code was available, I was unable to open up the solution due to my Visual Studio not supporting the project type.
+
+Initially I spent hours downloading and installing SDKs for Pocket PC hoping to fix the issue, but after exhausting every SDK from Windows Mobile 2003 through 5 to 6.5.3 I finally gave up. 
+
+I took a closer look at the .csproj file, trying to determine how to find out what project type I am missing.
+Turns out the project type is saved as a GUID in your .csproj file and you can simply google for that project type to find out what tool/sdk it's associated with.
+
+Turns out, my Visual Studio was missing a 3rd party designer component, preventing me to open up the whole project in VS.
+
+Anyway, in your .csproj search for the @<ProjectTypeGuids>@ - You should see GUIDs seperated by semicolons that specify exactly what project types have to be present in your Visual Studio.
+
+This clearly goes into the category named: "Stuff I wish I knew 5 hours ago"
