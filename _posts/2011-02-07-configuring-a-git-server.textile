@@ -1,0 +1,31 @@
+---
+title: Configuring a GIT server
+layout: post
+categories:
+- git
+- linux
+---
+
+You may have noticed that I really love Git and that I use it for "literally anything":https://github.com/tigraine these days.
+So it came rather natural that I volunteered in setting up the Git server for my new company.
+
+My goal: A Git server that allows pull/push over SSH.
+
+I started out by getting a "Turnkeylinux":http://www.turnkeylinux.org/ pre-configured machine with Git already installed, but any Linux distro will do just fine. I first spent some time figuring out how Git over SSH works and here are the main takeaways:
+
+Git over SSH just works!
+No seriously, if you have a Linux machine that can accept connections over SSH, all you need is to install Git (@sudo apt-get install git-core@) and you can pull/push to repositories.
+You only put the repository in the home of your user and add it as a remote to your client with the following url:
+
+<user>@<machine>:<relative_path_to_repo>
+Where relative means from the users home folder.
+
+But I chose another solution. I did the smart thing and called up my good friend "Jakob":https://jammm.eu.org/blog/ who is a master of Linux-Kung-Fu to help me out with configuring this to be:
+
+* Only one user
+* Users are easily maintainable
+* Authentication only through SSH keys
+* User can't run any commands on the server
+
+I has already figured out how to create a user, and I already had the ability to log into that user through SSH. And here is how to achieve the rest:
+
