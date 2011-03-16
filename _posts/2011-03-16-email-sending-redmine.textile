@@ -1,0 +1,37 @@
+---
+title: Redmine extensions
+layout: post
+categories:
+- linux
+---
+
+I may have just hit an all-time-low in lines-of-code per hour, but it was fun nonetheless, so I thought I'd share this with you:
+
+A customer had the crazy requirement for his Redmine Ticketing system that users can enter their email address to a ticket and be notified alongside the user that is associated with the user account. (This also means that many users are sharing one user to create Tickets in the System)
+
+The solution was quite simple in the end, but getting there for a total stranger to Rails was a bit challenging.
+
+First I created a custom field in Redmine that is required on all tickets and contains the email address the email should be sent to.
+
+Next I went into @app/models/issue.rb@ and changed the @recipients@ method like this:
+
+{% highlight ruby %}
+  # Returns the mail adresses of users that should be notified
+  def recipients
+    notified = project.notified_users
+    # Author and assignee are always notified unless they have been locked
+    notified << author if author && author.active?
+    notified << assigned_to if assigned_to && assigned_to.active?
+    notified.uniq!
+    # Remove users that can not view the issue
+    notified.reject! {|user| !visible?(user)}
+    notified.collect(&:mail) << custom_field_values
+  end
+{% endhighlight %}
+
+As you can see, all it took was to append the @custom_field_values@ (assuming there is only one custom field!) to the list of emails that should be notified. Once that was done I just had to restart the ruby server and it worked.
+
+If this looks hacky to you: It is. But the requirements didn't really warrant any more work to be put into this. 
+
+Finally: Ruby is a fun language to work with, although it's also rather hard to understand a complex project like Redmine if you are looking at it without any prior ruby knowledge. 
+What really got me in the beginning was that ruby has no return statement. Quite simply the last statement of a function is returned to it's caller. If you don't know that about the language, trying to understand what a function does gets quite challenging :)
