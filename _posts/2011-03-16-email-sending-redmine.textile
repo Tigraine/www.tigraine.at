@@ -34,4 +34,4 @@ As you can see, all it took was to append the @custom_field_values@ (assuming th
 If this looks hacky to you: It is. But the requirements didn't really warrant any more work to be put into this. 
 
 Finally: Ruby is a fun language to work with, although it's also rather hard to understand a complex project like Redmine if you are looking at it without any prior ruby knowledge. 
-What really got me in the beginning was that ruby has no return statement. Quite simply the last statement of a function is returned to it's caller. If you don't know that about the language, trying to understand what a function does gets quite challenging :)
+What really got me in the beginning was that ruby has no return statement. Quite simply the last statement of a function is returned to it's caller. If you don't know that about the language, trying to understand what a function does get quite challenging :)
