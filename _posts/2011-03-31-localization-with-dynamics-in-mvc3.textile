@@ -1,0 +1,85 @@
+---
+title: View localization with dynamics in MVC3
+layout: post
+---
+
+I ended up doing a good bit of Javascript and Ruby development lately and whenever I go back doing .NET afterwards I feel like things are getting in my way..
+
+For instance the way localization is handled by .NET is a major pain point in all things I've been doing lately. WPF is probably the shining example of how not to do it (LocBaml? Serious?), but MVC3 also throws stones your way.
+
+Problem is, that Views are not compiled - so you don't get access to the static Resources.XXX properties from your Views. This is unfortunate and there are ways around that like "using Helpers":http://publicityson.blogspot.com/2010/11/aspnet-mvc-razor-view-engine-and.html etc. 
+
+But I really grew fond of @dynamic@ in C# for so I decided to simply use that to wrap the usage of my resources so I can write code like this in my Views:
+
+{% highlight html %}
+<h1>@App.L10n.Product.Name</h1>
+{% endhighlight %}
+
+This is done by hanging my custom dynamic ResourceWrapper onto the dynamic @ApplicationContext@ in @Global.asax@.
+
+{% highlight csharp %}
+protected void Application_Start()
+{
+    Application.Add("L10n", new MultiResourceWrapper());
+...
+}
+{% endhighlight %}
+
+And my @MultiResourceWrapper@ is simply wrapping all Resources existing in the MVC application on startup, and allows access to them through their name:
+
+{% highlight csharp %}
+public class MultiResourceWrapper : DynamicObject
+{
+    private readonly Dictionary<string, object> resources = new Dictionary<string, object>();
+    public MultiResourceWrapper()
+    {
+        var assemblyNamespace = this.GetType().Assembly.GetManifestResourceNames();
+        foreach (var s in assemblyNamespace)
+        {
+            var manager = new ResourceManager(ExtractResourceFullName(s), GetType().Assembly);
+            var name = ExtractResourceName(s);
+            resources.Add(name, new ResourceWrapper(manager));
+        }
+    }
+        
+    string ExtractResourceFullName(string s)
+    {
+        var regex = new Regex(@"(.*).resources$");
+        return regex.Match(s).Groups[1].Value;
+    }
+
+    string ExtractResourceName(string s)
+    {
+        var regex = new Regex(@"([a|A-z|Z]*).resources$");
+        return regex.Match(s).Groups[1].Value;
+    }
+
+    public override bool TryGetMember(GetMemberBinder binder, out object result)
+    {
+        result = resources[binder.Name];
+        return true;
+    }
+
+    public class ResourceWrapper : DynamicObject
+    {
+        readonly ResourceManager manager;
+
+        public ResourceWrapper(ResourceManager manager)
+        {
+            this.manager = manager;
+        }
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            result = manager.GetString(binder.Name);
+            return true;
+        }
+    }
+}
+{% endhighlight %}
+
+As you can see all I need to do now to have localized strings for something is to add a Resource somewhere in my MVC application and then access it through it's name from within the View.
+
+One important thing though: I intentionally omitted any error handling code for the case where you mistype something. Nothing is more annoying than WPF bindings that simply don't work because of typos, so having the app blow up with a "YSOD":http://en.wikipedia.org/wiki/Yellow_Screen_of_Death is to me preferrable to a silent failure you have to spot later in deployment. But feel free to expand this to your liking.
+
+The code is also available as a Gist from GitHub: "MultiResourceWrapper.cs":https://gist.github.com/896230
