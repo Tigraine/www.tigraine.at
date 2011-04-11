@@ -1,0 +1,34 @@
+---
+layout: post
+title: Cancelling XBox Live accounts
+---
+
+In theory I own a XBox 360 Elite, in reality it's at my parent's house and my younger brother regularly uses it to show me how much I suck at Halo: Reach.
+That arrangement is usually handy around the holidays since I can always give him a 3 month XBox Live Gold membership.
+
+Christmas was 3 months ago so last week the XBox Live Gold Membership for my little brother ran out. While browsing the XBox dashboard, I came across a pretty good offer: 50% off a 3 month membership if you purchase it with your Credit Card on the console.
+
+Being the good and generous brother I am, I whipped out my Credit Card and paid the 10 euros right away. 
+
+By doing so I subscribed to that membership, so after 3 months when this membership runs out, my credit card gets charged again by default. And I am fine with that. I've been a paying World of Warcraft subscriber for years so this is nothing new.
+
+What was new to me is the pain you have to endure to cancel that account. On the console you can only upgrade your plan to a 12 month subscription, but there is no way to cancel the auto-renewal. Even the XBox live website does not allow you to cancel, so you actually have to call the XBox live support to cancel the auto-renewal. 
+
+On the phone I firstly had to prove that I am the account owner by providing 3 different credentials (Gamertag, Windows Live ID and Windows Live ID secret question) only to get the support rep access to my data. Once there she immediately told me that she can help me with cancelling the account *BUT* and then she went off on what awesome deals I can get if I don't cancel my subscription.
+
+Up to that point everything was fine, but I ended up spending almost 10 minutes on the phone until she was convinced that I really don't want to reconsider. But I can't really blame the support rep. She was doing her job, and she really did a good one too.
+
+The wrong was done by Microsoft in requiring me to call the support in the first place. 
+
+I mean, look at all the other services around there: Every one of them allows you to cancel your account online. 
+Blizzard made a "why are you quitting" survey part of that process, and they show you a crying Orc peon to reconsider.
+
+!uploads/crying_peon.png!
+
+Also, Microsofts move here is totally silly, since there is no competing service I could sign up for instead. There is only one XBox live, and if I want to play online I need to pay - simple as that. 
+If I choose not to pay for a month it's totally legit to ask why I am quitting, and even offering me some good deals is totally ok. 
+But since those deals all originate in the system anyways, stop wasting my time and make that stuff into an online form so I can choose to not spend 10+ minutes on a trivial task like this. Make the service relevant enough so I will come back instead of keeping me from getting out.
+
+So, my XBox Live account is cancelled, and I'll just buy a new Membership by using Microsoft points in the future to save myself the hassle. But if you are already subscribed, *never let it auto-renew itself*. If you plan on renewing anyway, spend 5 minutes on the phone and they'll give you everything for half the price only to keep you as a customer. 
+
+Bad job Microsoft... Fix this!
