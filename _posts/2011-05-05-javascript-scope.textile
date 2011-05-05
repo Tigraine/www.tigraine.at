@@ -1,0 +1,88 @@
+---
+layout: post
+title: JavaScript scope and how to leverage it
+---
+
+Care to guess what this will output?
+
+{% highlight js %}
+function() {
+	var x = 1;
+	if (x < 5) {
+		var y = 3;
+	}
+	console.log(y);
+}
+{% endhighlight %}
+
+If you expect y to be @undefined@ you fell for the same trap as everyone who comes from a more traditional background. 
+The output is of course @y = 3@
+
+bq. **JavaScript has no block scope** 
+
+I'd suggest you tattoo that on the inside of your eyelids since it's so important to remember.. 
+Whenever JavaScript behaves totally irrational for you, take a hard look at your code and make sure you are not using block scope like you would in most other languages.
+
+*But how does JavaScript scope then?*
+
+JavaScript is a really nice functional language someone threw a lot of Java ugliness on to make it appeal to the unwashed masses.
+But at it's core it remains this beautiful functional language, so naturally: **JavaScript scopes by functions**
+
+And since functions are objects, you can leverage this scoping to create your own little hidden namespaces whenever you like. 
+
+{% highlight js %}
+(function () {
+	var x = 1;
+}());
+console.log(x); //undefined
+{% endhighlight %}
+
+Since functions in JavaScript are objects, you can define one and immediately call it afterwards, thus creating a block that hides everything inside from the outside. This becomes very important when you try to avoid naming collisions with other libraries when writing your business logic.
+
+Since it's advisable to group your logic, you can use the above function syntax to create objects with their own little shared namespace you can then call from your page:
+
+{% highlight js %}
+var util = (function () {
+	var x,y; //private variables nobody sees
+	return {
+		method1: function() { return x; },
+		method2: function() { return y; },
+	};
+}());
+
+util.method1() //returns value of x
+{% endhighlight %}
+
+Interesting here is that although we used a function to define util, since that function was executed right on the spot, util now points to the return value of that function. In this case an object with two methods on it.
+
+And now things get weird: Closure.
+
+If may strike you that at the time we call @util.method1()@ the function that created util has already returned (a long time ago), so in theory we should not be able to access x and y. 
+But like it would with block-scope in a traditional language, JavaScript also looks at it's parent scopes if it can't resolve an identifier inside it's current one.
+And in functional scoping this means it has to look in it's parent scope that is a already returned function.
+
+In short: JavaScript keeps the scopes around as long as there are references to them, so even if a function returned in the past, it's scope is still available to functions that can access it's scope.
+
+This also means you can do cool stuff like this function that allows another function to be executed exactly once:
+
+{% highlight js %}
+var once = function ( fn ) {
+	var callCount = 0;
+	return function () {
+		callCount += 1;
+		if ( callCount > 1) {
+			throw "Function can only be called once";
+		}
+		fn();
+	};
+};
+
+var f = function() { alert("hi"); };
+f = once(f);
+
+f();
+f(); //this call will throw
+
+{% endhighlight %}
+
+Did I mention that programming JavaScript is totally addicting?
