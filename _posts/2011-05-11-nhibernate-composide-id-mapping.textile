@@ -1,0 +1,31 @@
+---
+layout: post
+title: NHibernate Composide-Id mapping gotcha
+---
+
+I am currently working on a new system that populates a legacy database, so I am knee deep in relational SQL weirdness, trying to fight it with arcane NHibernate mappings.
+
+This gem just cost me over an hour of work:
+
+{% highlight csharp %}
+//Inside a ClassMap
+CompositeId()
+    .KeyProperty(p => p.Id)
+    .KeyProperty(p => p.POSITION);
+Map(p => p.Id, "Id");
+Map(p => p.POSITION, "Position");
+{% endhighlight %}
+
+Trying to save this entity results in a Exception stating: @Invalid Index 3 for SqlParameterCollection with Count=3@
+What happens here is that not even NHibernate Profiler can detect that you are doing something wrong because NHibernate fails to construct the SqlCommand to send to the database before any profiler can pick up on this.
+
+What happened here is that I was mapping @Id@ and @Position@ twice, since the ComposideId already counts as one mapping.
+So in order to make this work I had to remove the @Map()@ instructions and specify the column name in the @KeyProperty@ of @ComposideId@:
+
+{% highlight csharp %}
+CompositeId()
+    .KeyProperty(p => p.Id, "Id")
+    .KeyProperty(p => p.POSITION, "Position");
+{% endhighlight %}
+
+Hope this helps.
