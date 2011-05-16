@@ -1,0 +1,19 @@
+---
+layout: post
+title: Mappin Sql-Time to TimeSpan with NHibernate
+categories:
+- net
+- nhibernate
+---
+
+Funny how long you can use NHibernate + Fluent NHibernate on greenfield applications and not use all of it's mapping features. But one little project that needs to talk to a legacy database and you run into all kinds of troubles.
+
+Today I had to map the @time@ datatype present in MsSql2008. According to official "Microsoft documentation":http://msdn.microsoft.com/en-us/library/ms131092.aspx the preferred clr-type for @time@ is @TimeSpan@. 
+Unfortunately, by default NHibernate believes that the best way to map @TimeSpan@ is to transform it to a @bigint@.
+
+Fortunately the solution is rather trivial:
+
+{% highlight csharp %}
+Map(p => p.CreatedOn, "CreationTime")
+	.CustomType("TimeAsTimeSpan");
+{% endhighlight %}
