@@ -1,0 +1,32 @@
+---
+layout: post
+title: Sinatra vs WCF WebAPI
+---
+
+Yesterday I decided that there has to be a better way to expose data through JSon than to spin up MVC applications and abuse it to write a JSon returning service.
+Since I was listening to "Glenn Block on Hanselminutes":http://hanselminutes.com/default.aspx?showID=284 talk about the WCF WebAPI I decided to give it a try and followed the "hello-world article":http://wcf.codeplex.com/wikipage?title=Exposing%20a%20service%20over%20HTTP%20using%20HTTP%20Messages on codeplex to see what all the fuss is about.
+
+It took about an hour to make the example work on my machine, and I completely failed in returning a clr-object as JSon. So after two hours of trying I gave up and decided to go to bed.
+
+Today I had a few minutes of free time so I decided to have a look at "Sinatra":http://www.sinatrarb.com/. 35 seconds later and I had a working "Hello World" running on my machine, with no configuration in 4 lines of code! 
+
+I then spent another 2 minutes figuring out how to "return JSon from Sinatra":http://nathanhoad.net/how-to-return-json-from-sinatra (another 2 lines of code) and then decided to write this blog post.
+
+Even though WebAPI is still a work-in-progress (that's why it took so long to figure stuff out), it's obcene that a WCF WebAPI "Hello World" requires more lines in web.config than Sinatra requires to do the whole sample. 
+
+In Sinatra the "WCF sample":http://wcf.codeplex.com/wikipage?title=Exposing%20a%20service%20over%20HTTP%20using%20HTTP%20Messages literally boils down to these 10 lines:
+
+{% highlight ruby %}
+require 'sinatra'
+people = []
+
+get "/hello/" do
+	"Hello #{people.join(", ")}"
+end
+
+post "/hello/:person" do
+	people << params[:person]
+end
+{% endhighlight %}
+
+It's tragic that you need to reference 6 .NET assemblies to achieve the things other platforms can do in 10 lines of code.. And the ruby code is also cleaner.
