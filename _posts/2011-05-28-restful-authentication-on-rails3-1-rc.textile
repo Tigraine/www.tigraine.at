@@ -1,0 +1,28 @@
+---
+layout: post
+title: Restful-Authentication on Rails 3.1 RC1
+categories: 
+- ruby
+- rails
+---
+
+While working on a small side project I decided to go with the bleeding edge and use Rails 3.1 RC1. One issue I ran into with this though is that they changed the generator scripts so the most instructions for the "restful-authentication":https://github.com/technoweenie/restful-authentication#readme plugin didn't work.
+
+First of all the original plugin isn't yet working on Rails 3 so "there is a fork":https://github.com/Satish/restful-authentication by "vinsol":http://vinsol.com/blog/2010/04/23/upgrading-restful-authentication-plugin-for-rails-3/ that you can use instead.
+After running: @rails generate authenticated user session@ I did try to load /signup and was greeted by the following error:
+
+bq. uninitialized constant ApplicationController::AuthenticatedSystem
+
+Looking throuhg @sessions_controller.rb@ and @users_controller.rb@ i found that both @include AuthenticatedSystem@ with instructions to move that into @application_controller.rb@
+Doing so unfortunately doesn't work out of the box since rails apparently changed search-paths for libs so make sure to include the following in your @application_controller.rb@:
+
+{% highlight ruby %}
+  require File.join(Rails.root, 'lib', 'authenticated_system.rb')
+  include AuthenticatedSystem
+{% endhighlight %}
+
+At first I only tried require, but as it turns out require only loads a file and executes it (like include does in C) while include actually copies methods from another module to the current one. 
+Both are required for restful-authentication to work obviously, or your sessions_controller will throw errors like this one: @undefined method `logout_keeping_session!' for #<UsersController:0x8fc409c>@.
+
+Hope this helps, it took me some time to figure this out, but I guess this is mostly because I am a total stranger to the Rails platform.
+
