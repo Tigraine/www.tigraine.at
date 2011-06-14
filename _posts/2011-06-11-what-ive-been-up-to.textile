@@ -1,0 +1,75 @@
+---
+layout: post
+title: What I've been up to
+category:
+- personal
+- cqrs
+---
+
+I just noticed that I started a new job almost half a year ago and didn't mention it on my blog.
+So it's probably time I share what interesting stuff I've been doing lately.
+
+h3. New job
+
+I now work for "Life":http://www.lifesite.at a software development company in Klagenfurt that's situated inside the "Lakeside Park":http://www.lakeside-scitec.com/en/the-park/. We focus on R&D in areas like ERP systems, natural language processing and other business solutions.
+Although I still believe Lakeside Park is one of the ugliest buildings ever designed, from the inside it's not that bad. It's also located right next to the University, so I can attend courses in between work (a huge plus).
+
+While I am mainly developing a CQRS-style business application I also did a lot of smaller projects for customers like "WWF/AI":http://www.aiwwf.at/.
+
+h3. CQRS
+
+CQRS is a new architectural style coined by "Greg Young":http://codebetter.com/blogs/gregyoung that makes use of a few older patterns like "Event Sourcing":http://martinfowler.com/eaaDev/EventSourcing.html and "CommandQuerySeparation":http://martinfowler.com/bliki/CommandQuerySeparation.html as described by Fowler and Meyer. The style has been around for some time in the .NET space and Greg Young did a wonderful job of explaining it in a lot of screencasts and documentation he put up on his "CQRS site":http://cqrsinfo.com/. 
+
+The main idea behind CQRS is an eventually consistent architecture that does not rely on a big entity-relationship datamodel but rather on EventSourcing. EventSourcing means that you are storing every state transition inside your Domain as a distinct business event. So any model can be generated off this string of events that represents the currenct state. The benefit is rather huge because you can use heavily de-normalized models to read data from, while always issuing well-defined commands to mutate state.
+I'll blog on this in the future, but I strongly urge you to read up on "cqrsinfo.com":http://cqrsinfo.com.
+
+Still, it's not an easy style to grasp and I had to let it sink for a few months before I could make heads or tails of it. In essence it's so simple that you can explain it rather quickly, but it requires a pretty fundamental shift away from the CRUD style architecture you might be used to and finding out how to effectively work with this new "style" while being productive doing it takes some time.
+
+Fortunately, just when I started to get into the right mindset for this way of working a project came in that required almost exactly the kind of traceability and flexibility Event Sourcing would give us, so I decided to go with a full CQRS stack.
+
+CQRS in itself has worked out quite nicely so far. There is a lot of infrastructure I had to create, although fortunately "Jonathan Oliver":http://blog.jonathanoliver.com/ has created the "EventStore":https://github.com/joliver/EventStore project that at least spared me the work of rolling my own EventStorage system.
+
+Since I'll be working on this project for the rest of the year you can expect a few posts on the internals of the system and my thoughts on CQRS and eventual consistency in web applications.
+
+h3. JavaScript
+
+Although I hate to admit it, I was always a web developer. I still suck at design as much as anyone else, but I was writing web applications all along, trying to convince myself that I was doing back-end stuff while hacking together the occasional HTML input form.
+
+No more, I finally gave in and acknowledged the browser as the one platform I am probably targetting 80% of my work for, so I decided it's time man up and really learn JavaScript.
+
+I kind of knew JavaScript, it's C based after all.. And I kind of knew my way around "jQuery":http://www.jquery.com but never took the time to properly learn what makes this language so great.
+So I got myself the brilliant book "JavaScript: The Good Parts":http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742 by Douglas Crockford and took a few nights to watch his great presentation "Crockford on JavaScript":http://www.yuiblog.com/crockford/ that made a lot of things about the language clearer.
+
+Funny thing: Right after I started getting a firm grasp around JavaScripts/EcmaScripts quirkyness I had to help out getting a project out the door that was entirely done in JavaScript as it was using the "Sencha Touch":http://www.sencha.com/products/touch/ JavaScript library to run on the iPad. (Note: ExtJS/Sencha are really incredibly ugly JavaScript frameworks - Use jQuery whereever possible)
+
+h3. Ruby and Rails
+
+This goes hand in hand with the last point. After realizing that I'll be doing MVC for a pretty long time I decided it's time to really take another look at Rails and how it's been doing while I was following ASP.NET MVC. 
+
+While I had looked at Rails earlier, I usually had given up trying to figure out how to install it on Windows and had just looked at the samples to conclude: "Same as .NET but with a bit of code-gen"
+
+*And oh boy was I wrong!* While ASP.NET MVC really manages to get a lot of things right (at least for a MS framework), Rails3 is simply lightyears ahead.
+And it's not so much the core functionality I was usually looking at. It's the subtle little things you don't see in the samples but really learn to appreciate while working. 
+It's the empty folders everywhere that give your code a very clean structure. Everything has it's place.
+And it's the simplicity of it's helper methods and little things like @respond_to@ that are so incredibly hard and noisy to do in .NET land. Or the way helpers simply work whereas helpers in MVC usually make me want to tear my hair out (at least if you are working with dynamic models they simply fail).
+Or another example of things that are simply there and nobody managed to get off the ground in 3 versions of .NET MVC is the asset bundling that's been going on in Rails forever. Rails bundles all your javascript assets into one application.js file together to reduce browser load times, while .NET in MVC3 still references 2 seperate javascript library files in it's default project template.
+
+Rails is doing all the things right that I've been struggling with on the ASP.NET MVC platform for years whenever I was writing a simple business app, and it's damn elegant all the way. It's solving the CRUD application part so perfectly and with such simplicity that I am pretty sure I'll be doing a lot of simpler applications in Rails in the future. 
+
+h3. Vim and Visual Studio
+
+Part of working with a lot of JavaScript is that you start to feel the limitations of Visual Studio as a JavaScript IDE. It's simply inadequate and besides some syntax highlighting the whole editor simply falls down when writing JavaScript (not to mention the indentation screwups it does all the time). 
+So I ended up learning "Vim":http://www.vim.org/ and must say that I really enjoy it. 
+With the right plugins Vim is one hell of a powerful editor that does not require 600 mb of Ram and 40+ seconds to start up. 
+Having you editor boot in milliseconds instead of seconds has also had a huge impact on my work, and I have to say it annoys me every day when VS decides to hang up on me for 15 seconds only because I did hit save twice.
+
+h3. New home and cute mammals
+
+I heard conclusive evidence that all blogposts are better with pictures of little furry mammals, so this one has to have them too.
+To make that happen I moved into a new apartment with my Girlfriend and got myself two little baby cats that are called "Schrödinger" and "Marie Curie".
+
+Schrödinger:
+!{{site.url}}/images/schroedinger.jpg!
+
+Marie Curie:
+!{{site.url}}/images/curie.jpg!
