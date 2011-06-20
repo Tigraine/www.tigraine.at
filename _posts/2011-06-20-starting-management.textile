@@ -1,0 +1,27 @@
+---
+layout: post
+title: Starting management the wrong way
+---
+
+I always wondered how you end up in management. It seems in most industries, the most logical career advancement is away from doing the stuff you love into management. 
+Sometimes you hear "people complain about having become a manager":http://thisdeveloperslife.com/post/1-0-9-management and I always wondered: "How on earth did you end up there if you didn't want to". 
+
+*Today I realized: You don't get asked. And you don't get a real choice in this either.*
+
+Career starts out usually in either two ways:
+# You are in a small shop and do a lot of 1-man projects on your own
+# You are in a bigger company where you work for someone else on projects
+
+Both involve doing what you signed up for in the first place: Implement stuff to the best of your abilities and learn from the experience.
+The problem starts when you did the above a few times and where in the "bigger company" situation. You start to get more responsibility about how your projects/features are done, and soon afterwards you get a task that's bigger than what you can easily handle yourself.
+So you run to your manager and tell him that you can't fulfill certain deadlines, or that some feature is unrealistic.
+
+And then comes the dreaded answer everyone in management likes to give: "We'll add someone to the project to help you"
+Voila, you've just become a manager!
+
+When this happens you typically get someone who is completely new to the project and it's requirements/structure, and at worst someone completely new to your architecture. 
+Expecting quality work out of a junior from day one is completely unrealistic so you typically have two choices:
+# Tell him to do something minor that is somewhat similar to something you already did (leading him to start on the copy&paste path)
+# Drop everything you where doing yourself and start teaching him how you want things done. 
+
+The problem here is: The first time this happens is usually when your project is already late and you need to make time up, 
