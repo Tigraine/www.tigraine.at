@@ -1,0 +1,13 @@
+---
+layout: post
+title: Missing zip/zip from albacore
+---
+
+I just decided to give "Albacore":https://github.com/derickbailey/Albacore another try for a small project at work and was stumped with the following error message trying to run @require 'albacore'@:
+
+bq. no such file to load -- zip/zip
+
+Usually missing gems are easier to spot and so it took me some googling around to find out that albacore requires the "rubyzip":https://rubygems.org/gems/rubyzip gem that you need to install in order to run albacore (even if you don't use the @zip@ task). 
+To fix this simply run:
+
+bq. gem install rubyzip
